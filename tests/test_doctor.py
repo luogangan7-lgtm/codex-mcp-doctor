@@ -1502,5 +1502,38 @@ class TestQuietFlag(unittest.TestCase):
             os.unlink(tmp)
 
 
+class TestResourcesOnlyServer(unittest.TestCase):
+    """A server that exposes resources/prompts but 0 tools should not warn."""
+
+    class _ResourcesOnlyHandler(MockMcpHttpHandler):
+        TOOLS = []
+        RESOURCES = [{"uri": "file:///doc", "name": "doc"}]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.server = HTTPServer(("127.0.0.1", 0), cls._ResourcesOnlyHandler)
+        cls.port = cls.server.server_address[1]
+        cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
+        cls.thread.start()
+        time.sleep(0.1)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+
+    def test_resources_only_is_info_not_warning(self):
+        cfg = {"url": f"http://127.0.0.1:{self.port}/mcp"}
+        probe, issues, latency = doctor.probe_http(cfg, timeout=5.0)
+        self.assertEqual(len(probe.tools), 0)
+        self.assertGreaterEqual(len(probe.resources), 1)
+        self.assertFalse(any(i["code"] == "no_content_returned" for i in issues),
+                        f"Got unexpected no_content warning: {issues}")
+        self.assertTrue(any(i["code"] == "resources_only" for i in issues),
+                        f"Expected resources_only info, got: {issues}")
+        self.assertEqual(issues[0]["severity"], "info")
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

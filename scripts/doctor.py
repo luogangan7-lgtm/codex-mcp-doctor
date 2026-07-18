@@ -475,14 +475,23 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
                 "stderr": stderr_text[:500],
                 "fix": _guess_fix_from_stderr(stderr_text),
             })
-        elif not probe.tools:
+        elif not probe.tools and not probe.resources and not probe.prompts:
             stderr_text = stderr_data.decode(errors="replace").strip()
             issues.append({
                 "severity": "warning",
-                "code": "no_tools_returned",
-                "message": "Server responded but returned 0 tools.",
+                "code": "no_content_returned",
+                "message": "Server responded but returned 0 tools, resources, or prompts.",
                 "stderr": stderr_text[:300],
                 "fix": "The server may be misconfigured internally. Check its logs.",
+            })
+        elif not probe.tools:
+            stderr_text = stderr_data.decode(errors="replace").strip()
+            issues.append({
+                "severity": "info",
+                "code": "resources_only",
+                "message": f"Server exposes {len(probe.resources)} resource(s), {len(probe.prompts)} prompt(s), 0 tools.",
+                "stderr": stderr_text[:300],
+                "fix": "Valid per MCP spec. No action needed unless you expected tools.",
             })
 
         return probe, issues, round(latency, 1)
@@ -603,12 +612,20 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
 
         latency = (time.monotonic() - t0) * 1000
 
-        if not probe.tools:
+        if not probe.tools and not probe.resources and not probe.prompts:
             issues.append({
                 "severity": "warning",
-                "code": "no_tools_returned",
-                "message": "Server connected but returned 0 tools.",
+                "code": "no_content_returned",
+                "message": "Server connected but returned 0 tools, resources, or prompts.",
                 "fix": "The server may be starting up or misconfigured. Retry or check server logs.",
+            })
+        elif not probe.tools:
+            # resources-only or prompts-only server — valid per MCP spec
+            issues.append({
+                "severity": "info",
+                "code": "resources_only",
+                "message": f"Server exposes {len(probe.resources)} resource(s), {len(probe.prompts)} prompt(s), 0 tools.",
+                "fix": "Valid per MCP spec. No action needed unless you expected tools.",
             })
 
         return probe, issues, round(latency, 1)
