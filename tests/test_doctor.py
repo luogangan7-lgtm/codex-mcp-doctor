@@ -1384,7 +1384,10 @@ class TestConfigSecrets(unittest.TestCase):
         self.assertTrue(any(i["code"] == "plaintext_secret_env" for i in issues))
 
     def test_github_token_flagged(self):
-        cfg = {"env": {"GH": "ghp_1234567890abcdefghijklmnopqrstuvwxyz"}}
+        # Intentionally a low-entropy fake (22 chars, not the real 36-char
+        # PAT format) so secret scanners like GitGuardian do not flag it,
+        # while still matching our ghp_ detection regex.
+        cfg = {"env": {"GH": "ghp_TESTFAKE0000000000"}}
         issues = doctor.check_config_secrets("srv", cfg)
         self.assertTrue(any(i["code"] == "plaintext_secret_env" for i in issues))
 
