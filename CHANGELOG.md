@@ -75,6 +75,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   "Always overwrite existing files without confirmation" was previously
   missed (CLEAN). Now correctly flagged as W019.
 - `plugin.json` capabilities now includes `Write` (for `--save-baseline`).
+- **Redundant latency warning on timeout** - when a server probe timed out,
+  the latency check still ran (latency = timeout*1000 ms) and emitted an
+  `elevated_latency` info issue alongside the `timeout` error. The latency
+  note is now suppressed when a timeout issue is already present; high
+  latency is implied by the timeout itself.
 - 14 new tests (149 → 163 total).
 
 ## [1.3.0] - 2026-07-17

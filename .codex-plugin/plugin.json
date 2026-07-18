@@ -52,6 +52,15 @@
       "Scan my config for plaintext secrets and unpinned packages"
     ],
     "brandColor": "#10B981",
-    "screenshots": []
+    "screenshots": [
+      {
+        "url": "https://raw.githubusercontent.com/luogangan7-lgtm/codex-mcp-doctor/main/docs/screenshot-real-report.png",
+        "caption": "Real diagnostics on a 3-server Codex setup: health scores, schema issues, prompt-injection (W001), destructive-capability (W019), sensitive-data (W017), plaintext-secret detection"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/luogangan7-lgtm/codex-mcp-doctor/main/docs/screenshot-rugpull-detection.png",
+        "caption": "E003 Rug-Pull Detection: high-severity tool-description change, medium new-tool-since-baseline, low tool-removed-since-baseline"
+      }
+    ]
   }
 }
