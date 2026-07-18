@@ -70,9 +70,9 @@ breakdown in `docs/devpost-submission.md`.
 
 `[1:15]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/security-issues/config.toml`
 
-`[1:16]` `[VO]` What about servers that are silently hostile? The security layer catches seven classes of attack — prompt injection, tool shadowing, rug-pulls, manipulative language, hidden Unicode.
+`[1:16]` `[VO]` What about servers that are silently hostile? The security layer catches seven classes of attack — prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain tampering, plaintext secrets, baseline drift.
 
-`[1:28]` `[VO]` Here — a plaintext API key in an environment variable. A bearer token in a header. Both flagged, both with severity, both with a fix.
+`[1:28]` `[VO]` Here — an unpinned npx package that could be republished with malware, and a hardcoded bearer token sitting in an HTTP header. Both flagged, both with severity, both with a fix.
 
 `[1:35]` `[VO]` Every error pairs with the one action that resolves it.
 
@@ -114,7 +114,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[2:50]` `[VO]` The SessionStart hook fires every session — silent when healthy, loud when broken. Watch mode extends that into continuous runtime monitoring.
 
-`[2:55]` `[VO]` Two eighty-five tests. Zero dependencies. Built entirely inside Codex with GPT-5.6 — the MCP doctor Codex should ship with.
+`[2:55]` `[VO]` Two hundred eighty-seven tests. Zero dependencies. Built entirely inside Codex with GPT-5.6 — the MCP doctor Codex should ship with.
 
 `[3:00]` `[END CARD]` GitHub URL on screen for 2s. Stop recording.
 
