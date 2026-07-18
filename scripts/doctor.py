@@ -293,7 +293,7 @@ def _check_http_auth_headers(name: str, cfg: dict) -> list[dict]:
     )
 
     # Heuristic: HTTPS URLs with API-like paths often need auth
-    looks_like_api = any(p in url.lower() for p in ("/api", "/mcp", "/v1", "/rpc"))
+    looks_like_api = any(p in url.lower() for p in ("/api/", "/v1/", "/rpc/"))
     is_https = url.lower().startswith("https://")
 
     if looks_like_api and is_https and not has_auth:

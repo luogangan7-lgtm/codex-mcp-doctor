@@ -9,6 +9,14 @@
 [mcp_servers.wrong-port]
 url = "http://127.0.0.1:1/mcp"
 
-# 2. HTTPS to a non-HTTPS endpoint - SSL error
-[mcp_servers.ssl-mismatch]
+# 2. HTTPS to a dead port - connection refused before TLS handshake.
+#    Note: a true ssl_error (cert mismatch / self-signed) requires a live
+#    server with a bad cert. Doctor reports ssl_error when the TCP connection
+#    succeeds but the TLS handshake fails. To demo that locally, run any HTTP
+#    server on HTTPS and point doctor at it.
+[mcp_servers.https-dead-port]
 url = "https://127.0.0.1:1/mcp"
+
+# 3. API endpoint without auth header - flagged by config-layer check
+[mcp_servers.api-no-auth]
+url = "https://api.openai.com/v1/something"
