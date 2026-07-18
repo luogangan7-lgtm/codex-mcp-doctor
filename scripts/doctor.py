@@ -2166,10 +2166,6 @@ def main() -> int:
         for s in report.servers:
             pass  # aggregation already happens in diagnose; we just appended
 
-    if args.save_baseline:
-        bpath = save_baseline(report, args.baseline_path)
-        print(f"Baseline saved: {bpath} "
-              f"({sum(len(getattr(s, '_baseline_tools', []) or []) for s in report.servers)} tools)")
 
     if args.quiet and report.errors == 0 and not report.config_errors:
         pass  # hooks: silent when no server errors, exit code still reflects status
@@ -2180,6 +2176,15 @@ def main() -> int:
 
     if report.config_errors and not report.servers:
         return 2
+
+    # Baseline save confirmation - after the report, before exit codes.
+    if args.save_baseline:
+        tool_count = sum(len(getattr(s, '_baseline_tools', []) or []) for s in report.servers)
+        bpath = save_baseline(report, args.baseline_path)
+        print(f"Baseline saved: {bpath} ({tool_count} tools)")
+        if tool_count == 0:
+            print("WARNING: baseline is empty - no tools were probed.")
+            print("         Re-run without --skip-probe and with running servers to capture tool hashes.")
     if not report.servers:
         return 3
     if report.errors > 0:
