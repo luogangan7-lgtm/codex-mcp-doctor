@@ -40,6 +40,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `connectivity`, `schema`, `security`.
 - 44 new tests (105 → 149 total).
 
+### Fixed (post-1.4.0 hardening)
+
+- **HTTP probe timeout budget** - `probe_http` previously gave each of its 5
+  RPC calls the full `--timeout` budget, so `--timeout 8` could take up to 40s
+  and blow past the 10s SessionStart hook limit. All calls now share a single
+  `remaining()` budget that decrements with elapsed time.
+- **`bearer_token` / `bearer_token_env_var` resolution** - the HTTP probe only
+  read `http_headers` for Authorization. Codex shorthand fields were ignored,
+  causing false `auth_failed` errors on servers configured with `bearer_token`.
+  Both fields are now resolved into `Authorization: Bearer <token>` at probe
+  time (env vars support `$VAR` and bare names).
+- **Unified issue field schema** - probe issues used `level`+`type`, schema
+  issues used `severity`+`kind`, security issues used `severity`+`code`. All
+  three now expose `severity`+`code` consistently (schema keeps `kind` as
+  alias). Top-level JSON `health_score` mirrors `summary.avg_health_score`.
+- **Resources-only / prompts-only servers** - a server exposing resources or
+  prompts but zero tools was flagged `warning` (`no_tools_returned`), a false
+  positive. Per MCP spec this is valid; now downgraded to `info`
+  (`resources_only`). Truly empty servers still warn (`no_content_returned`).
+- `plaintext_secret_header` fix now recommends `bearer_token_env_var` over
+  inlining tokens in `http_headers`.
+- Test HTTP servers now call `server_close()` to clear `ResourceWarning`.
+- 11 new tests (149 → 160 total).
+
 ## [1.3.0] - 2026-07-17
 
 ### Added
