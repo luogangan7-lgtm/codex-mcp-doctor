@@ -59,6 +59,8 @@ breakdown in `docs/devpost-submission.md`.
 
 ---
 
+> **Recording note — Scenes 3b and 4 share one terminal segment.** The `homoglyph-attack` example exposes a Cyrillic tool name *and* is the baseline for the rug-pull demo, so demo.sh runs it once and both W022 and E003 light up together. For the video, keep one continuous screen capture for 3b+4 (1:30–2:45) and just shift your narration emphasis; do not re-run the command twice.
+
 ## Scene 3b — Cyrillic Homoglyph Attack (1:30 – 2:00)
 
 `[1:30]` `[VO]` Here's one no other MCP scanner catches.
@@ -105,6 +107,11 @@ breakdown in `docs/devpost-submission.md`.
 - If you run long, cut from Scene 2 first (the doctor output speaks for itself, narration can be shorter). Never cut Scene 4 — rug-pull is the flagship.
 - Speak at conversational pace, not presentation pace. The timestamps assume ~140 words per minute.
 - The `[PAUSE]` moments matter — let the screen show the report. Judges read the terminal, not just listen to you.
+
+
+## Beyond the 3:00 Cut — Scene 6 (--debug / --watch)
+
+`./scripts/demo.sh` contains a Scene 6 that demonstrates `--debug` (surfaces hidden probe warnings) and `--watch` (continuous monitoring). These are v1.6.0 features but are deliberately **not** in the 3:00 video cut — the Devpost hard limit leaves no room, and the hook+watch mention in Scene 5 already carries the message. If Devpost asks for a longer director's cut, run `./scripts/demo.sh` in full and narrate Scene 6 live; otherwise leave it as a repo-only extra.
 
 ## If You Need a 30-Second Cut
 
