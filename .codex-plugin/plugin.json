@@ -4,10 +4,10 @@
   "description": "Diagnose MCP server connectivity, configuration correctness, runtime health, tool schema quality, security risks (prompt injection, tool shadowing, hidden Unicode), supply-chain version pinning, plaintext secrets, latency thresholds, and rug-pull detection (tool-description baseline). Zero external dependencies - pure Python 3.11+ stdlib.",
   "author": {
     "name": "Luolimo",
-    "url": "https://github.com/luolimo"
+    "url": "https://github.com/luogangan7-lgtm"
   },
-  "homepage": "https://github.com/luolimo/codex-mcp-doctor",
-  "repository": "https://github.com/luolimo/codex-mcp-doctor",
+  "homepage": "https://github.com/luogangan7-lgtm/codex-mcp-doctor",
+  "repository": "https://github.com/luogangan7-lgtm/codex-mcp-doctor",
   "license": "MIT",
   "keywords": [
     "codex",

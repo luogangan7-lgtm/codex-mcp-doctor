@@ -87,7 +87,7 @@ python3 scripts/doctor.py --check security` to run only what you need.
 ### As a Codex Plugin
 
 ```bash
-git clone https://github.com/luolimo/codex-mcp-doctor.git ~/.codex/codex-mcp-doctor
+git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git ~/.codex/codex-mcp-doctor
 ```
 
 ### Standalone Usage
