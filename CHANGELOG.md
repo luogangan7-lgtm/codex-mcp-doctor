@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-07-19
+
+### Changed
+
+- **Submission materials aligned with v1.6.3 + real demo output** - three audit-driven fixes. (1) `docs/devpost-submission.md` now declares the **Developer Tools** track at the top, mirroring the form guide; previously the submission named no track anywhere. (2) A "Try it in 5 seconds" echo was added to the top of the Long Description, mirroring the README hook so judges reading the project page hit the same conversion moment. (3) The stale checklist line "Select challenge category when announced (July 13)" was replaced with the confirmed Developer Tools selection.
+- **Voiceover Scene 4 corrected** - said "two severity tiers fire at once" but the real `demo.sh` Scene 4 output is three alerts (W022 high shared with Scene 3b, E003-changed high, E003-removed low). Reworded to name the two E003 tiers explicitly and acknowledge W022 is shared, so a judge counting alerts on screen is not confused by narration saying "two".
+- **doctor.py --version bump 1.6.3 -> 1.6.4** - patch release for documentation alignment.
+
 ## [1.6.3] - 2026-07-19
 
 ### Changed

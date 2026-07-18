@@ -3,6 +3,7 @@
 Everything needed for the OpenAI Build Week hackathon submission.
 
 Deadline: **July 21, 5PM PT**.
+Track: **Developer Tools** ("Tools for developers, including testing, DevOps, agentic workflows, and security").
 
 ---
 
@@ -15,6 +16,8 @@ Deadline: **July 21, 5PM PT**.
 Zero-dependency MCP diagnostics for Codex. Detects broken servers, bad config, schema issues, prompt injection, tool shadowing, hidden Unicode attacks, rug-pull (tool-description mutation), supply-chain risks, and plaintext secrets — all in one `python3` command. Pure stdlib, auto-triggering via hooks.
 
 ## Long Description (for project page)
+
+> **Try it in 5 seconds:** `git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git && cd codex-mcp-doctor && python3 scripts/doctor.py --config examples/broken-stdio/config.toml` -- no `pip install`, no virtualenv, Python 3.11+ only. You will see a broken MCP server diagnosed in under a second.
 
 ### The Problem
 
@@ -262,7 +265,7 @@ python3 scripts/doctor.py --check-baseline
 - [x] Guided demo script: `./scripts/demo.sh` (one command, every scene from the video script below — just screen-record it)
 - [ ] Demo video (use script above)
 - [ ] Devpost project page text (use Long Description above)
-- [ ] Select challenge category when announced (July 13)
+- [x] Challenge category identified: **Developer Tools** (confirmed from /rules; final selection on submission form)
 
 ## Technical Stack
 
