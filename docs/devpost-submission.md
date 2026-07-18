@@ -45,9 +45,28 @@ Worse, MCP servers can be **silently hostile**: a tool description containing `<
 
 ### How We Built It
 
-Built entirely with Codex desktop + GPT-5.6 as the development environment. The entire codebase — 2,725 lines of doctor logic, 2,371 lines of tests, hooks, CI, examples, docs — was written, debugged, and hardened through iterative agent-driven development.
+Built entirely inside **Codex desktop with GPT-5.6** as the development environment — not just "used Codex to write some code," but dogfooded Codex end-to-end to build tooling *for* Codex. The entire codebase (2,725 lines of doctor logic, 2,371 lines of tests, hooks, CI, examples, docs) was written, debugged, and hardened through **agent-driven iterative development**: each session picked up state from a shared memory canvas, ran a verification gate (266 tests + plugin validator + demo smoke), and only advanced when green.
 
-The zero-dependency constraint was deliberate: a diagnostic tool that requires `pip install` defeats the purpose. If your MCP setup is broken, the last thing you need is another dependency that might also be broken.
+The development loop itself uses Codex's native affordances as load-bearing infrastructure, not decoration:
+
+- **Skills as the deployment surface** — `skills/mcp-doctor/SKILL.md` is how the doctor is invoked inside Codex; the plugin manifest (`plugin.json`) + `hooks/hooks.json` make it auto-trigger on `SessionStart`. The skill is not documentation, it is the integration point.
+- **Hooks for auto-trigger** — the `SessionStart` hook means the doctor runs *before* the user's first prompt, every session. This is the difference between "a tool you have to remember to run" and "a tool that runs itself."
+- **Codex's MCP client as the test oracle** — the doctor speaks the same MCP protocol (initialize → tools/list → resources/list → prompts/list) that Codex itself speaks, so the test suite exercises the exact handshake paths Codex uses in production.
+- **Memory canvas for multi-session continuity** — task state survived across compactions and session boundaries via the memory MCP, so each session resumed mid-task instead of restarting from zero.
+
+The **zero-dependency constraint** was deliberate and is part of the dogfooding story: a diagnostic tool that requires `pip install` defeats the purpose. If your MCP setup is broken, the last thing you need is another dependency that might *also* be broken. Pure Python 3.11+ stdlib (`tomllib`, `subprocess`, `urllib`, `socket`, `ast`, `re`, `json`) means it runs anywhere Codex runs — macOS, Linux, Windows, CI — with zero install friction.
+
+### Design Philosophy
+
+The terminal report **is** the UX. There is no GUI, and that is the point — a diagnostic tool should be instant, scriptable, and readable in the same terminal where the failure happened. Every visual choice in the report serves scannability under time pressure:
+
+- **Emoji severity indicators** (🔴 🟡 🟢 🔵) — color-blind-safe, glanceable in <1s, survive copy-paste into bug reports and Slack.
+- **Health score per server** (0-100) — a single number decision-makers can triage on, with a transparent penalty breakdown so the number is never a black box.
+- **`→ fix:` actionable suggestions** — every error is paired with the one action that resolves it, never just "something is wrong."
+- **ASCII-aligned columns** — readable in any terminal width, any font, no ANSI dependency for layout (color is decorative, structure is positional).
+- **Normalized output for screenshots** — `--quiet` and the pre-rendered `docs/demo-transcript.txt` produce stable, path-normalized output so the same demo looks identical on every machine.
+
+This is deliberate restraint, not absence of design: the tool's job is to deliver a verdict fast, and every pixel (or character) earns its place.
 
 ### What's Next
 
@@ -56,7 +75,7 @@ The zero-dependency constraint was deliberate: a diagnostic tool that requires `
 
 ---
 
-## Demo Video Script (2-3 minutes)
+## Demo Video Script (3:00 target — Devpost hard limit)
 > **Tip:** `./scripts/demo.sh` walks through every scene below automatically —
 > with titles, narration cues, and real doctor.py output. If you just want to
 > record the video, run that and screen-record. The per-scene breakdown below
@@ -92,7 +111,7 @@ command = "/usr/local/bin/nonexistent-mcp-server"
 → Codex starts, no error, but `tools/list` returns nothing. The user sees a working chat with zero MCP tools loaded. No log line tells them why.
 
 
-### Scene 2: The Doctor Diagnoses (0:30 - 1:15)
+### Scene 2: The Doctor Diagnoses (0:30 - 1:00)
 
 **Narration:** "Run the doctor. One command, zero dependencies."
 
@@ -119,7 +138,7 @@ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
 Both root-caused in under a second. Red error → exact cause → one-line fix suggestion.
 
 
-### Scene 3: Security Layer (1:15 - 1:45)
+### Scene 3: Security Layer (1:00 - 1:30)
 
 **Narration:** "But finding broken servers is the easy part. What about servers that are silently hostile?"
 
@@ -144,7 +163,7 @@ python3 scripts/doctor.py --config examples/security-issues/config.toml --check 
 ```
 
 
-### Scene 3b: Cyrillic Homoglyph Attack (1:45 - 2:15)
+### Scene 3b: Cyrillic Homoglyph Attack (1:30 - 2:00)
 
 **Narration:** "Here's a subtle attack: a tool named `fil\u0435system_read` — looks like `filesystem_read`, but the 'e' is Cyrillic."
 
@@ -169,7 +188,7 @@ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
 The normalized form `'filesystem_read'` is the punchline — the viewer instantly sees what the attacker was impersonating.
 
 
-### Scene 4: Rug-Pull Detection (2:15 - 2:45)
+### Scene 4: Rug-Pull Detection (2:00 - 2:45)
 
 **Narration:** "The most dangerous attack: a tool description that changes silently."
 
@@ -186,7 +205,7 @@ python3 scripts/doctor.py --check-baseline
 
 **Narration:** "First run pins trusted descriptions. Later runs flag any tool whose description hash changed — a rug-pull attack. This is the first CLI tool to offer this; Invariant Labs' MCP-Scan is web-only."
 
-### Scene 5: Auto-Triggering Hook (2:45 - 3:15)
+### Scene 5: Auto-Triggering Hook (2:45 - 3:00)
 
 **Narration:** "Best part: you don't even need to remember to run it."
 

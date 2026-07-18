@@ -9,6 +9,13 @@ __pycache__/
 dist/
 build/
 
+# Coverage tooling (local dev only — never commit)
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+
 # OS
 .DS_Store
 Thumbs.db
