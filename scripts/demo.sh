@@ -55,7 +55,9 @@ scene() {
 }
 
 do_pause() {
-    if [ "$PAUSE" -eq 1 ]; then
+    # Only prompt when stdin is a TTY. Prevents the script from blocking in
+    # environments without interactive stdin (CI, pipes, screen recorders).
+    if [ "$PAUSE" -eq 1 ] && [ -t 0 ]; then
         echo
         read -r -p "[press ENTER to continue, Ctrl-C to exit] " _
     fi
