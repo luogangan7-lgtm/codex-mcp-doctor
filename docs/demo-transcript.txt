@@ -5,7 +5,6 @@
 
 codex-mcp-doctor — guided demo
 python: Python 3.14.6
-repo:   <repo-root>
 
 ================================================================
   SCENE 1 — The Silent Failure
@@ -96,7 +95,7 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools (23ms)
+     transport: stdio  |  1 tools (22ms)
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
      tools: filеsystem_read
@@ -139,7 +138,7 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --che
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools (22ms)
+     transport: stdio  |  1 tools (21ms)
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
      tools: filеsystem_read
@@ -205,7 +204,7 @@ Two new v1.6 flags: --debug surfaces hidden probe warnings, --watch re-runs cont
      ℹ️  [probe_skipped] Skipping connectivity probe due to config errors above.
 
   ❌ broken-env  🔴 0.0
-     transport: stdio  |  0 tools (21ms)
+     transport: stdio  |  0 tools (20ms)
      ❌ [process_crashed] Server process exited with code 1.
         → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
         stderr: python3: No module named my_missing_mcp_server

@@ -72,7 +72,6 @@ run() {
 
 echo "codex-mcp-doctor — guided demo"
 echo "python: $($PYTHON --version)"
-echo "repo:   $ROOT"
 
 # --- Scene 1 -------------------------------------------------------------
 scene 1 "The Silent Failure" \

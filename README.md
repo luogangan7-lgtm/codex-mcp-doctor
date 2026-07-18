@@ -8,6 +8,13 @@
 [![Tests](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml/badge.svg)](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+![codex-mcp-doctor cover](docs/devpost-cover.png)
+
+**The W022 Cyrillic homoglyph attack - unique to codex-mcp-doctor:**
+
+![W022 homoglyph attack](docs/w022-homoglyph.png)
+
+
 ## The Problem
 
 MCP servers fail silently. You configure a server in `config.toml`, restart Codex, and... nothing. Tools don't appear. No error message. No log. Or worse - tools appear but don't work right because their schemas are broken.
