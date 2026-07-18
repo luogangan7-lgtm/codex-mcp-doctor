@@ -51,6 +51,7 @@ The development loop itself uses Codex's native affordances as load-bearing infr
 
 - **Skills as the deployment surface** — `skills/mcp-doctor/SKILL.md` is how the doctor is invoked inside Codex; the plugin manifest (`plugin.json`) + `hooks/hooks.json` make it auto-trigger on `SessionStart`. The skill is not documentation, it is the integration point.
 - **Hooks for auto-trigger** — the `SessionStart` hook means the doctor runs *before* the user's first prompt, every session. This is the difference between "a tool you have to remember to run" and "a tool that runs itself."
+- **`--watch` mode for continuous guard duty** — the session-start hook fires once; `--watch` extends this into a continuous monitor that re-probes every N seconds and only surfaces output when server state actually changes. Two layers of protection: boot-time hook + runtime watch, both driven by the same diagnostic engine.
 - **Codex's MCP client as the test oracle** — the doctor speaks the same MCP protocol (initialize → tools/list → resources/list → prompts/list) that Codex itself speaks, so the test suite exercises the exact handshake paths Codex uses in production.
 - **Memory canvas for multi-session continuity** — task state survived across compactions and session boundaries via the memory MCP, so each session resumed mid-task instead of restarting from zero.
 

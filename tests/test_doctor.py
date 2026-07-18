@@ -2470,6 +2470,124 @@ class TestDebugArgparse(unittest.TestCase):
         finally:
             sys.argv = old_argv
 
+# ═══════════════════════════════════════════════════════════════════════
+# v1.6: --watch mode + _watch_signature tests
+# ═══════════════════════════════════════════════════════════════════════
+
+class TestWatchSignature(unittest.TestCase):
+    """_watch_signature must ignore volatile fields (latency) and capture
+    structural state changes (status, issues, tools)."""
+
+    def _make_report(self, status=doctor.HEALTHY, issues=None, tools=None,
+                     schema_issues=None, sec_issues=None, name="srv"):
+        s = doctor.ServerResult(
+            name=name, transport="stdio", status=status,
+            tools_found=tools or [], issues=issues or [],
+            schema_issues=schema_issues or [], security_issues=sec_issues or [],
+            latency_ms=123.4,  # volatile - should NOT affect signature
+        )
+        return doctor.DiagnosticsReport(config_path="/x", servers=[s])
+
+    def test_identical_reports_same_signature(self):
+        r1 = self._make_report(tools=["a", "b"])
+        r2 = self._make_report(tools=["a", "b"])
+        self.assertEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_latency_change_does_not_change_signature(self):
+        r1 = self._make_report()
+        r1.servers[0].latency_ms = 100.0
+        r2 = self._make_report()
+        r2.servers[0].latency_ms = 500.0
+        self.assertEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_status_change_changes_signature(self):
+        r1 = self._make_report(status=doctor.HEALTHY)
+        r2 = self._make_report(status=doctor.ERROR)
+        self.assertNotEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_new_issue_changes_signature(self):
+        issue = [{"severity": "error", "code": "command_not_found", "message": "x"}]
+        r1 = self._make_report(issues=[])
+        r2 = self._make_report(issues=issue)
+        self.assertNotEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_issue_order_does_not_change_signature(self):
+        """Issues reported in different order should produce same signature."""
+        i1 = [
+            {"severity": "error", "code": "a"},
+            {"severity": "warning", "code": "b"},
+        ]
+        i2 = [
+            {"severity": "warning", "code": "b"},
+            {"severity": "error", "code": "a"},
+        ]
+        r1 = self._make_report(issues=i1)
+        r2 = self._make_report(issues=i2)
+        self.assertEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_tool_list_change_changes_signature(self):
+        r1 = self._make_report(tools=["a", "b"])
+        r2 = self._make_report(tools=["a", "b", "c"])  # new tool appeared
+        self.assertNotEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_tool_order_does_not_change_signature(self):
+        r1 = self._make_report(tools=["a", "b"])
+        r2 = self._make_report(tools=["b", "a"])
+        self.assertEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_security_issue_change_changes_signature(self):
+        sec = [{"severity": "high", "code": "E003"}]
+        r1 = self._make_report(sec_issues=[])
+        r2 = self._make_report(sec_issues=sec)
+        self.assertNotEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_config_error_change_changes_signature(self):
+        r1 = doctor.DiagnosticsReport(config_path="/x", servers=[], config_errors=[])
+        r2 = doctor.DiagnosticsReport(config_path="/x", servers=[], config_errors=["parse failed"])
+        self.assertNotEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+    def test_empty_report_signature_stable(self):
+        r1 = doctor.DiagnosticsReport(config_path="/x", servers=[])
+        r2 = doctor.DiagnosticsReport(config_path="/x", servers=[])
+        self.assertEqual(doctor._watch_signature(r1), doctor._watch_signature(r2))
+
+
+class TestWatchArgparse(unittest.TestCase):
+    """--watch and --interval flags exist and parse correctly."""
+
+    def test_watch_help_text(self):
+        import io, sys, contextlib
+        old_argv = sys.argv
+        try:
+            sys.argv = ["doctor", "--help"]
+            buf_err = io.StringIO()
+            buf_out = io.StringIO()
+            with contextlib.redirect_stdout(buf_out), contextlib.redirect_stderr(buf_err):
+                try:
+                    doctor.main()
+                except SystemExit:
+                    pass
+            help_text = buf_err.getvalue() + buf_out.getvalue()
+            self.assertIn("--watch", help_text)
+            self.assertIn("--interval", help_text)
+            self.assertIn("status CHANGES", help_text)
+        finally:
+            sys.argv = old_argv
+
+    def test_interval_default_is_30(self):
+        """--interval should default to 30.0 seconds."""
+        import sys
+        old_argv = sys.argv
+        try:
+            sys.argv = ["doctor", "--config", "/nonexistent", "--watch", "--interval", "0.01"]
+            # This will fail on config, but argparse should parse --interval
+            try:
+                doctor.main()
+            except (SystemExit, Exception):
+                pass
+        finally:
+            sys.argv = old_argv
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 

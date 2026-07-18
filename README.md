@@ -137,6 +137,10 @@ python3 scripts/doctor.py --config /path/to/config.toml
 # resources/list, prompts/list — useful when a server returns 0 content
 # and you suspect a probe-level issue rather than an empty server)
 python3 scripts/doctor.py --debug
+
+# Watch mode: continuously re-run, only print on status change.
+# Pairs with --quiet for silent guard duty during development.
+python3 scripts/doctor.py --watch --interval 30
 ```
 
 ## Exit Codes
@@ -343,7 +347,6 @@ No `pip install`, no virtualenv, no compilation. Just Python 3.11+.
 ## Roadmap
 
 - **Semantic tool-poisoning detection** - beyond regex, using embedding similarity to detect paraphrased injection patterns
-- **Watch mode** - `--watch` flag for continuous monitoring during development
 - **Team baselines** - shared baseline file for team-wide rug-pull detection
 - **Codex marketplace publication**
 

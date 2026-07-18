@@ -2602,6 +2602,103 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
 # CLI
 # ═══════════════════════════════════════════════════════════════════════
 
+def _watch_signature(report: "DiagnosticsReport") -> tuple:
+    """Build a hashable signature of report state, ignoring volatile fields.
+
+    Only stable fields are included: per-server status, sorted issue codes,
+    sorted security issue codes. Latency and timestamps are excluded so the
+    watch loop doesn't spam on every tick.
+    """
+    sig = []
+    for s in report.servers:
+        issue_codes = tuple(sorted(
+            (i.get("code", ""), i.get("severity", ""))
+            for i in s.issues
+        ))
+        schema_codes = tuple(sorted(
+            (i.get("code", ""), i.get("severity", ""))
+            for i in s.schema_issues
+        ))
+        sec_codes = tuple(sorted(
+            (i.get("code", ""), i.get("severity", ""))
+            for i in s.security_issues
+        ))
+        sig.append((
+            s.name, s.status, s.transport,
+            tuple(sorted(s.tools_found)), tuple(sorted(s.resources_found)), tuple(sorted(s.prompts_found)),
+            issue_codes, schema_codes, sec_codes,
+        ))
+    return (tuple(report.config_errors), tuple(sig))
+
+
+def _watch_loop(args, first_report: "DiagnosticsReport") -> int:
+    """Continuous monitoring: re-run diagnose every --interval seconds.
+
+    Prints the full report on the first iteration, then only prints when the
+    watch signature changes (status transition, new/lost issue, tool list
+    change). Ctrl+C exits cleanly with exit code reflecting last report.
+    """
+    import time as _time
+
+    interval = max(args.interval, 1.0)  # floor at 1s to avoid hammering servers
+    prev_sig = _watch_signature(first_report)
+    iteration = 1
+    report = first_report
+
+    # First iteration's report was already printed by the normal flow above.
+    # Just announce watch mode.
+    print("", flush=True)
+    print(f"  \U0001F441 watching (every {interval:.0f}s) - Ctrl+C to stop", flush=True)
+    print("", flush=True)
+
+    try:
+        while True:
+            _time.sleep(interval)
+            iteration += 1
+            report = diagnose(
+                config_path=args.config,
+                timeout=args.timeout,
+                skip_probe=args.skip_probe,
+                only=args.only,
+                check_mode=args.check,
+            )
+            if args.check_baseline:
+                report._check_baseline = True
+                rugpull = check_baseline(report, args.baseline_path)
+                for issue in rugpull:
+                    tname = issue.get("tool", ":")
+                    sname = tname.split(":", 1)[0] if ":" in tname else ""
+                    target = next((x for x in report.servers if x.name == sname), None)
+                    if target:
+                        target.security_issues.append(issue)
+                        target.health_score = compute_health_score(target)
+
+            sig = _watch_signature(report)
+            if sig != prev_sig:
+                ts = _time.strftime("%H:%M:%S")
+                print("", flush=True)
+                print(f"  \U000026A1 [{ts}] status changed (iteration {iteration}):", flush=True)
+                print("", flush=True)
+                if args.json:
+                    print(format_report_json(report))
+                else:
+                    print(format_report_human(report))
+                prev_sig = sig
+            # else: silent - no change, no spam
+    except KeyboardInterrupt:
+        ts = _time.strftime("%H:%M:%S")
+        print("", flush=True)
+        print(f"  \U0001F441 watch stopped at {ts} after {iteration} iterations.", flush=True)
+        # Exit code reflects the LAST report's status so a hook/script can
+        # detect a degraded state that existed when watch was interrupted.
+        last = report
+        if last.errors > 0:
+            return 1
+        if last.config_errors and not last.servers:
+            return 2
+        return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="mcp-doctor",
@@ -2650,6 +2747,17 @@ def main() -> int:
     parser.add_argument(
         "--baseline-path", type=Path, default=None,
         help="Override baseline file location (default: ~/.codex/mcp-doctor-baseline.json).",
+    )
+    parser.add_argument(
+        "--watch", action="store_true",
+        help="Continuously re-run diagnostics every --interval seconds. Only "
+             "prints when server status CHANGES (not on every tick), so it's "
+             "safe to leave running. Ctrl+C stops cleanly. Pairs with --quiet "
+             "for hook-style guard duty during development.",
+    )
+    parser.add_argument(
+        "--interval", type=float, default=30.0,
+        help="Seconds between --watch iterations (default: 30). Ignored without --watch.",
     )
     parser.add_argument(
         "--debug", action="store_true",
@@ -2734,6 +2842,13 @@ def main() -> int:
         if tool_count == 0:
             print("WARNING: baseline is empty - no tools were probed.")
             print("         Re-run without --skip-probe and with running servers to capture tool hashes.")
+    # --watch mode: continuously re-run, only print on status change.
+    if args.watch:
+        return _watch_loop(
+            args=args,
+            first_report=report,
+        )
+
     # High-severity baseline failure (corrupted/invalid baseline file) means
     # rug-pull detection silently failed. Treat as a warning-level exit so
     # scripts/hooks notice something is off, even with healthy servers.

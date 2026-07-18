@@ -25,11 +25,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   factory). `ServerResult` stashes warnings via `_probe_warnings` private
   attribute (non-polluting, not in `to_dict()`).
 
+### Added
+
+- **`--watch` mode** - continuously re-runs diagnostics every `--interval`
+  seconds (default 30). Only prints when server **status changes** (not on
+  every tick), so it's safe to leave running during development. Ctrl+C
+  stops cleanly with exit code reflecting the last report. Pairs with
+  `--quiet` for hook-style guard duty. Closes the "session-start hook only
+  fires once" gap — now you get continuous monitoring.
+- **`--interval N`** - seconds between watch iterations (default 30, floored
+  at 1s).
+
 ### Tests
 
-- 7 new tests covering `--debug` flag: field independence, hidden-by-default,
-  shown-when-debug-on, empty-when-no-warnings, missing-attr no-crash,
-  argparse help text. (266 → 273 tests)
+- 12 new tests for `_watch_signature` stability: latency-insensitive,
+  status-change-sensitive, issue-order-insensitive, tool-set-sensitive,
+  config-error-sensitive. Plus argparse help text. (273 → 285 tests)
 
 
 ## [1.5.0] - 2026-07-19
