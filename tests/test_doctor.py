@@ -1462,6 +1462,28 @@ class TestResourcePromptSecurity(unittest.TestCase):
         p = {"name": "help", "description": "Show help.", "arguments": []}
         self.assertEqual(doctor.validate_prompt_security(p), [])
 
+    def test_resource_missing_uri_is_schema_error(self):
+        """Resources without a URI violate the MCP spec."""
+        issue = doctor.validate_resource_schema({"name": "broken"})
+        self.assertIsNotNone(issue)
+        self.assertEqual(issue.severity, "error")
+        self.assertEqual(issue.kind, "resource_missing_uri")
+
+    def test_resource_with_uri_no_issue(self):
+        issue = doctor.validate_resource_schema({"uri": "file:///x", "name": "ok"})
+        self.assertIsNone(issue)
+
+    def test_prompt_missing_name_is_schema_error(self):
+        """Prompts without a name violate the MCP spec."""
+        issue = doctor.validate_prompt_schema({"description": "d"})
+        self.assertIsNotNone(issue)
+        self.assertEqual(issue.severity, "error")
+        self.assertEqual(issue.kind, "prompt_missing_name")
+
+    def test_prompt_with_name_no_issue(self):
+        issue = doctor.validate_prompt_schema({"name": "ok"})
+        self.assertIsNone(issue)
+
     def test_resource_hidden_unicode_detected(self):
         r = {"uri": "x", "name": "x", "description": "do it\u202ehidden stuff"}
         issues = doctor.validate_resource_security(r)

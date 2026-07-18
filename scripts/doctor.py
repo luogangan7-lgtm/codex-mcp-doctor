@@ -1571,9 +1571,17 @@ def diagnose(
             res_dicts = getattr(s, "_baseline_resources", None) or []
             for r in res_dicts:
                 s.security_issues.extend(validate_resource_security(r))
+                # MCP spec: resources must have a uri.
+                _rs = validate_resource_schema(r)
+                if _rs:
+                    s.schema_issues.append(_rs)
             pr_dicts = getattr(s, "_baseline_prompts", None) or []
-            for p in pr_dicts:
-                s.security_issues.extend(validate_prompt_security(p))
+            for p_item in pr_dicts:
+                s.security_issues.extend(validate_prompt_security(p_item))
+                # MCP spec: prompts must have a name.
+                _ps = validate_prompt_schema(p_item)
+                if _ps:
+                    s.schema_issues.append(_ps)
 
             # Recompute health score with security issues included
             s.health_score = compute_health_score(s)
@@ -2035,6 +2043,28 @@ def latency_issue(latency_ms: float | None) -> dict | None:
 
 
 # ─── GAP6: Resource / Prompt security scanning ─────────────────────
+def validate_resource_schema(resource: dict) -> ToolSchemaIssue:
+    """Check resource structural completeness (MCP spec)."""
+    if not resource.get("uri"):
+        return ToolSchemaIssue(
+            tool=f"resource:{resource.get('name','?')}",
+            severity="error", kind="resource_missing_uri",
+            message=f"Resource '{resource.get('name','?')}' has no URI.",
+            fix="Add a 'uri' field (e.g. file:///path).")
+    return None
+
+
+def validate_prompt_schema(prompt: dict) -> ToolSchemaIssue:
+    """Check prompt structural completeness (MCP spec)."""
+    if not prompt.get("name"):
+        return ToolSchemaIssue(
+            tool="prompt:(unnamed)",
+            severity="error", kind="prompt_missing_name",
+            message="Prompt has no name.",
+            fix="Add a 'name' field to the prompt.")
+    return None
+
+
 def validate_resource_security(resource: dict) -> list[dict]:
     """Apply E001/W001/W021 to a resource's URI + name + description.
 
