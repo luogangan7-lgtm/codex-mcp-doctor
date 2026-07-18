@@ -24,6 +24,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **property_missing_type schema check** - a tool property with no `type`
+  and no `$ref`/`anyOf`/`oneOf`/`allOf` leaves the model unable to tell
+  what value to pass. Now a warning.
+- **object_no_properties schema check** - `type:object` with no properties,
+  additionalProperties, or patternProperties is vacuous. Now a warning.
+- **Deepened resource + prompt schema validation** - resources now also
+  check for missing name/description; prompts check description,
+  short-description, and argument structure (invalid/missing-name/
+  missing-description). API change: both functions return
+  `list[ToolSchemaIssue]` instead of single issue|None.
+- **JSON-RPC error detection** - when a server returns a JSON-RPC error
+  response (e.g. protocol-version-not-supported), the probe now reports
+  an `rpc_error` issue instead of silently showing 'healthy but 0 tools'.
 - **Pipe-through-curl exfiltration detection** - catches
   `pipe|feed|stream ... through|via curl|wget|nc` patterns that lack the
   `to <URL>` structure the old regex required.
