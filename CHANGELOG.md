@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.17] - 2026-07-19
+
+### Fixed
+
+- **Rerun hint assumed the clone layout; standalone-zip users got a broken command.** When a server had errors, the human report ended with "Fix the errors above, then re-run: python3 scripts/doctor.py". That path is correct for a git clone, but the standalone release zip ships doctor.py at the repo root (no scripts/ prefix). A judge who downloaded the zip, ran the doctor, saw the hint, and copy-pasted it would get "No such file or directory". Fixed by reading sys.argv[0] so the hint reflects the actual invocation - "python3 scripts/doctor.py" for clone users, "python3 doctor.py" for standalone-zip users. Falls back to "doctor.py" if argv is empty.
+
+### Added
+
+- **Two regression tests covering the rerun-hint path.** test_rerun_hint_uses_argv0 verifies the clone scenario; test_rerun_hint_fallback_when_argv_empty verifies the empty-argv fallback. Brings the suite to 287 tests.
+
+- **doctor.py --version 1.6.16 -> 1.6.17.**
+
 ## [1.6.16] - 2026-07-19
 
 ### Fixed

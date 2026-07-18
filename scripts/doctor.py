@@ -2057,7 +2057,10 @@ def format_report_human(report: DiagnosticsReport) -> str:
     config_ok_count = summary.get("config_ok", 0)
     if report.errors > 0:
         lines.append(f"  RESULT: {report.errors} error(s), {report.warnings} warning(s) - issues found.")
-        lines.append("  Fix the errors above, then re-run: python3 scripts/doctor.py")
+        # Show the actual invocation the user used, so the hint works whether
+        # doctor.py is at scripts/doctor.py (clone) or ./doctor.py (standalone zip).
+        argv0 = sys.argv[0] if sys.argv and sys.argv[0] else "doctor.py"
+        lines.append(f"  Fix the errors above, then re-run: python3 {argv0}")
     elif report.warnings > 0:
         lines.append(f"  RESULT: {report.warnings} warning(s) - servers running but check the warnings.")
     elif summary["healthy"] > 0:
@@ -2704,7 +2707,7 @@ def main() -> int:
         prog="mcp-doctor",
         description="Diagnose MCP server health for Codex. Zero dependencies.",
     )
-    parser.add_argument("--version", action="version", version="mcp-doctor 1.6.16")
+    parser.add_argument("--version", action="version", version="mcp-doctor 1.6.17")
     parser.add_argument(
         "--config", type=Path, default=None,
         help="Path to config.toml (default: auto-discover CODEX_HOME or ~/.codex/config.toml)",
