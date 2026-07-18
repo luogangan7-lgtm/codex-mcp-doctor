@@ -191,6 +191,21 @@ Each project is eligible for one prize only, in its selected category.
 
 ---
 
+## 12. Codex Session ID (REQUIRED by rules)
+
+Devpost rules state: *"Provide /feedback Codex Session ID for your Project
+thread where the majority of core functionality was built."*
+
+**Action needed (user only - LLM cannot do this):**
+- In Codex desktop, open the thread where most of the doctor logic was built
+- Run `/feedback` to get the Session ID
+- Paste it into the submission form field
+
+This is a hard requirement - judges use it to verify the Codex collaboration
+story. Without it, the Technological Implementation score is at risk.
+
+---
+
 ## Pre-Submission Verification
 
 Run this checklist before clicking "Submit":

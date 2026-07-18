@@ -7,7 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.18] - 2026-07-19
+## [1.6.19] - 2026-07-19
+
+### Added
+
+- **Devpost rules compliance audit.** Read the live /rules page (not cached memory) and found three hard requirements the submission did not yet satisfy:
+
+- **Judging Criteria Mapping** (new section in devpost-submission.md). Devpost scores on four equally weighted criteria (Technological Implementation, Design, Potential Impact, Quality of the Idea). The submission now explicitly maps each criterion to where it is evidenced in the project, so judges scoring against the rubric find the evidence without hunting.
+
+- **Project Provenance** (new section in devpost-submission.md). Rules require pre-existing projects to document prior-vs-new work with timestamped evidence. codex-mcp-doctor is 100% new work in the submission window (first commit 2026-07-18, zero commits before July 13), but this was not stated. Now explicitly declared with commit-count evidence (100+ commits, 0 before window).
+
+- **How Codex Contributed** (new section in README.md). Rules require the README to describe Codex collaboration with specific product, engineering, and design decisions, not just "we used Codex." Added concrete decisions: zero-dependency-as-constraint rationale, plugin-over-CLI choice, severity tiers, W022 homoglyph detection origin, plus where GPT-5.6 specifically contributed (long-context review, cross-session memory continuity).
+
+- **Codex Session ID field** documented in devpost-form-guide.md as section 12. Rules require providing the /feedback Session ID for the thread where core functionality was built. This is a user-only action (LLM cannot run /feedback); flagged in the form guide and canvas.
+
+- **doctor.py --version 1.6.18 -> 1.6.19.
 
 ### Fixed
 

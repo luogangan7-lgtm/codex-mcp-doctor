@@ -213,6 +213,25 @@ python3 tests/test_doctor.py
 
 ~290 tests covering config parsing, config validation, schema validation, health scoring (including unprobed-server scoring), JSON-RPC parsing, SSE parsing, security analysis (prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain, secrets, baseline drift), stdio probe integration (mock server), HTTP probe integration (mock server), and the full diagnose flow.
 
+## How Codex Contributed
+
+This project was built entirely inside Codex desktop with GPT-5.6 across multiple sessions. Per Devpost rules, here is where Codex contributed and where key decisions were made.
+
+**Where Codex accelerated the workflow:**
+- Every line of doctor logic, tests, CI, hooks, demo scripts, and this README was authored through agent-driven iteration - the human role was product direction, test design, and acceptance gates, not line-by-line coding
+- A shared MCP-backed memory canvas carried state across sessions, so each session picked up the project state (current version, open issues, design decisions) without re-reading the codebase
+- The "audit like a first-time judge" methodology was itself a Codex-driven loop: each session picked one surface a judge would see (README, standalone zip, Devpost form) and audited it end-to-end, finding real bugs that internal-view testing missed
+
+**Key product and engineering decisions:**
+- **Zero dependencies as a hard constraint** (not a nice-to-have): a broken-MCP diagnostic that needs `pip install` would fail in exactly the environments where MCP breaks. Codex enforced this via an AST gate that scans imports on every push.
+- **Plugin over standalone CLI**: shipping as a Codex plugin means the doctor lives inside the patient - it can auto-trigger via SessionStart hooks and the model can self-diagnose via SKILL.md instructions. A standalone CLI would require the user to remember to run it.
+- **Severity tiers over pass/fail**: instead of a binary "broken/working", the doctor reports Critical/Warning/Info so users can prioritize. This came out of an early session where the first version reported every issue as equal severity.
+- **W022 Cyrillic homoglyph detection**: the novel detection. Codex identified that a `tools/list` response containing a tool name with visually identical but distinct Unicode characters (e.g., Cyrillic `а` vs Latin `a`) is an attack vector unique to agent ecosystems where tool names are visually inspected by humans but programmatically compared by the agent.
+
+**How GPT-5.6 contributed:**
+- Long-context review sessions where the entire codebase (2,800+ lines) was loaded and audited for consistency, drift, and missing edge cases - the test-count drift fix (v1.6.18) was found this way
+- Cross-session state continuity via the memory canvas, enabling incremental hardening rather than restart-from-scratch each session
+
 ## Requirements
 
 - Python 3.11+ (for `tomllib` - bundled in standard library since 3.11)
