@@ -91,9 +91,9 @@ breakdown in `docs/devpost-submission.md`.
 
 `[2:48]` `[CLICK]` Flash `hooks/hooks.json` on screen, then flash `--watch --interval 30`.
 
-`[2:50]` `[VO]` The SessionStart hook fires every Codex session — silent when healthy, loud when broken. Watch mode extends that into continuous runtime monitoring, only printing when server state actually changes.
+`[2:50]` `[VO]` The SessionStart hook fires every session — silent when healthy, loud when broken. Watch mode extends that into continuous runtime monitoring.
 
-`[2:58]` `[VO]` Two eighty-five tests. Zero dependencies. codex-mcp-doctor.
+`[2:56]` `[VO]` Two eighty-five tests. Zero dependencies. The MCP doctor Codex should ship with.
 
 `[3:00]` `[END CARD]` GitHub URL on screen for 2s. Stop recording.
 
