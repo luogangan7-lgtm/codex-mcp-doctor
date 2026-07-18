@@ -8,14 +8,14 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools
-     server: poisoned-fs v0.1.0
-     protocol: 2024-11-05 [no capabilities]
-     tools: filеsystem_read
-     security: 🔴 1 high
-       🔴 [W022] Tool 'filеsystem_read' contains mixed-script word 'filеsystem_read' with Cyrillic lookalikes (U+0435). Normalizes to 'filesystem_read'.
-          evidence: filеsystem_read
-          → fix: Replace Cyrillic lookalike characters with their ASCII equivalents in tool names and descriptions.
+  transport: stdio  |  2 tools
+  server: poisoned-fs v0.1.0
+  protocol: 2024-11-05 [no capabilities]
+  tools: filеsystem_read, safe_config_write
+  security: 🔴 1 high
+  🔴 [W022] Tool 'filеsystem_read' contains mixed-script word 'filеsystem_read' with Cyrillic lookalikes (U+0435). Normalizes to 'filesystem_read'.
+  evidence: filеsystem_read
+  → fix: Replace Cyrillic lookalike characters with their ASCII equivalents in tool names and descriptions.
 
 ================================================================
   RESULT: 1 warning(s) - servers running but check the warnings.

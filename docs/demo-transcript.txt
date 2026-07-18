@@ -95,10 +95,10 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools
+     transport: stdio  |  2 tools
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
-     tools: filеsystem_read
+     tools: filеsystem_read, safe_config_write
      security: 🔴 1 high
        🔴 [W022] Tool 'filеsystem_read' contains mixed-script word 'filеsystem_read' with Cyrillic lookalikes (U+0435). Normalizes to 'filesystem_read'.
           evidence: filеsystem_read
@@ -114,19 +114,20 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
 The most dangerous attack: a tool description that changes silently after you trusted it. First CLI implementation of tool-description pinning. (Web-only at Invariant Labs' MCP-Scan.)
 
 
-Step 1 — pin the trusted baseline (one tool, sha256 of its description):
+Step 1 — pin the trusted baseline (sha256 of each tool description):
 $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --save-baseline --baseline-path /tmp/baseline.json --quiet
-Baseline saved: /tmp/baseline.json (1 tools)
+Baseline saved: /tmp/baseline.json (2 tools)
 
 Baseline contents:
 {
   "poisoned-fs": {
-    "fil\u0435system_read": "e5d6013ea6f5acb3ef658e031c2ac348b7b1424eca606e13dde4ee529100c37c"
+    "fil\u0435system_read": "e5d6013ea6f5acb3ef658e031c2ac348b7b1424eca606e13dde4ee529100c37c",
+    "safe_config_write": "cb95abeb97a8d0cf97b43b705f93dfaa8d322857999d187acb9b86c3d7a2429b"
   }
 }
 Step 2 — simulate the attack. The server silently changes its tool's description.
 We corrupt the stored hash to represent a tampered description, then re-check:
-  → baseline mutated: real tool hash flipped (high), ghost tool injected (low)
+  → baseline mutated: first tool hash flipped (high), second tool dropped (medium), ghost injected (low)
 
 Step 3 — re-check against the baseline. The doctor must flag E003 rug-pull:
 $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --check-baseline --baseline-path /tmp/baseline.json
@@ -138,16 +139,19 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --che
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools
+     transport: stdio  |  2 tools
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
-     tools: filеsystem_read
-     security: 🔴 2 high, 🟡 1 low
+     tools: filеsystem_read, safe_config_write
+     security: 🔴 2 high, 🟠 1 medium, 🟡 1 low
        🔴 [W022] Tool 'filеsystem_read' contains mixed-script word 'filеsystem_read' with Cyrillic lookalikes (U+0435). Normalizes to 'filesystem_read'.
           evidence: filеsystem_read
           → fix: Replace Cyrillic lookalike characters with their ASCII equivalents in tool names and descriptions.
        🔴 [E003] Tool 'poisoned-fs:filеsystem_read' description changed since the last baseline - possible rug-pull. Re-run with --save-baseline only after verifying the new description is safe.
           evidence: description hash mismatch
+          → fix: Verify the tool description change is intentional. Re-run --save-baseline after confirming safety.
+       🟠 [E003] Tool 'poisoned-fs:safe_config_write' appeared since the last baseline. Verify it's legitimate before trusting it.
+          evidence: new tool
           → fix: Verify the tool description change is intentional. Re-run --save-baseline after confirming safety.
        🟡 [E003] Tool 'poisoned-fs:__ghost_tool_never_existed__' was removed since the last baseline.
           evidence: tool removed

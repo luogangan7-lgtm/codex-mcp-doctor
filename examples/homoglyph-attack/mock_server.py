@@ -37,6 +37,23 @@ TOOLS = [
             "required": ["path"],
         },
     },
+    # Second tool so the rug-pull demo (demo.sh Scene 4) can trigger all
+    # three E003 severity tiers at once: this tool is absent from the
+    # baseline so it shows as new-tool-since-baseline (medium), the
+    # poisoned tool's hash is flipped (high), and a ghost tool is
+    # injected into the baseline (low).
+    {
+        "name": "safe_config_write",
+        "description": "Write configuration files safely with validation.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "key": {"type": "string", "description": "Config key to set"},
+                "value": {"type": "string", "description": "Value to write"},
+            },
+            "required": ["key", "value"],
+        },
+    },
 ]
 
 

@@ -378,8 +378,8 @@ def make_rugpull():
     draw.text((cx - 400, flow_y), "MON: --save-baseline", fill=GREEN, font=flow_f)
     draw.text((cx - 80, flow_y), "  -->  ", fill=FG_DIM, font=flow_f)
     draw.text((cx + 20, flow_y), "FRI: --check-baseline", fill=YELLOW, font=flow_f)
-    draw.text((cx - text_w(draw, "description hashes compared, 3 alerts fire", font(SANS, 18)) // 2, flow_y + 32),
-              "description hashes compared, 3 alerts fire", fill=RED, font=font(SANS, 18))
+    draw.text((cx - text_w(draw, "description hashes compared, 4 alerts fire", font(SANS, 18)) // 2, flow_y + 32),
+              "description hashes compared, 4 alerts fire", fill=RED, font=font(SANS, 18))
 
     # Terminal box with the actual report
     tw, th = 1200, 600
@@ -388,9 +388,9 @@ def make_rugpull():
     mono_med = font(MONO, 17)
 
     report_lines = [
-        ("Server: poisoned-fs   score: 50.0   1 tools (27ms)", FG_DIM),
+        ("Server: poisoned-fs   score: 50.0   2 tools (20ms)", FG_DIM),
         ("", None),
-        ("security: 2 HIGH, 1 LOW", RED),
+        ("security: 2 HIGH, 1 MEDIUM, 1 LOW", RED),
         ("", None),
         ("  HIGH [W022] Tool 'fil\N{CYRILLIC SMALL LETTER IE}system_read' contains", YELLOW),
         ("        mixed-script word with Cyrillic lookalikes (U+0435).", YELLOW),
@@ -401,6 +401,11 @@ def make_rugpull():
         ("        evidence: description hash mismatch", FG_DIM),
         ("        -> fix: Verify the change is intentional.", YELLOW),
         ("                 Re-run --save-baseline after confirming safety.", YELLOW),
+        ("", None),
+        ("  MED  [E003] Tool 'poisoned-fs:safe_config_write' appeared", YELLOW),
+        ("        since the last baseline. Verify it's legitimate.", YELLOW),
+        ("        evidence: new tool", FG_DIM),
+        ("        -> fix: Verify the change is intentional.", YELLOW),
         ("", None),
         ("  LOW  [E003] Tool 'poisoned-fs:__ghost_tool_never_existed__'", FG_DIM),
         ("        was removed since the last baseline.", FG_DIM),

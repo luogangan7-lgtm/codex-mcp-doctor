@@ -104,7 +104,7 @@ do_pause
 scene 4 "Rug-Pull Detection (E003)" \
     "The most dangerous attack: a tool description that changes silently after you trusted it. First CLI implementation of tool-description pinning. (Web-only at Invariant Labs' MCP-Scan.)"
 echo
-echo "Step 1 — pin the trusted baseline (one tool, sha256 of its description):"
+echo "Step 1 — pin the trusted baseline (sha256 of each tool description):"
 run "$PYTHON" scripts/doctor.py --config examples/homoglyph-attack/config.toml --save-baseline --baseline-path "$BASELINE_TMP" --quiet
 echo
 echo "Baseline contents:"
@@ -121,15 +121,18 @@ import json, sys
 p = sys.argv[1]
 with open(p) as f: data = json.load(f)
 for srv in data.values():
-    for name in list(srv):
-        # high tier: flip the hash so the real tool's description 'changed'
-        h = srv[name]
-        srv[name] = h[:-1] + ('0' if h[-1] != '0' else '1')
+    tools = list(srv.items())
+    # high tier: flip the first tool's hash so its description 'changed'
+    first_name, first_hash = tools[0]
+    srv[first_name] = first_hash[:-1] + ('0' if first_hash[-1] != '0' else '1')
+    # medium tier: drop the second tool from the baseline so it looks 'new'
+    if len(tools) > 1:
+        del srv[tools[1][0]]
     # low tier: inject a tool the live server never exposed
     srv["__ghost_tool_never_existed__"] = "0" * 64
 with open(p, 'w') as f: json.dump(data, f, indent=2)
 PY
-echo "  → baseline mutated: real tool hash flipped (high), ghost tool injected (low)"
+echo "  → baseline mutated: first tool hash flipped (high), second tool dropped (medium), ghost injected (low)"
 echo
 echo "Step 3 — re-check against the baseline. The doctor must flag E003 rug-pull:"
 run "$PYTHON" scripts/doctor.py --config examples/homoglyph-attack/config.toml --check-baseline --baseline-path "$BASELINE_TMP"
