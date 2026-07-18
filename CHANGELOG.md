@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.17] - 2026-07-19
+## [1.6.18] - 2026-07-19
+
+### Fixed
+
+- **Documentation test-count drift: README, Devpost submission, form guide, recording checklist, and generated images all still cited 285 tests after v1.6.17 added two regression tests (actual: 287).** A judge reading the README and then running the suite would see inconsistent numbers. Fixed by updating the Key Metrics table to exact values (287 tests / 2,868 lines doctor.py / 2,629 lines tests) and switching narrative paragraphs to a stable approximation (~290 tests, ~2,900 lines, ~2,600 lines) so future test additions no longer require editing nine locations. The cover image was re-rendered so the on-image label matches the new count.
+
+- **doctor.py --version 1.6.17 -> 1.6.18.
 
 ### Fixed
 

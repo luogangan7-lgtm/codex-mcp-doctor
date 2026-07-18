@@ -77,7 +77,7 @@ def make_cover():
     badges = [
         ("Codex Plugin", (16, 185, 129)),
         ("Zero Deps", (74, 222, 128)),
-        ("285 Tests", (96, 165, 250)),
+        ("287 Tests", (96, 165, 250)),
     ]
     widths = [text_w(draw, t, tag_f) + 28 for t, _ in badges]
     total_w = sum(widths) + 24 * (len(badges) - 1)
