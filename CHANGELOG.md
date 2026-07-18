@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **CI plugin manifest validation gate.** New `scripts/validate-plugin.py` wired into `.github/workflows/test.yml` across Python 3.11-3.14. Catches a broken manifest before it reaches a judge. Required keys enforced: name/version/description (NOT `id` - verified against official notion/github/latex/sites plugins, none of which have an `id` field; Codex plugin identity is the `name`).
+
+### Fixed
+
+- **demo.sh test-count drift.** The end-of-demo banner was hardcoded at "285 tests" while the actual suite grew to 287 - the same drift class v1.6.18 fixed in docs but missed in demo.sh. Replaced with a static AST count of `test_` methods (~0ms, exact match to unittest output because this suite has no subTest or parametrization). The banner now tracks the suite automatically and can never drift again.
+
+- **Voiceover Scene 2.5 test count.** Said "Two hundred ninety tests" while Scene 5 already said "Two hundred eighty-seven" - same script, two different numbers. Aligned to 287.
+
+- **Voiceover Scene 4 E003 tier count.** Said "Two E003 tiers fire at once" but demo.sh explicitly triggers all three (high=changed, medium=new, low=removed). Fixed to match the actual three-tier output.
+
+- **Submission security-class claim precision.** "7 security check classes" was technically imprecise - a judge counting SKILL.md table rows finds 11 security codes. Refined to "7 attack-vector detection classes" (named with codes E001/E002/W021/W022/E003/supply-chain/secrets) plus explicit "capability-risk signals" for the W0xx series (W001/W015/W017/W019).
+
+- **Stale version anchors in docs.** submission.md "through v1.6.18" and "Shipped now (v1.6.14)" updated to v1.6.21. form-guide "As of this writing: v1.6.19" replaced with version-agnostic instruction.
+
+- **Validator path in pre-flight checklist.** form-guide and recording-checklist referenced the global `~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py`; changed to the repo's own `scripts/validate-plugin.py` (self-contained, same one CI runs, works on a judge's fresh clone).
+
 ## [1.6.21] - 2026-07-19
 
 ### Fixed
