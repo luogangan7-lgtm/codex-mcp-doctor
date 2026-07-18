@@ -106,8 +106,15 @@ ready to be called from anywhere MCP is called.
 
 ### What's Next
 
-- Semantic tool-poisoning detection (beyond regex patterns)
-- Codex marketplace publication
+**Shipped now (v1.6.14):** 8 security check classes (injection, shadowing, rug-pull E003, Cyrillic homoglyph W022, Unicode, supply-chain pinning, plaintext secrets, capability scan), connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
+
+**Next 30 days:**
+- **Semantic poisoning detection** — the current regex/pattern layer catches known attack shapes (Cyrillic lookalikes, literal injection phrases). The next layer uses embeddings to catch paraphrased injection and subtly manipulative language that passes lexical matching. This is the difference between catching "ignore previous instructions" and catching a description that is 94% normal and 6% adversarial.
+- **Codex marketplace publication** — the plugin manifest already passes the Codex validator. The remaining work is the marketplace listing (screenshots, description, install verification), not engineering. Goal: one-command install via the Codex plugin UI, so the doctor ships as native infrastructure.
+
+**Longer horizon:**
+- **Baseline sharing / community trust registry** — right now each user pins their own baseline hashes. A community registry (opt-in, anonymized tool-description hashes) would let the doctor warn "this tool description changed for 400 other users last week" before you even run it.
+- **Cross-agent monitoring** — extend beyond MCP to the broader agent tool-calling surface (function-calling schemas, code-interpreter permissions). The rug-pull detection pattern (pin → compare → alert) generalizes to any tool whose description can drift.
 
 ---
 

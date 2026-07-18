@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.15] - 2026-07-19
+
+### Changed
+
+- **What's Next section rewritten from 2 vague bullets to a 3-tier roadmap.** The previous version ("semantic poisoning detection" + "marketplace publication") read as an afterthought. The rewrite has three layers: (1) Shipped now - the full list of 8 security classes and all monitoring modes, so judges see current depth; (2) Next 30 days - two concrete directions each with a technical explanation of the gap between current and next; (3) Longer horizon - baseline sharing registry and cross-agent monitoring, showing the pattern generalizes beyond MCP. This directly serves the Potential Impact dimension by signaling the project has a real product trajectory, not just a hackathon one-off.
+
+- **doctor.py --version 1.6.14 -> 1.6.15.**
+
+
 ## [1.6.14] - 2026-07-19
 
 ### Fixed
