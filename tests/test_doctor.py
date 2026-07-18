@@ -1551,25 +1551,56 @@ class TestResourcePromptSecurity(unittest.TestCase):
 
     def test_resource_missing_uri_is_schema_error(self):
         """Resources without a URI violate the MCP spec."""
-        issue = doctor.validate_resource_schema({"name": "broken"})
-        self.assertIsNotNone(issue)
-        self.assertEqual(issue.severity, "error")
-        self.assertEqual(issue.kind, "resource_missing_uri")
+        issues = doctor.validate_resource_schema({"name": "broken"})
+        self.assertTrue(any(i.kind == "resource_missing_uri" and i.severity == "error" for i in issues))
 
-    def test_resource_with_uri_no_issue(self):
-        issue = doctor.validate_resource_schema({"uri": "file:///x", "name": "ok"})
-        self.assertIsNone(issue)
+    def test_resource_missing_name_and_description(self):
+        """Resources without name or description get schema warnings."""
+        issues = doctor.validate_resource_schema({"uri": "file:///x"})
+        kinds = {i.kind for i in issues}
+        self.assertIn("resource_missing_name", kinds)
+        self.assertIn("resource_missing_description", kinds)
+
+    def test_resource_complete_no_issue(self):
+        """A complete resource with uri+name+description has no schema issues."""
+        issues = doctor.validate_resource_schema(
+            {"uri": "file:///x", "name": "ok", "description": "a useful resource"})
+        self.assertEqual(issues, [])
+
+    def test_resource_short_description(self):
+        """Very short descriptions are flagged."""
+        issues = doctor.validate_resource_schema(
+            {"uri": "file:///x", "name": "ok", "description": "x"})
+        self.assertTrue(any(i.kind == "resource_short_description" for i in issues))
 
     def test_prompt_missing_name_is_schema_error(self):
         """Prompts without a name violate the MCP spec."""
-        issue = doctor.validate_prompt_schema({"description": "d"})
-        self.assertIsNotNone(issue)
-        self.assertEqual(issue.severity, "error")
-        self.assertEqual(issue.kind, "prompt_missing_name")
+        issues = doctor.validate_prompt_schema({"description": "a description here"})
+        self.assertTrue(any(i.kind == "prompt_missing_name" and i.severity == "error" for i in issues))
 
-    def test_prompt_with_name_no_issue(self):
-        issue = doctor.validate_prompt_schema({"name": "ok"})
-        self.assertIsNone(issue)
+    def test_prompt_missing_description(self):
+        """Prompts without a description get a schema warning."""
+        issues = doctor.validate_prompt_schema({"name": "ok"})
+        self.assertTrue(any(i.kind == "prompt_missing_description" for i in issues))
+
+    def test_prompt_complete_no_issue(self):
+        """A complete prompt with name+description has no schema issues."""
+        issues = doctor.validate_prompt_schema({"name": "ok", "description": "a useful prompt"})
+        self.assertEqual(issues, [])
+
+    def test_prompt_argument_missing_name_and_description(self):
+        """Prompt arguments without name/description get warnings."""
+        issues = doctor.validate_prompt_schema(
+            {"name": "p", "description": "a prompt here",
+             "arguments": [{"required": True}]})
+        kinds = {i.kind for i in issues}
+        self.assertIn("prompt_argument_missing_name", kinds)
+
+    def test_prompt_arguments_not_list(self):
+        """arguments must be a list."""
+        issues = doctor.validate_prompt_schema(
+            {"name": "p", "description": "a prompt here", "arguments": "notalist"})
+        self.assertTrue(any(i.kind == "prompt_invalid_arguments" for i in issues))
 
     def test_resource_hidden_unicode_detected(self):
         r = {"uri": "x", "name": "x", "description": "do it\u202ehidden stuff"}

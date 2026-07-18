@@ -1602,17 +1602,11 @@ def diagnose(
             res_dicts = getattr(s, "_baseline_resources", None) or []
             for r in res_dicts:
                 s.security_issues.extend(validate_resource_security(r))
-                # MCP spec: resources must have a uri.
-                _rs = validate_resource_schema(r)
-                if _rs:
-                    s.schema_issues.append(_rs)
+                s.schema_issues.extend(validate_resource_schema(r))
             pr_dicts = getattr(s, "_baseline_prompts", None) or []
             for p_item in pr_dicts:
                 s.security_issues.extend(validate_prompt_security(p_item))
-                # MCP spec: prompts must have a name.
-                _ps = validate_prompt_schema(p_item)
-                if _ps:
-                    s.schema_issues.append(_ps)
+                s.schema_issues.extend(validate_prompt_schema(p_item))
 
             # Recompute health score with security issues included
             s.health_score = compute_health_score(s)
@@ -2089,26 +2083,100 @@ def latency_issue(latency_ms: float | None) -> dict | None:
 
 
 # ─── GAP6: Resource / Prompt security scanning ─────────────────────
-def validate_resource_schema(resource: dict) -> ToolSchemaIssue:
-    """Check resource structural completeness (MCP spec)."""
+def validate_resource_schema(resource: dict) -> list[ToolSchemaIssue]:
+    """Check resource structural completeness (MCP spec).
+
+    Resources must have a uri. Name and description are strongly
+    recommended - without them the model can't decide when to use
+    the resource.
+    """
+    issues: list[ToolSchemaIssue] = []
+    name = resource.get("name", "?")
+    label = f"resource:{name}"
+
     if not resource.get("uri"):
-        return ToolSchemaIssue(
-            tool=f"resource:{resource.get('name','?')}",
-            severity="error", kind="resource_missing_uri",
-            message=f"Resource '{resource.get('name','?')}' has no URI.",
-            fix="Add a 'uri' field (e.g. file:///path).")
-    return None
+        issues.append(ToolSchemaIssue(
+            tool=label, severity="error", kind="resource_missing_uri",
+            message=f"Resource '{name}' has no URI.",
+            fix="Add a 'uri' field (e.g. file:///path)."))
+
+    if not resource.get("name"):
+        issues.append(ToolSchemaIssue(
+            tool=label, severity="warning", kind="resource_missing_name",
+            message="Resource has no name - the model needs it to reference the resource.",
+            fix="Add a 'name' field."))
+
+    desc = str(resource.get("description", ""))
+    if not desc.strip():
+        issues.append(ToolSchemaIssue(
+            tool=label, severity="warning", kind="resource_missing_description",
+            message=f"Resource '{name}' has no description.",
+            fix="Add a description so the model knows what this resource contains."))
+    elif len(desc.strip()) < 10:
+        issues.append(ToolSchemaIssue(
+            tool=label, severity="warning", kind="resource_short_description",
+            message=f"Resource '{name}' description is very short ({len(desc.strip())} chars).",
+            fix="Expand the description so the model can reliably decide to use this resource."))
+    return issues
 
 
-def validate_prompt_schema(prompt: dict) -> ToolSchemaIssue:
-    """Check prompt structural completeness (MCP spec)."""
-    if not prompt.get("name"):
-        return ToolSchemaIssue(
-            tool="prompt:(unnamed)",
-            severity="error", kind="prompt_missing_name",
+def validate_prompt_schema(prompt: dict) -> list[ToolSchemaIssue]:
+    """Check prompt structural completeness (MCP spec).
+
+    Prompts must have a name. Description and well-formed arguments
+    are strongly recommended for the model to use them correctly.
+    """
+    issues: list[ToolSchemaIssue] = []
+    name = prompt.get("name", "")
+    label = f"prompt:{name or '(unnamed)'}"
+
+    if not name:
+        issues.append(ToolSchemaIssue(
+            tool=label, severity="error", kind="prompt_missing_name",
             message="Prompt has no name.",
-            fix="Add a 'name' field to the prompt.")
-    return None
+            fix="Add a 'name' field to the prompt."))
+
+    desc = str(prompt.get("description", ""))
+    if not desc.strip():
+        issues.append(ToolSchemaIssue(
+            tool=label, severity="warning", kind="prompt_missing_description",
+            message=f"Prompt '{name or '?'}' has no description.",
+            fix="Add a description so the model knows when to use this prompt."))
+    elif len(desc.strip()) < 10:
+        issues.append(ToolSchemaIssue(
+            tool=label, severity="warning", kind="prompt_short_description",
+            message=f"Prompt '{name}' description is very short ({len(desc.strip())} chars).",
+            fix="Expand the description so the model can reliably pick this prompt."))
+
+    # Validate arguments structure if present
+    args = prompt.get("arguments")
+    if args is not None:
+        if not isinstance(args, list):
+            issues.append(ToolSchemaIssue(
+                tool=label, severity="error", kind="prompt_invalid_arguments",
+                message=f"Prompt '{name}' arguments is not a list (got {type(args).__name__}).",
+                fix="Set arguments to a list of argument objects."))
+        else:
+            for arg in args:
+                if not isinstance(arg, dict):
+                    issues.append(ToolSchemaIssue(
+                        tool=label, severity="error", kind="prompt_invalid_argument",
+                        message=f"Prompt '{name}' has a non-object argument entry.",
+                        fix="Each argument must be an object with name/description/required."))
+                    continue
+                arg_name = arg.get("name", "")
+                if not arg_name:
+                    issues.append(ToolSchemaIssue(
+                        tool=label, severity="warning", kind="prompt_argument_missing_name",
+                        message=f"Prompt '{name}' has an argument with no name.",
+                        fix="Add a 'name' to each argument."))
+                arg_desc = str(arg.get("description", ""))
+                if not arg_desc.strip() and arg_name:
+                    issues.append(ToolSchemaIssue(
+                        tool=label, severity="warning", kind="prompt_argument_missing_description",
+                        message=f"Prompt '{name}' argument '{arg_name}' has no description.",
+                        fix=f"Add a description to argument '{arg_name}'."))
+    return issues
 
 
 def validate_resource_security(resource: dict) -> list[dict]:
