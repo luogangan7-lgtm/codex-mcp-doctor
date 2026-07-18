@@ -5,6 +5,32 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Baseline file with non-dict server values** - a corrupted or tampered
+  baseline storing a list, int, null, or string as a server's tool map
+  caused `TypeError` in `check_baseline`, crashing the doctor and silently
+  disabling rug-pull detection. Now emits `baseline-server-invalid-type`
+  (high severity) and skips the affected server.
+- **Non-string `command` crashes** - `command = ["a","b"]` (list),
+  `command = 42` (int), `command = true` (bool), or `command = {a=1}`
+  (dict) crashed `os.path.isabs()` with `TypeError` during config
+  validation. Now returns `invalid_command_type` error.
+- **Non-string `url` crashes** - `url = ["http://x"]` (list), `url = 42`
+  (int), `url = {a=1}` (dict), or `url = true` (bool) crashed
+  `urlparse()` with `AttributeError` during config validation. Now
+  returns `invalid_url_type` error.
+- **GitGuardian false positives** - test fixtures using real-format
+  fake tokens (`sk-1234...`, `mos_abcdef...`) tripped secret scanners.
+  Replaced with low-entropy `TESTFAKE`-marked values that still match
+  the doctor's own detection regex.
+
+### Changed
+
+- 234 tests (was 221).
+
 ## [1.4.2] - 2026-07-18
 
 ### Fixed
