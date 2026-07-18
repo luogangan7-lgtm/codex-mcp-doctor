@@ -52,8 +52,16 @@ titles and narration cues already written. No need to script anything new.
 
 **Paste the entire "Long Description" section** from
 `docs/devpost-submission.md` — from `### The Problem` through `### What's Next`.
-~4 paragraphs + a layer table. Devpost accepts long descriptions; use the
-full version.
+This includes six subsections, all of which map to the four judging criteria:
+
+1. **The Problem** — sets up the "silent failure + silent hostility" hook (Creativity & Originality).
+2. **What It Does** — the layer-by-layer feature table + key differentiators (Technological Implementation).
+3. **How We Built It** — *expanded this round*: dogfooded Codex end-to-end, skills as the deployment surface, `SessionStart` hook for auto-trigger, Codex's MCP client as the test oracle, memory canvas for multi-session continuity. **This is the strongest answer to "How thoroughly and skillfully does the project use Codex?"** — the central Technological Implementation question. Paste the whole expanded section.
+4. **Design Philosophy** — *new this round*: the terminal report IS the UX. Emoji severity, health score transparency, `→ fix:` actionable suggestions, ASCII alignment. **Directly serves the Design & UX judging dimension** — do not trim this.
+5. **What's Next** — roadmap (semantic poisoning detection, marketplace publication).
+
+Devpost accepts long Markdown; paste all five subsections verbatim. The
+layer table inside "What It Does" renders cleanly on Devpost.
 
 ---
 
@@ -114,9 +122,14 @@ on July 13 when tracks are announced.
 - **OpenAI products used:** Codex (Desktop + CLI), GPT-5.6
 - **Track:** pick the one closest to "Developer Tools" / "Infrastructure"
   when categories publish July 13
-- **How does your project use Codex?** Paste the "How We Built It" paragraph
-  from `docs/devpost-submission.md` — emphasize that the entire codebase was
-  written through Codex-driven iterative development.
+- **How does your project use Codex?** Paste the **entire "How We Built It"**
+  section from `docs/devpost-submission.md` (expanded version, post-16b34b1).
+  Lead with the dogfooding framing: "Built entirely inside Codex desktop with
+  GPT-5.6 as the development environment — not just 'used Codex to write some
+  code,' but dogfooded Codex end-to-end to build tooling *for* Codex." Then the
+  four load-bearing bullets: skills as deployment surface, SessionStart hook,
+  MCP client as test oracle, memory canvas for multi-session continuity.
+  This single answer carries most of the Technological Implementation score.
 
 ---
 
