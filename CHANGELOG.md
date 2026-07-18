@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [1.6.1] - 2026-07-19
+
+### Changed
+
+- **Devpost cover + W022 image regenerated to 5:3 (1500x900)** - matches Devpost's actual
+  main-image aspect ratio. Previous 16:9 (1200x675) cover would crop badly.
+  Both images now use a centered layout verified by pixel sampling to survive the
+  1:1 thumbnail center-crop Devpost applies in gallery views.
+- `docs/generate-images.py` - both `make_cover()` and `make_w022()` rewritten to
+  produce centered 5:3 layouts (was 1200x675 left-aligned).
+
 ## [1.6.0] - 2026-07-19
 
 ### Added

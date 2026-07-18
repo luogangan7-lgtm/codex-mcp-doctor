@@ -182,8 +182,8 @@ cd /Volumes/data/codex-mcp-doctor
 # 3. Demo script runs end-to-end
 ./scripts/demo.sh --no-pause
 
-# 4. HEAD is the v1.6.0 release tag
-git describe --tags --exact-match    # should print v1.6.0
+# 4. HEAD is on a release tag (v1.6.x)
+git describe --tags --exact-match    # should print v1.6.x
 ```
 
 All four must pass before submitting. If any fails, stop and fix.

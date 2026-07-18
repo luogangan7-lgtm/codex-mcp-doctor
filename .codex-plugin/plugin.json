@@ -1,6 +1,6 @@
 {
   "name": "codex-mcp-doctor",
-  "version": "1.5.0",
+  "version": "1.6.1",
   "description": "Diagnose MCP server connectivity, configuration correctness, runtime health, tool schema quality, security risks (prompt injection, tool shadowing, hidden Unicode), supply-chain version pinning, plaintext secrets, latency thresholds, and rug-pull detection (tool-description baseline). Zero external dependencies - pure Python 3.11+ stdlib.",
   "author": {
     "name": "Luolimo",
@@ -43,7 +43,7 @@
     ],
     "defaultPrompt": [
       "Run mcp-doctor to check my MCP servers",
-      "My MCP tools are missing \u2014 diagnose why",
+      "My MCP tools are missing — diagnose why",
       "Scan my MCP servers for security risks (injection, rug-pull, secrets)"
     ],
     "brandColor": "#10B981",
