@@ -670,7 +670,8 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
         # Capture JSON-RPC error if the server returned one instead of a result
         if isinstance(init_resp.get("error"), dict):
             probe.rpc_error = init_resp["error"]
-        init_result = init_resp.get("result", {})
+        _raw_result = init_resp.get("result", {})
+        init_result = _raw_result if isinstance(_raw_result, dict) else {}
         probe.server_info = init_result.get("serverInfo", {})
         probe.protocol_version = init_result.get("protocolVersion", "")
         probe.capabilities = init_result.get("capabilities", {}) if isinstance(init_result.get("capabilities"), dict) else {}
