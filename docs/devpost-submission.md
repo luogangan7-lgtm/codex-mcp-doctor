@@ -13,7 +13,7 @@ Track: **Developer Tools** ("Tools for developers, including testing, DevOps, ag
 
 ## Short Description (for Devpost card, ~280 chars)
 
-MCP servers fail silently. codex-mcp-doctor is the diagnostic CLI Codex should ship with — one zero-dependency command catches broken servers, prompt injection, Cyrillic homoglyph attacks, and silent rug-pulls that no other MCP scanner detects. Built in Codex with GPT-5.6.
+MCP servers fail silently. codex-mcp-doctor is the diagnostic CLI Codex should ship with — one zero-dependency command catches broken servers, prompt injection, silent rug-pulls, and Cyrillic homoglyph attacks that no other MCP scanner detects. Built in Codex with GPT-5.6.
 
 ## Long Description (for project page)
 
@@ -247,9 +247,9 @@ Both root-caused in under a second. Red error → exact cause → one-line fix s
 python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe
 ```
 
-**On-screen:** Shows unpinned npx package warning + plaintext API key detection.
+**On-screen:** Shows unpinned npx package warning + hardcoded bearer token detection.
 
-**Narration:** "This server pulls a package without version pinning — a supply-chain risk. And this one has a hardcoded API key in the config. The doctor catches both."
+**Narration:** "This server pulls a package without version pinning — a supply-chain risk. And this one has a hardcoded bearer token sitting in an HTTP header. The doctor catches both."
 
 **Expected on-screen:**
 ```
@@ -352,6 +352,6 @@ python3 scripts/doctor.py --check-baseline
 | Test count | 287 |
 | External dependencies | 0 |
 | Time to full diagnostic | < 1s (config-only), < 5s (with probe) |
-| Security check types | 8 (injection, shadowing, rug-pull, Unicode, Cyrillic homoglyphs, supply-chain, secrets, capability) |
+| Security check types | 7 (prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain, plaintext secrets, baseline drift) |
 | Config fields validated | 12+ (command, url, args, env, http_headers, cwd, timeouts, etc.) |
 | MCP primitives checked | 3 (tools, resources, prompts) |
