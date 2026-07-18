@@ -1917,6 +1917,42 @@ class TestRugPullBaseline(unittest.TestCase):
         data = doctor.json.loads(self.path.read_text())
         self.assertNotIn("empty", data)
 
+    def test_baseline_server_value_as_list_warns(self):
+        """A server whose baseline value is a list (not dict) must warn, not crash."""
+        self.path.write_text(doctor.json.dumps({"srv": ["tool1", "tool2"]}))
+        report = self._make_report({"srv": [{"name": "tool1", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertTrue(any(i["label"] == "baseline-server-invalid-type" for i in issues))
+        self.assertTrue(any(i["severity"] == "high" for i in issues))
+
+    def test_baseline_server_value_as_int_warns(self):
+        """A server whose baseline value is an int must warn, not crash."""
+        self.path.write_text(doctor.json.dumps({"srv": 42}))
+        report = self._make_report({"srv": [{"name": "tool1", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertTrue(any(i["label"] == "baseline-server-invalid-type" for i in issues))
+
+    def test_baseline_server_value_as_null_warns(self):
+        """A server whose baseline value is null must warn, not silently skip."""
+        self.path.write_text(doctor.json.dumps({"srv": None}))
+        report = self._make_report({"srv": [{"name": "tool1", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertTrue(any(i["label"] == "baseline-server-invalid-type" for i in issues))
+
+    def test_baseline_server_value_as_string_warns(self):
+        """A server whose baseline value is a string must warn, not crash."""
+        self.path.write_text(doctor.json.dumps({"srv": "not-a-dict"}))
+        report = self._make_report({"srv": [{"name": "tool1", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertTrue(any(i["label"] == "baseline-server-invalid-type" for i in issues))
+
+    def test_baseline_server_not_present_skips_silently(self):
+        """Server absent from baseline should produce no issues (not a warning)."""
+        self.path.write_text(doctor.json.dumps({"other": {"tool1": "hash"}}))
+        report = self._make_report({"srv": [{"name": "tool1", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertEqual(issues, [])
+
 
     def test_corrupted_baseline_warns(self):
         """Corrupted JSON should warn, not silently return []."""

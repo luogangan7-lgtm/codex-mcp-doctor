@@ -2382,9 +2382,29 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
         if not tools:
             continue
         current = {t.get("name", "?"): _tool_hash(t) for t in tools if isinstance(t, dict)}
-        known = stored.get(s.name, {})
-        if not known:
+        # Use sentinel to distinguish 'server not in baseline' (skip silently)
+        # from 'server present but value is None/wrong-type' (warn).
+        _MISSING = object()
+        known = stored.get(s.name, _MISSING)
+        if known is _MISSING:
             continue  # server not in baseline - skip (user should re-save)
+        # Defensive: a corrupted/tampered baseline may store a non-dict
+        # value for a server (list, int, null). Guard against TypeError.
+        if not isinstance(known, dict):
+            issues.append({
+                "tool": f"{s.name}:(baseline)",
+                "severity": "high",
+                "code": "E003",
+                "label": "baseline-server-invalid-type",
+                "message": (
+                    f"Baseline entry for server '{s.name}' is not a dict "
+                    f"(got {type(known).__name__}). Rug-pull detection "
+                    f"skipped for this server. Re-run with --save-baseline."
+                ),
+                "evidence": f"type: {type(known).__name__}",
+                "fix": "Delete the baseline file and re-run with --save-baseline.",
+            })
+            continue
         for tname, thash in current.items():
             if tname not in known:
                 issues.append({
