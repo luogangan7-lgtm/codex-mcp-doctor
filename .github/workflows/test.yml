@@ -27,6 +27,13 @@ jobs:
           # Fail CI if doctor.py imports any non-stdlib module.
           # This is the CI gate for the zero-dependency claim.
           python3 scripts/verify-zero-deps.py
+      - name: Validate plugin manifest
+        run: |
+          # Fail CI if .codex-plugin/plugin.json is not a valid Codex plugin
+          # manifest (missing keys, bad version, invalid JSON). The validator
+          # enforces the real Codex spec (name/version/description); the
+          # official notion/github/latex/sites plugins have no `id` field.
+          python3 scripts/validate-plugin.py
       - name: Run doctor on examples
         run: |
           # broken-stdio and broken-http are expected to report errors (exit 1)
