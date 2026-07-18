@@ -1398,7 +1398,22 @@ def compute_health_score(server: ServerResult) -> float:
     if server.status in (ERROR, DISABLED):
         return 0.0
     if server.status == "config-ok":
-        return 100.0  # config valid, not probed - assume ok
+        # Config validated but server wasn't probed. Start from 100 and
+        # apply config-layer penalties (unpinned packages, plaintext secrets,
+        # invalid env types, etc.) so the score reflects real issues.
+        score = 100.0
+        for i in server.issues:
+            if i.get("severity") == "error":
+                score -= 25.0
+            elif i.get("severity") == "warning":
+                score -= 10.0
+        sec_critical = sum(1 for i in server.security_issues if i.get("severity") == "critical")
+        sec_high = sum(1 for i in server.security_issues if i.get("severity") == "high")
+        if sec_critical > 0:
+            score = min(score, 20.0)
+        elif sec_high > 0:
+            score = min(score, 50.0)
+        return max(0.0, round(score, 1))
     if not server.tools_found:
         # Not probed (skip-probe or config-only check mode). Score reflects
         # config-layer findings only: start from a neutral baseline and

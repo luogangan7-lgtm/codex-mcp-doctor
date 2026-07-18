@@ -35,10 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   returned exit 2 ("config unreadable") instead of exit 3 ("no servers
   found"). The informational "no entries" message was treated as a
   config error. Now distinguishes parse errors from info messages.
+- **Config-ok health score ignored issues** - servers with `config-ok`
+  status (not probed) always scored 100, ignoring config-layer issues
+  like unpinned packages, plaintext secrets, and invalid env types.
+  Now applies per-issue penalties.
 
 ### Added
 
-- 8 regression tests covering all above fixes (214 total).
+- 11 regression tests covering all above fixes (217 total).
 - `--baseline-path` and `--quiet` flags documented in SKILL.md.
 
 ## [1.4.1] - 2026-07-18

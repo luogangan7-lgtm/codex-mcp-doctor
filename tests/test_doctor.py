@@ -319,6 +319,26 @@ class TestHealthScoring(unittest.TestCase):
 # JSON-RPC parsing tests
 # ═══════════════════════════════════════════════════════════════════════
 
+    def test_config_ok_with_warning_reduces_score(self):
+        """Config-ok server with config-layer warnings should not score 100."""
+        s = doctor.ServerResult(name="cfg", transport="stdio", status="config-ok")
+        s.issues = [{"severity": "warning", "code": "unpinned_package"}]
+        score = doctor.compute_health_score(s)
+        self.assertEqual(score, 90.0)
+
+    def test_config_ok_with_error_reduces_score(self):
+        """Config-ok server with config-layer errors should not score 100."""
+        s = doctor.ServerResult(name="cfg", transport="stdio", status="config-ok")
+        s.issues = [{"severity": "error", "code": "invalid_env_type"}]
+        score = doctor.compute_health_score(s)
+        self.assertEqual(score, 75.0)
+
+    def test_config_ok_clean_is_100(self):
+        """Config-ok server with no issues should still score 100."""
+        s = doctor.ServerResult(name="cfg", transport="stdio", status="config-ok")
+        score = doctor.compute_health_score(s)
+        self.assertEqual(score, 100.0)
+
 class TestJsonRpcParsing(unittest.TestCase):
 
     def test_jsonrpc_request_format(self):
@@ -703,10 +723,12 @@ command = "echo"
         """Empty config (0 servers, valid file) should exit 3, not 2.
         Regression: 'No entries' info was treated as a config error."""
         import subprocess
+        repo_root = str(Path(__file__).resolve().parent.parent)
+        doctor_script = str(Path(repo_root) / "scripts" / "doctor.py")
         cfg = self._write_config("")
         result = subprocess.run(
-            [sys.executable, "scripts/doctor.py", "--config", str(cfg)],
-            capture_output=True, text=True, timeout=10, cwd="/Volumes/data/codex-mcp-doctor"
+            [sys.executable, doctor_script, "--config", str(cfg)],
+            capture_output=True, text=True, timeout=10, cwd=repo_root
         )
         self.assertEqual(result.returncode, 3,
                          f"empty config should exit 3, got {result.returncode}")
@@ -714,10 +736,12 @@ command = "echo"
     def test_exit_code_malformed_toml_is_2(self):
         """Malformed TOML should exit 2 (config unreadable)."""
         import subprocess
+        repo_root = str(Path(__file__).resolve().parent.parent)
+        doctor_script = str(Path(repo_root) / "scripts" / "doctor.py")
         cfg = self._write_config("this is not = valid = toml\n")
         result = subprocess.run(
-            [sys.executable, "scripts/doctor.py", "--config", str(cfg)],
-            capture_output=True, text=True, timeout=10, cwd="/Volumes/data/codex-mcp-doctor"
+            [sys.executable, doctor_script, "--config", str(cfg)],
+            capture_output=True, text=True, timeout=10, cwd=repo_root
         )
         self.assertEqual(result.returncode, 2,
                          f"malformed TOML should exit 2, got {result.returncode}")
