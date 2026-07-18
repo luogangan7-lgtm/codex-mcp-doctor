@@ -170,6 +170,10 @@ do_pause
 echo
 echo "================================================================"
 echo "  END OF DEMO"
-echo "  285 tests · 0 dependencies · pure Python 3.11+ stdlib"
+# Dynamic test count via static AST scan (prevents the drift bug where
+# the banner falls behind the actual suite). ~0ms, matches unittest output
+# exactly because this suite has no subTest/parametrization.
+TEST_COUNT=$(python3 -c "import ast; t=ast.parse(open('tests/test_doctor.py').read()); print(sum(1 for n in ast.walk(t) if isinstance(n, ast.FunctionDef) and n.name.startswith('test_')))")
+echo "  ${TEST_COUNT} tests · 0 dependencies · pure Python 3.11+ stdlib"
 echo "  https://github.com/luogangan7-lgtm/codex-mcp-doctor"
 echo "================================================================"
