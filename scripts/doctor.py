@@ -992,7 +992,16 @@ _INJECTION_PATTERNS: list[tuple[str, str]] = [
     (r"<\|/?system\|>", "system-tag-injection"),
     (r"<\|/?assistant\|>", "assistant-tag-injection"),
     # Data exfiltration
-    (r"(?:send|transmit|upload|post|exfiltrate)\s+.*\s+to\s+(?:https?://|an?\s+external|a\s+remote|another)", "exfiltration-command"),
+    (r"(?:send|transmit|upload|post|exfiltrate|append|write|forward|pipe)\s+.+\bto\b.+\bhttps?://\S+", "exfiltration-command"),
+    (r"(?:send|transmit|upload|post|exfiltrate)\s+.*\s+to\s+(?:an?\s+external|a\s+remote|another|a\s+third.party)", "exfiltration-command"),
+    # Credential file access (SSH keys, cloud creds, tokens)
+    (r"~?/\.ssh/(?:id_rsa|id_ed25519|id_ecdsa|authorized_keys|config|known_hosts)", "credential-file-access"),
+    (r"~?/\.aws/(?:credentials|config)", "credential-file-access"),
+    (r"~?/\.gnupg/", "credential-file-access"),
+    (r"\bid_rsa\b", "credential-file-access"),
+    # Bare sensitive-dir mentions in read/copy/backup context
+    (r"(?:backup|copy|read|fetch|send|upload|return|include|access)\b.{0,40}\.(?:ssh|aws|gnupg)\b", "credential-file-access"),
+    (r"\b\.env\b", "credential-file-access"),
     (r"access\s+(?:the\s+)?(?:user'?s?|file|env|filesystem|home)\s+(?:data|files?|credentials?|secrets?)", "data-access-command"),
     (r"read\s+(?:the\s+)?\.env(?:ironment)?\b", "env-file-access"),
     (r"execute\s+(?:the\s+following\s+)?(?:command|shell|bash)\s*[:\-]", "command-execution"),
@@ -1007,7 +1016,7 @@ _INJECTION_REGEXES = [(re.compile(p, re.IGNORECASE), label) for p, label in _INJ
 _CRITICAL_LABELS = frozenset({
     "exfiltration-command", "chatgpt-token-injection",
     "system-tag-injection", "assistant-tag-injection",
-    "command-execution", "env-file-access",
+    "command-execution", "env-file-access", "credential-file-access",
 })
 
 # --- W001: Suspicious manipulative words ---

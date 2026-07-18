@@ -174,7 +174,7 @@ For each tool returned, validates:
 python3 tests/test_doctor.py
 ```
 
-163 tests covering config parsing, config validation, schema validation, health scoring (including unprobed-server scoring), JSON-RPC parsing, SSE parsing, security analysis (prompt injection, tool shadowing, hidden Unicode, supply-chain, secrets, baseline drift), stdio probe integration (mock server), HTTP probe integration (mock server), and the full diagnose flow.
+166 tests covering config parsing, config validation, schema validation, health scoring (including unprobed-server scoring), JSON-RPC parsing, SSE parsing, security analysis (prompt injection, tool shadowing, hidden Unicode, supply-chain, secrets, baseline drift), stdio probe integration (mock server), HTTP probe integration (mock server), and the full diagnose flow.
 
 ## Requirements
 
@@ -285,7 +285,7 @@ can tell which primitive was poisoned.
 git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git
 cd codex-mcp-doctor
 
-# 1. Run the test suite (163 tests, ~1 second)
+# 1. Run the test suite (166 tests, ~1 second)
 python3 tests/test_doctor.py
 
 # 2. Run against the example broken configs
@@ -310,3 +310,5 @@ No `pip install`, no virtualenv, no compilation. Just Python 3.11+.
 - **Diff mode** - compare two configs to see what changed between environments
 - **Team baselines** - shared baseline file for team-wide rug-pull detection
 - **Resource/prompt schema validation** - extend schema checks beyond tools
+
+# Requires Python 3.11+ (stdlib tomllib). On macOS use Homebrew python3, not /usr/bin/python3 (3.9).
