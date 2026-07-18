@@ -44,7 +44,7 @@ npm doctor for MCP. Built in Codex with GPT-5.6.
 
 **Field:** `Project Image` / `Thumbnail` (required — first thing judges see in the gallery)
 
-**Upload:** `docs/devpost-cover.png` (1200x675, 16:9)
+**Upload:** `docs/devpost-cover.png` (1500x1000, 3:2 - Devpost recommended Project Gallery thumbnail ratio per help.devpost.com/article/126)
 
 This is the generated cover showing the project title, tagline, feature
 matrix, and a mini terminal preview. If you want a different visual, also

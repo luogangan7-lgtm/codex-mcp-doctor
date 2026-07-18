@@ -2,14 +2,14 @@
 """Generate marketing images for Devpost/GitHub.
 
 Outputs:
-  docs/devpost-cover.png             - 5:3 project card cover (1500x900)
-  docs/w022-homoglyph.png            - W022 attack visualization (1500x900)
-  docs/screenshot-real-report.png    - real multi-server diagnostic report (1500x900)
-  docs/screenshot-rugpull-detection.png - E003 rug-pull detection (1500x900)
+  docs/devpost-cover.png             - 3:2 Devpost gallery thumbnail (1500x1000)
+  docs/w022-homoglyph.png            - W022 attack visualization (1500x1000)
+  docs/screenshot-real-report.png    - real multi-server diagnostic report (1500x1000)
+  docs/screenshot-rugpull-detection.png - E003 rug-pull detection (1500x1000)
 
-Devpost image spec research: main images render at 5:3, and gallery
-thumbnails center-crop to 1:1. All layouts are horizontally centered so
-nothing important clips in the thumbnail crop.
+Devpost image spec (help.devpost.com/article/126): Project Gallery
+thumbnails should use a 3:2 ratio. All layouts are horizontally centered
+so the 3:2 center-crop never clips title/terminal/columns/chips.
 
 Uses PIL (Pillow) which is NOT a project dependency - this is a build-time
 tool for generating static assets, not runtime code. Run:
@@ -60,8 +60,8 @@ def draw_terminal_box(draw, x, y, w, h, title=None):
 
 
 def make_cover():
-    """Devpost cover - 5:3 (1500x900), centered layout for thumbnail safety."""
-    W, H = 1500, 900
+    """Devpost cover - 3:2 (1500x1000), centered for Devpost gallery thumbnail."""
+    W, H = 1500, 1000
     img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
 
@@ -82,7 +82,7 @@ def make_cover():
     widths = [text_w(draw, t, tag_f) + 28 for t, _ in badges]
     total_w = sum(widths) + 24 * (len(badges) - 1)
     bx = cx - total_w // 2
-    by = 95
+    by = 145
     for (label, color), wd in zip(badges, widths):
         draw.rounded_rectangle([bx, by, bx + wd, by + 38], radius=19,
                                fill=(color[0] // 4, color[1] // 4, color[2] // 4),
@@ -93,12 +93,12 @@ def make_cover():
     # Title (centered)
     title_f = font(SANS, 72)
     title = "codex-mcp-doctor"
-    draw.text((cx - text_w(draw, title, title_f) // 2, 160), title, fill=FG, font=title_f)
+    draw.text((cx - text_w(draw, title, title_f) // 2, 210), title, fill=FG, font=title_f)
 
     # Tagline
     sub_f = font(SANS, 36)
     tag = "'npm doctor' for MCP"
-    draw.text((cx - text_w(draw, tag, sub_f) // 2, 255), tag, fill=CYAN, font=sub_f)
+    draw.text((cx - text_w(draw, tag, sub_f) // 2, 305), tag, fill=CYAN, font=sub_f)
 
     # One-liner (two lines, centered)
     desc_f = font(SANS, 24)
@@ -106,12 +106,12 @@ def make_cover():
         "Diagnose broken servers, malicious tools,",
         "and silent config failures - in one command.",
     ]):
-        draw.text((cx - text_w(draw, line, desc_f) // 2, 315 + i * 32), line,
+        draw.text((cx - text_w(draw, line, desc_f) // 2, 365 + i * 32), line,
                   fill=FG_DIM, font=desc_f)
 
     # Mini terminal (centered)
     tw, th = 760, 300
-    tx, ty = cx - tw // 2, 410
+    tx, ty = cx - tw // 2, 460
     draw_terminal_box(draw, tx, ty, tw, th, "doctor.py --config real.toml")
     mono_small = font(MONO, 18)
     lines = [
@@ -138,7 +138,7 @@ def make_cover():
     cw = [text_w(draw, t, chip_f) + 32 for t, _ in chips]
     total_cw = sum(cw) + 20 * (len(chips) - 1)
     ccx = cx - total_cw // 2
-    cy = 740
+    cy = 790
     for (label, color), wd in zip(chips, cw):
         draw.rounded_rectangle([ccx, cy, ccx + wd, cy + 34], radius=17,
                                fill=(color[0] // 4, color[1] // 4, color[2] // 4),
@@ -157,8 +157,8 @@ def make_cover():
 
 
 def make_w022():
-    """W022 homoglyph attack visualization - 5:3, centered."""
-    W, H = 1500, 900
+    """W022 homoglyph attack visualization - 3:2 (1500x1000), centered."""
+    W, H = 1500, 1000
     img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
     cx = W // 2
@@ -166,10 +166,10 @@ def make_w022():
     # Title (centered)
     title_f = font(SANS, 48)
     title = "W022: Cyrillic Homoglyph Attack"
-    draw.text((cx - text_w(draw, title, title_f) // 2, 60), title, fill=YELLOW, font=title_f)
+    draw.text((cx - text_w(draw, title, title_f) // 2, 110), title, fill=YELLOW, font=title_f)
     sub_f = font(SANS, 22)
     sub = "Unique to codex-mcp-doctor. No other MCP scanner detects this."
-    draw.text((cx - text_w(draw, sub, sub_f) // 2, 125), sub, fill=FG_DIM, font=sub_f)
+    draw.text((cx - text_w(draw, sub, sub_f) // 2, 175), sub, fill=FG_DIM, font=sub_f)
 
     # Two-column comparison, centered as a unit
     col_w = 420
@@ -179,7 +179,7 @@ def make_w022():
     x0 = cx - total // 2
     lx = x0
     rx = x0 + col_w + gap
-    y0 = 180
+    y0 = 230
 
     # Left: attacker
     draw_terminal_box(draw, lx, y0, col_w, col_h, "attacker-server (malicious)")
@@ -232,14 +232,14 @@ def make_w022():
 
 
 def make_real_report():
-    """Real multi-server diagnostic report - 5:3, centered.
+    """Real multi-server diagnostic report - 3:2 (1500x1000), centered.
 
     Renders the actual doctor.py output for a mixed-health config so the
     screenshot always matches the current code. Three servers: one healthy,
     one broken (command_not_found), one with a security warning (plaintext
     secret). This is the 'what does a real report look like' asset.
     """
-    W, H = 1500, 900
+    W, H = 1500, 1000
     img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
     cx = W // 2
@@ -247,22 +247,22 @@ def make_real_report():
     # Header
     title_f = font(SANS, 36)
     title = "Diagnostic Report - 3 servers"
-    draw.text((cx - text_w(draw, title, title_f) // 2, 40), title, fill=FG, font=title_f)
+    draw.text((cx - text_w(draw, title, title_f) // 2, 90), title, fill=FG, font=title_f)
     sub_f = font(SANS, 18)
     sub = "python3 scripts/doctor.py --config real-config.toml"
-    draw.text((cx - text_w(draw, sub, sub_f) // 2, 85), sub, fill=CYAN, font=sub_f)
+    draw.text((cx - text_w(draw, sub, sub_f) // 2, 135), sub, fill=CYAN, font=sub_f)
 
     # Summary bar
     sum_f = font(MONO, 20)
     summary = "Servers: 3 total   healthy: 1   warnings: 1   broken: 1"
-    draw.text((cx - text_w(draw, summary, sum_f) // 2, 125), summary, fill=FG_DIM, font=sum_f)
+    draw.text((cx - text_w(draw, summary, sum_f) // 2, 175), summary, fill=FG_DIM, font=sum_f)
 
     # Three server cards stacked vertically, centered
     card_w = 900
     card_h = 180
     gap = 24
     total_h = card_h * 3 + gap * 2
-    y0 = 175
+    y0 = 225
     x0 = cx - card_w // 2
 
     mono = font(MONO, 18)
@@ -344,13 +344,13 @@ def make_real_report():
 
 
 def make_rugpull():
-    """E003 rug-pull detection - 5:3, centered.
+    """E003 rug-pull detection - 3:2 (1500x1000), centered.
 
     Renders the actual doctor.py output when a baseline check fires two
     E003 tiers (high: description tampered, low: tool removed) plus the
     W022 from the same server. This is the flagship-feature screenshot.
     """
-    W, H = 1500, 900
+    W, H = 1500, 1000
     img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
     cx = W // 2
@@ -358,10 +358,10 @@ def make_rugpull():
     # Header
     title_f = font(SANS, 36)
     title = "E003: Rug-Pull Detection"
-    draw.text((cx - text_w(draw, title, title_f) // 2, 40), title, fill=RED, font=title_f)
+    draw.text((cx - text_w(draw, title, title_f) // 2, 90), title, fill=RED, font=title_f)
     sub_f = font(SANS, 18)
     sub = "First CLI implementation of tool-description pinning"
-    draw.text((cx - text_w(draw, sub, sub_f) // 2, 85), sub, fill=CYAN, font=sub_f)
+    draw.text((cx - text_w(draw, sub, sub_f) // 2, 135), sub, fill=CYAN, font=sub_f)
 
     # Three-state timeline (Monday baseline -> Friday check)
     mono = font(MONO, 18)
@@ -374,7 +374,7 @@ def make_rugpull():
     ]
     # Simple horizontal flow
     flow_f = font(MONO, 20)
-    flow_y = 140
+    flow_y = 190
     draw.text((cx - 400, flow_y), "MON: --save-baseline", fill=GREEN, font=flow_f)
     draw.text((cx - 80, flow_y), "  -->  ", fill=FG_DIM, font=flow_f)
     draw.text((cx + 20, flow_y), "FRI: --check-baseline", fill=YELLOW, font=flow_f)
@@ -383,7 +383,7 @@ def make_rugpull():
 
     # Terminal box with the actual report
     tw, th = 1200, 600
-    tx, ty = cx - tw // 2, 215
+    tx, ty = cx - tw // 2, 265
     draw_terminal_box(draw, tx, ty, tw, th, "doctor.py --check-baseline")
     mono_med = font(MONO, 17)
 
