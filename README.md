@@ -22,7 +22,9 @@ git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git && \
   python3 scripts/doctor.py --config examples/broken-stdio/config.toml
 ```
 
-No `pip install`. No virtualenv. Python 3.11+ only. You'll see a broken MCP server diagnosed in under a second — red error, root cause, one-line fix. Then try:
+No `pip install`. No virtualenv. Python 3.11+ only. You'll see a broken MCP server diagnosed in under a second — red error, root cause, one-line fix.
+
+**No git?** Download the [standalone zip](https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest) from the latest release, unzip, and run `python3 doctor.py --config examples/broken-stdio/config.toml`. Same result, zero clone. Then try:
 
 ```bash
 python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe   # supply chain + plaintext secrets

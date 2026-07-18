@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.12] - 2026-07-19
+
+### Changed
+
+- **README now offers a no-clone path.** The "Try it in 5 seconds" section previously only showed the git clone route. Added a "No git?" alternative pointing to the latest release standalone zip, so judges who do not want to clone can still try the tool in one download. This raises the try-it rate for the exact audience (busy hackathon judges) most likely to skip if the first option looks like work.
+
+- **doctor.py --version 1.6.11 -> 1.6.12.**
+
+
 ## [1.6.11] - 2026-07-19
 
 ### Added
