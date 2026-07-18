@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.21] - 2026-07-19
+
+### Fixed
+
+- **Local path leakage in docs.** Three docs (form-guide, recording checklist, submission) hardcoded the developer local path (`/Volumes/data/codex-mcp-doctor`), visible to judges reading the repo. Replaced with relative paths.
+
+- **SKILL.md frontmatter missing the unique differentiator.** The description listed security checks but omitted "Cyrillic homoglyph attacks" - the one detection no other MCP scanner has and the keyword that should trigger the skill. Added.
+
+- **Voiceover Scene 4 overrun.** The [2:23] block was 70 words needing 30s in a 19s window. Trimmed to 39 words (kept the two-tier structure + first-CLI claim; cut the redundant W022 callback Scene 3b already covers). Corrected the pacing assumption from ~140 wpm to ~150 wpm; total VO is now 423 words = 2:49, leaving 11s headroom under 3:00.
+
+- **doctor.py --version 1.6.20 -> 1.6.21.
+
+
 ## [1.6.20] - 2026-07-19
 
 ### Fixed
