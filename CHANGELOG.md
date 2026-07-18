@@ -5,6 +5,36 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-07-18
+
+### Fixed
+
+- **Baseline silent-skip bug** - `--check-baseline` with a missing baseline
+  file silently returned `[]` (exit 0, no output). Now returns an info-level
+  message telling the user to run `--save-baseline` first.
+- **Duplicate baseline-issue append** - server-level baseline issues were
+  appended twice to `security_issues` due to a duplicated `if target:` block
+  in `main()`.
+- **Baseline-failure exit code** - high-severity baseline problems (corrupted
+  /invalid file) now return exit code 2 instead of 0, so hooks notice that
+  rug-pull detection silently failed.
+- **Docker exec/build/create false positive** - `docker exec`, `docker build`,
+  and `docker create` were flagged as unpinned images. Only `docker run` and
+  `docker pull` fetch from a registry; others operate on local state.
+
+### Added
+
+- **Pipe-through-curl exfiltration detection** - catches
+  `pipe|feed|stream ... through|via curl|wget|nc` patterns that lack the
+  `to <URL>` structure the old regex required.
+- **curl/wget to suspicious hostnames** - catches `curl ... evil.com` /
+  `curl ... attacker.io` where the hostname itself is the red flag.
+- **Tool poisoning self-contradiction** - catches
+  `actually deletes|removes|overwrites|destroys|wipes|formats` patterns
+  where a tool description contradicts its claimed purpose.
+- Synthetic test token replaced with a low-entropy fake to avoid tripping
+  GitGuardian-style secret scanners (was a valid-format 36-char PAT).
+
 ## [1.4.0] - 2026-07-18
 
 ### Added
