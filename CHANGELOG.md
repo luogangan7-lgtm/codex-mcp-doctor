@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.11] - 2026-07-19
+
+### Added
+
+- **`scripts/build-release-zip.py`** — builds a self-contained release zip (`codex-mcp-doctor-<version>-standalone.zip`) containing `doctor.py`, all 4 example configs, and a one-page `QUICKSTART.md`. Judges can download the zip from the GitHub Release page, unzip, and run `python3 doctor.py --config examples/broken-stdio/config.toml` with no git clone and no pip install. This directly serves the zero-dependency narrative: the release artifact itself proves you can run the tool without any install step. Read version automatically from `doctor.py`'s argparse `--version` string (matching the exact `mcp-doctor X.Y.Z` format to avoid grabbing the MCP clientInfo version).
+
+- **v1.6.10 GitHub Release now has 5 downloadable assets** — the standalone zip plus all 4 Devpost images (`devpost-cover.png`, `w022-homoglyph.png`, `screenshot-real-report.png`, `screenshot-rugpull-detection.png`). Previously the release had zero attached assets, forcing judges to browse the repo tree to find the images.
+
+### Verified
+
+- Standalone zip extracted to `/tmp/mcp-doctor-release-test`; all 3 runnable examples (`broken-stdio`, `security-issues --check secrets --skip-probe`, `homoglyph-attack`) executed successfully with zero install.
+
+- **doctor.py --version 1.6.10 -> 1.6.11.**
+
+
 ## [1.6.10] - 2026-07-19
 
 ### Changed
