@@ -191,6 +191,10 @@ Our unique angle: **zero-config, auto-triggering, Codex-integrated** - you don't
 
 vs. **Invariant MCP-Scan**: They pioneered tool pinning / rug-pull detection as a web app. v1.4 brings the same capability to the CLI with zero dependencies and automatic config discovery - no browser, no upload.
 
+vs. **Snyk agent-scan**: A heavyweight CLI that scans agents + MCP servers for 15+ risk patterns but requires `pip install snyk-agent-scan` and a Snyk account. We cover the same OWASP MCP Top 10 surface (MCP02 tool poisoning, MCP04 supply chain, injection, rug-pull) with **zero dependencies** and **zero signup** - one file, runs anywhere Python 3.11+ does.
+
+**Homoglyph detection (W022) is unique to codex-mcp-doctor.** No other MCP scanner - not MCP-Scan, Snyk agent-scan, destilabs/mcp-doctor, nor prompt-testing tools like Promptfoo - detects Cyrillic (or other mixed-script) lookalike characters in tool names. Promptfoo covers homoglyphs for prompt injection testing only, not for MCP tool descriptions. This closes a real attack vector: a malicious server can ship a tool name using Cyrillic е that visually passes as the Latin `filesystem_read` in any code review or model context window.
+
 ## License
 
 MIT
@@ -203,6 +207,7 @@ v1.3 adds a security layer that scans MCP tool descriptions for attack patterns:
 - **E002 Tool Shadowing** - flags cross-server tool name references (a poisoned tool mentioning another server's tools)
 - **W001 Manipulative Language** - urgency words like "crucial", "must", "override"
 - **W021 Hidden Unicode** - zero-width spaces, bidi overrides, and Unicode Tag sequences (U+E0000-U+E007F) that encode invisible messages
+- **W022 Cyrillic Homoglyph** - detects mixed-script tool names where Cyrillic lookalike characters (\u0430='a', \u0435='e', \u043E='o', etc.) impersonate Latin identifiers (e.g. `fil\u0435system_read` looks like `filesystem_read`)
 - **W015/017/019 Capability Risks** - untrusted content, sensitive data, destructive operations
 
 Security issues cap the health score: critical → max 20, high → max 50.
@@ -306,9 +311,9 @@ No `pip install`, no virtualenv, no compilation. Just Python 3.11+.
 
 ## Roadmap
 
+- **Semantic tool-poisoning detection** - beyond regex, using embedding similarity to detect paraphrased injection patterns
 - **Watch mode** - `--watch` flag for continuous monitoring during development
-- **Diff mode** - compare two configs to see what changed between environments
 - **Team baselines** - shared baseline file for team-wide rug-pull detection
-- **Resource/prompt schema validation** - extend schema checks beyond tools
+- **Codex marketplace publication**
 
 # Requires Python 3.11+ (stdlib tomllib). On macOS use Homebrew python3, not /usr/bin/python3 (3.9).
