@@ -1,0 +1,15 @@
+# Example: security issues in MCP config (no running server needed)
+#
+# This config demonstrates supply-chain and secret detection.
+# Run with: python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe
+
+# 1. Unpinned npx package - supply-chain risk (could be republished with malware)
+[mcp_servers.unpinned-npx]
+command = "npx"
+args = ["some-mcp-server"]
+
+# 2. Plaintext API key in http_headers - should be in an env var
+[mcp_servers.plaintext-secret]
+url = "https://api.example.com/mcp"
+[mcp_servers.plaintext-secret.http_headers]
+Authorization = "Bearer sk-1234567890abcdef1234567890abcdef"

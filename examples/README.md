@@ -6,6 +6,7 @@ specific MCP misconfiguration. Run the doctor against any of them:
 ```bash
 python3 scripts/doctor.py --config examples/broken-stdio/config.toml
 python3 scripts/doctor.py --config examples/broken-http/config.toml
+python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe
 ```
 
 Add `--json` for machine-readable output, or `--quiet` to suppress the
@@ -13,11 +14,13 @@ banner.
 
 ## Example set
 
-| Directory          | What it demonstrates                                     |
-|--------------------|----------------------------------------------------------|
-| `broken-stdio/`    | A stdio server whose `command` binary does not exist     |
-| `broken-http/`     | An HTTP/SSE server pointing at a dead `localhost` port   |
+| Directory           | What it demonstrates                                      | Needs network? |
+|---------------------|-----------------------------------------------------------|----------------|
+| `broken-stdio/`     | A stdio server whose `command` binary does not exist      | No             |
+| `broken-http/`      | An HTTP server pointing at a dead port (127.0.0.1:1)      | Local only     |
+| `security-issues/`  | Unpinned packages + plaintext secrets in config           | No             |
 
 The companion `expected-output.txt` in each folder shows the canonical
 report the doctor produces for that config, so you can diff your own
-run against the reference.
+run against the reference. Values marked `<latency>` or `<python_path>`
+vary by machine; all error types and messages are stable.

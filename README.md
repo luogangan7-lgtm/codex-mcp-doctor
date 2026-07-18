@@ -292,11 +292,11 @@ python3 tests/test_doctor.py
 python3 scripts/doctor.py --config examples/broken-stdio/config.toml
 python3 scripts/doctor.py --config examples/broken-http/config.toml
 
-# 3. Run against your real Codex config (if you have MCP servers)
-python3 scripts/doctor.py
+# 3. See security issues (unpinned packages + plaintext secrets)
+python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe
 
-# 4. Try the security scanner
-python3 scripts/doctor.py --check security
+# 4. Run against your real Codex config (if you have MCP servers)
+python3 scripts/doctor.py
 
 # 5. JSON output for programmatic use
 python3 scripts/doctor.py --json | python3 -m json.tool | head -30
