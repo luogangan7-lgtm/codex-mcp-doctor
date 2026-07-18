@@ -7,8 +7,12 @@
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-success)]()
 [![Tests](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml/badge.svg)](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Built with Codex + GPT-5.6](https://img.shields.io/badge/Built_with-Codex_+_GPT--5.6-8A2BE2)](https://openai.com/codex)
+[![OpenAI Build Week](https://img.shields.io/badge/OpenAI-Build_Week-6A5ACD)](https://openai.com/build-week)
 
 ![codex-mcp-doctor cover](docs/devpost-cover.png)
+
+> **Dogfooded end-to-end.** The entire codebase — doctor logic, 285 tests, hooks, CI, security analyzers, demo, and this README — was written, debugged, and hardened inside **Codex desktop with GPT-5.6**, using Codex's own MCP tooling to build tooling *for* Codex. A shared memory canvas carried state across sessions; every commit had to pass a 285-test gate before advancing. The zero-dependency constraint is part of the same story: a broken-MCP diagnostic that needs `pip install` would defeat its own purpose.
 
 **The W022 Cyrillic homoglyph attack - unique to codex-mcp-doctor:**
 
@@ -357,4 +361,8 @@ No `pip install`, no virtualenv, no compilation. Just Python 3.11+.
 - **Team baselines** - shared baseline file for team-wide rug-pull detection
 - **Codex marketplace publication**
 
-# Requires Python 3.11+ (stdlib tomllib). On macOS use Homebrew python3, not /usr/bin/python3 (3.9).
+## Requirements
+
+- **Python 3.11+** (uses stdlib `tomllib`, added in 3.11).
+- On macOS, use Homebrew `python3` — the system `/usr/bin/python3` is 3.9 and lacks `tomllib`.
+- No `pip install`, no virtualenv, no compilation. Pure stdlib only.

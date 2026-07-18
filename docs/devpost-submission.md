@@ -45,7 +45,7 @@ Worse, MCP servers can be **silently hostile**: a tool description containing `<
 
 ### How We Built It
 
-Built entirely inside **Codex desktop with GPT-5.6** as the development environment — not just "used Codex to write some code," but dogfooded Codex end-to-end to build tooling *for* Codex. The entire codebase (2,725 lines of doctor logic, 2,593 lines of tests, hooks, CI, examples, docs) was written, debugged, and hardened through **agent-driven iterative development**: each session picked up state from a shared memory canvas, ran a verification gate (285 tests + plugin validator + demo smoke), and only advanced when green.
+Built entirely inside **Codex desktop with GPT-5.6** as the development environment — not just "used Codex to write some code," but dogfooded Codex end-to-end to build tooling *for* Codex. The entire codebase (2,865 lines of doctor logic, 2,593 lines of tests, hooks, CI, examples, docs) was written, debugged, and hardened through **agent-driven iterative development**: each session picked up state from a shared memory canvas, ran a verification gate (285 tests + plugin validator + demo smoke), and only advanced when green.
 
 The development loop itself uses Codex's native affordances as load-bearing infrastructure, not decoration:
 
@@ -277,7 +277,7 @@ python3 scripts/doctor.py --check-baseline
 
 | Metric | Value |
 |--------|-------|
-| Lines of code (doctor.py) | 2,725 |
+| Lines of code (doctor.py) | 2,865 |
 | Lines of tests | 2,593 |
 | Test count | 285 |
 | External dependencies | 0 |
