@@ -2369,6 +2369,107 @@ class TestOnlyFilterNoMatch(unittest.TestCase):
 
 
 
+# ═══════════════════════════════════════════════════════════════════════
+# v1.5.1: --debug flag + probe_warnings tests
+# ═══════════════════════════════════════════════════════════════════════
+
+class TestProbeWarnings(unittest.TestCase):
+    """probe_warnings field collects best-effort exceptions instead of swallowing."""
+
+    def test_probe_result_has_warnings_field(self):
+        pr = doctor.ProbeResult()
+        self.assertEqual(pr.probe_warnings, [])
+
+    def test_probe_result_warnings_default_independent(self):
+        pr1 = doctor.ProbeResult()
+        pr2 = doctor.ProbeResult()
+        pr1.probe_warnings.append("x")
+        # Default factory must give each instance its own list
+        self.assertEqual(pr2.probe_warnings, [])
+
+
+class TestDebugFlag(unittest.TestCase):
+    """--debug surfaces hidden probe warnings; default mode hides them."""
+
+    def setUp(self):
+        # Save and reset
+        self._saved = doctor.DEBUG
+
+    def tearDown(self):
+        doctor.DEBUG = self._saved
+
+    def test_debug_off_hides_probe_warnings(self):
+        doctor.DEBUG = False
+        s = doctor.ServerResult(
+            name="srv", transport="http", status=doctor.HEALTHY,
+            tools_found=["a"], health_score=90.0,
+        )
+        s._probe_warnings = ["hidden detail"]
+        report = doctor.DiagnosticsReport(config_path="/x", servers=[s])
+        out = doctor.format_report_human(report)
+        self.assertNotIn("hidden detail", out)
+        self.assertNotIn("debug:", out)
+
+    def test_debug_on_shows_probe_warnings(self):
+        doctor.DEBUG = True
+        s = doctor.ServerResult(
+            name="srv", transport="http", status=doctor.HEALTHY,
+            tools_found=["a"], health_score=90.0,
+        )
+        s._probe_warnings = ["resources/list best-effort failed: TimeoutError: timed out"]
+        report = doctor.DiagnosticsReport(config_path="/x", servers=[s])
+        out = doctor.format_report_human(report)
+        self.assertIn("debug:", out)
+        self.assertIn("1 probe warning(s) hidden", out)
+        self.assertIn("resources/list best-effort failed", out)
+
+    def test_debug_on_no_warnings_no_debug_line(self):
+        """If DEBUG on but no warnings, don't print an empty debug block."""
+        doctor.DEBUG = True
+        s = doctor.ServerResult(
+            name="srv", transport="http", status=doctor.HEALTHY,
+            tools_found=["a"], health_score=90.0,
+        )
+        s._probe_warnings = []
+        report = doctor.DiagnosticsReport(config_path="/x", servers=[s])
+        out = doctor.format_report_human(report)
+        self.assertNotIn("debug:", out)
+
+    def test_debug_on_missing_attr_no_crash(self):
+        """ServerResult without _probe_warnings stash shouldn't crash debug render."""
+        doctor.DEBUG = True
+        s = doctor.ServerResult(
+            name="srv", transport="stdio", status=doctor.DISABLED,
+        )
+        # Deliberately do NOT set _probe_warnings
+        report = doctor.DiagnosticsReport(config_path="/x", servers=[s])
+        out = doctor.format_report_human(report)
+        # Should not crash, should not show debug line
+        self.assertNotIn("debug:", out)
+
+
+class TestDebugArgparse(unittest.TestCase):
+    """The --debug flag exists and parses without error."""
+
+    def test_debug_help_mentions_probe_warnings(self):
+        """argparse --help writes to stderr (not stdout); capture both and assert."""
+        import io, sys, contextlib
+        old_argv = sys.argv
+        try:
+            sys.argv = ["doctor", "--help"]
+            buf_out = io.StringIO()
+            buf_err = io.StringIO()
+            with contextlib.redirect_stdout(buf_out), contextlib.redirect_stderr(buf_err):
+                try:
+                    doctor.main()
+                except SystemExit:
+                    pass  # --help always exits
+            help_text = buf_err.getvalue() + buf_out.getvalue()
+            self.assertIn("--debug", help_text)
+            self.assertIn("probe warnings", help_text)
+        finally:
+            sys.argv = old_argv
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 

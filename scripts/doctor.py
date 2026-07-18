@@ -61,6 +61,11 @@ READONLY_TOOL_HINTS = (
 )
 
 
+# Module-level flag: set by main() when --debug is passed. Controls whether
+# internal probe warnings (best-effort exceptions) are rendered in the report.
+DEBUG = False
+
+
 @dataclass
 class ToolSchemaIssue:
     tool: str
@@ -81,6 +86,7 @@ class ProbeResult:
     capabilities: dict = field(default_factory=dict)
     notifications: list[dict] = field(default_factory=list)
     rpc_error: dict = field(default_factory=dict)  # JSON-RPC error response, if any
+    probe_warnings: list[str] = field(default_factory=list)  # best-effort probe exceptions (debug)
 
 
 @dataclass
@@ -688,8 +694,8 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
         except urllib.error.HTTPError as e:
             if e.code not in (400, 404, 405, 501):
                 raise
-        except Exception:
-            pass
+        except Exception as e:
+            probe.probe_warnings.append(f"resources/list best-effort failed: {type(e).__name__}: {e}")
 
         # prompts/list (best-effort)
         try:
@@ -698,8 +704,8 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
         except urllib.error.HTTPError as e:
             if e.code not in (400, 404, 405, 501):
                 raise
-        except Exception:
-            pass
+        except Exception as e:
+            probe.probe_warnings.append(f"prompts/list best-effort failed: {type(e).__name__}: {e}")
 
         latency = (time.monotonic() - t0) * 1000
 
@@ -735,8 +741,9 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
         body = ""
         try:
             body = e.read().decode(errors="replace")[:300]
-        except Exception:
-            pass
+        except Exception as be:
+            # Non-fatal: body is only used for diagnostic context in the error message.
+            body = f"<unreadable body: {type(be).__name__}>"
         if e.code in (401, 403):
             issues.append({
                 "severity": "error",
@@ -1755,6 +1762,9 @@ def diagnose(
             latency_ms=latency,
             raw_config=cfg,
         )
+        # Stash probe warnings for --debug rendering (non-fatal best-effort
+        # exceptions caught during resources/list, prompts/list, etc.).
+        result._probe_warnings = probe.probe_warnings
         # Cache tools for the cross-server security pass
         probe_tool_cache[name] = probe.tools
         # v1.4: stash full tool dicts on the result so the baseline
@@ -2035,6 +2045,12 @@ def format_report_human(report: DiagnosticsReport) -> str:
                 lines.append(f"        stderr: {issue['stderr'][:200]}")
             if issue.get("body"):
                 lines.append(f"        response: {issue['body'][:200]}")
+        if DEBUG:
+            pw = getattr(s, "_probe_warnings", None) or []
+            if pw:
+                lines.append(f"     ⚙ debug: {len(pw)} probe warning(s) hidden:")
+                for w in pw:
+                    lines.append(f"        - {w}")
         lines.append("")
 
     lines.append("=" * 64)
@@ -2636,10 +2652,19 @@ def main() -> int:
         help="Override baseline file location (default: ~/.codex/mcp-doctor-baseline.json).",
     )
     parser.add_argument(
+        "--debug", action="store_true",
+        help="Show internal probe warnings (best-effort exceptions caught during "
+             "resources/list, prompts/list, etc.). Useful when a server returns "
+             "0 content and you suspect a probe-level issue rather than an empty server.",
+    )
+    parser.add_argument(
         "--quiet", action="store_true",
         help="Suppress all output unless errors are found (for hooks). Exit code still reflects health.",
     )
     args = parser.parse_args()
+
+    global DEBUG
+    DEBUG = args.debug
 
     # Rug-pull baseline needs a full probe (to see tool descriptions), so we
     # normalize the check mode and flip a flag the diagnose() flow reads.

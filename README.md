@@ -132,6 +132,11 @@ python3 scripts/doctor.py --check schema
 
 # Custom config path
 python3 scripts/doctor.py --config /path/to/config.toml
+
+# Show hidden probe warnings (best-effort exceptions caught during
+# resources/list, prompts/list — useful when a server returns 0 content
+# and you suspect a probe-level issue rather than an empty server)
+python3 scripts/doctor.py --debug
 ```
 
 ## Exit Codes

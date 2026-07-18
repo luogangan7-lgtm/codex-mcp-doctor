@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`--debug` flag** - surfaces hidden probe warnings. Best-effort exceptions
+  caught during `resources/list`, `prompts/list`, and HTTP body reads are now
+  recorded on `ProbeResult.probe_warnings` instead of being silently swallowed.
+  Default mode hides them (output unchanged); `--debug` renders them per server
+  with a `⚙ debug:` block. Addresses the "silent catch hides real bugs behind
+  no_content_returned" risk identified in the v1.5.0 audit.
+
+### Changed
+
+- Three `except Exception: pass` blocks in `probe_http` now capture the
+  exception (`as e`) and record it. The fourth (HTTP error body read) now
+  records the exception type in the body field instead of returning empty.
+- `ProbeResult` dataclass gains a `probe_warnings: list[str]` field (default
+  factory). `ServerResult` stashes warnings via `_probe_warnings` private
+  attribute (non-polluting, not in `to_dict()`).
+
+### Tests
+
+- 7 new tests covering `--debug` flag: field independence, hidden-by-default,
+  shown-when-debug-on, empty-when-no-warnings, missing-attr no-crash,
+  argparse help text. (266 → 273 tests)
+
 
 ## [1.5.0] - 2026-07-19
 
