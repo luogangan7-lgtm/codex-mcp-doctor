@@ -66,7 +66,10 @@ do_pause() {
 run() {
     # Show the command, then run it. Don't let a non-zero exit abort the demo
     # (broken-server scenes are supposed to exit non-zero).
-    echo "\$ $*"
+    # Display 'python3' instead of the full interpreter path for portability.
+    local display_cmd="$*"
+    display_cmd="${display_cmd//$PYTHON/python3}"
+    echo "\$ ${display_cmd}"
     "$@" || true
 }
 
@@ -146,11 +149,14 @@ echo
 echo "--debug: surfaces best-effort exceptions normally hidden behind 'no_content_returned':"
 echo "  (running doctor --debug against broken-stdio example)"
 echo
-$PYTHON scripts/doctor.py --config examples/broken-stdio/config.toml --debug 2>&1 | head -25 || true
+echo "$ python3 scripts/doctor.py --config examples/broken-stdio/config.toml --debug"
+python3_exec="$PYTHON"
+# Run via the resolved python, but show 'python3' to the viewer
+"$python3_exec" scripts/doctor.py --config examples/broken-stdio/config.toml --debug 2>&1 | head -25 || true
 echo
 echo "--watch: continuous monitoring, silent until status changes:"
-echo "  $PYTHON scripts/doctor.py --watch --interval 30   # Ctrl+C to stop"
-echo "  $PYTHON scripts/doctor.py --watch --quiet          # hook-style guard duty"
+echo "  python3 scripts/doctor.py --watch --interval 30   # Ctrl+C to stop"
+echo "  python3 scripts/doctor.py --watch --quiet          # hook-style guard duty"
 echo
 echo "Two layers of protection: SessionStart hook (boot) + --watch (runtime)."
 do_pause
