@@ -218,6 +218,41 @@ class TestSchemaValidation(unittest.TestCase):
         issues = doctor.validate_tool_schema(tool)
         self.assertTrue(any(i.kind == "invalid_enum" for i in issues))
 
+    def test_property_missing_type(self):
+        """A property with no type and no composition keyword is a schema gap."""
+        tool = {"name": "t", "description": "does useful work",
+                "inputSchema": {"type": "object", "properties": {"a": {"description": "param"}}}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertTrue(any(i.kind == "property_missing_type" for i in issues))
+
+    def test_property_missing_type_skipped_with_anyof(self):
+        """anyOf is a valid alternative to a flat type - don't flag."""
+        tool = {"name": "t", "description": "does useful work",
+                "inputSchema": {"type": "object", "properties": {"a": {"anyOf": [{"type": "string"}, {"type": "null"}]}}}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertFalse(any(i.kind == "property_missing_type" for i in issues))
+
+    def test_property_missing_type_skipped_with_ref(self):
+        """$ref is a valid alternative to a flat type - don't flag."""
+        tool = {"name": "t", "description": "does useful work",
+                "inputSchema": {"type": "object", "properties": {"a": {"$ref": "#/definitions/X"}}}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertFalse(any(i.kind == "property_missing_type" for i in issues))
+
+    def test_object_no_properties(self):
+        """type:object with no properties/additionalProperties is vacuous."""
+        tool = {"name": "t", "description": "does useful work",
+                "inputSchema": {"type": "object"}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertTrue(any(i.kind == "object_no_properties" for i in issues))
+
+    def test_object_with_additional_properties_ok(self):
+        """additionalProperties:true is a valid open-ended object - don't flag."""
+        tool = {"name": "t", "description": "does useful work",
+                "inputSchema": {"type": "object", "additionalProperties": True}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertFalse(any(i.kind == "object_no_properties" for i in issues))
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # Health scoring tests

@@ -935,6 +935,19 @@ def validate_tool_schema(tool: dict) -> list[ToolSchemaIssue]:
                 fix=f"Add '{req_field}' to properties or remove it from required.",
             ))
 
+    # 2b. object type with no properties and no additionalProperties is vacuous
+    schema_type = schema.get("type")
+    if (schema_type == "object" and not props
+            and not schema.get("additionalProperties")
+            and not schema.get("patternProperties")):
+        issues.append(ToolSchemaIssue(
+            tool=name, severity="warning", kind="object_no_properties",
+            message=f"Tool '{name}' inputSchema is type 'object' but declares no "
+                    f"properties, additionalProperties, or patternProperties.",
+            fix="Either list the expected parameters under 'properties', or set "
+                "'additionalProperties: true' if the tool accepts arbitrary keys.",
+        ))
+
     # 3. Each property should have a type and ideally a description
     for prop_name, prop_schema in props.items():
         if not isinstance(prop_schema, dict):
@@ -951,6 +964,18 @@ def validate_tool_schema(tool: dict) -> list[ToolSchemaIssue]:
                 tool=name, severity="error", kind="invalid_type",
                 message=f"Tool '{name}' property '{prop_name}' has invalid type '{ptype}'.",
                 fix=f"Use one of: {', '.join(sorted(VALID_JSON_TYPES))}.",
+            ))
+        elif not ptype and not any(
+            k in prop_schema for k in ("$ref", "anyOf", "oneOf", "allOf")
+        ):
+            # No type and no composition keyword - the model can't tell what
+            # kind of value to pass. Skip if a composition keyword is present
+            # (those are valid JSON Schema alternatives to a flat type).
+            issues.append(ToolSchemaIssue(
+                tool=name, severity="warning", kind="property_missing_type",
+                message=f"Tool '{name}' property '{prop_name}' has no type "
+                        f"(and no $ref/anyOf/oneOf/allOf).",
+                fix=f"Add a 'type' to '{prop_name}' (e.g. string, number, boolean, array, object).",
             ))
 
         pdesc = prop_schema.get("description", "")
