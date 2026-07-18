@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.5] - 2026-07-19
+
+### Fixed
+
+- **README 5-second judge hook: security-issues command was missing `--check secrets --skip-probe`.** The first command (`broken-stdio`) is local-only and worked perfectly, but the second command (`security-issues`) was shown as a bare `doctor.py --config ...` with no flags. On a fresh clone this actually probes the fake npm package and the example.com HTTPS endpoint, producing `process_crashed` (npm 404) and `ssl_error` noise that buries the two warnings the example exists to showcase (`unpinned_package` + `plaintext_secret_header`). The `demo.sh` and `devpost-submission.md` versions of the same command both already carry `--check secrets --skip-probe` — only the README hook was missing it. Verified on a fresh clone: with the flags, the output is exactly 2 warnings and both servers at 90.0, the clean supply-chain + plaintext-secret showcase the comment promises.
+
+- **doctor.py --version bump 1.6.4 -> 1.6.5.**
+
 ## [1.6.4] - 2026-07-19
 
 ### Changed

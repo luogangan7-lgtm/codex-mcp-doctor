@@ -25,8 +25,8 @@ git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git && \
 No `pip install`. No virtualenv. Python 3.11+ only. You'll see a broken MCP server diagnosed in under a second — red error, root cause, one-line fix. Then try:
 
 ```bash
-python3 scripts/doctor.py --config examples/security-issues/config.toml   # supply chain + plaintext secrets
-python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml  # Cyrillic W022 attack
+python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe   # supply chain + plaintext secrets
+python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml                                # Cyrillic W022 attack
 ```
 
 **The W022 Cyrillic homoglyph attack - unique to codex-mcp-doctor:**
