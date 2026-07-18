@@ -1533,7 +1533,7 @@ def diagnose(
         run_probe = (
             not skip_probe
             and not has_config_error
-            and check_mode in ("all", "connectivity", "security")
+            and check_mode in ("all", "connectivity", "schema", "security")
         )
 
         if run_probe:
@@ -1556,6 +1556,14 @@ def diagnose(
         if probe.tools and check_mode in ("all", "schema"):
             for tool in probe.tools:
                 schema_issues_raw.extend(validate_tool_schema(tool))
+        # Resource/prompt schema checks: in schema-only mode, run here
+        # (per-server). In all/security mode, they run in the cross-server
+        # pass below alongside injection/Unicode scanning.
+        if check_mode == "schema":
+            for r in probe.resources:
+                schema_issues_raw.extend(validate_resource_schema(r))
+            for p_item in probe.prompts:
+                schema_issues_raw.extend(validate_prompt_schema(p_item))
 
         # L4: per-tool security analysis (E001 injection, W001 suspicious words,
         # W021 hidden Unicode). Run alongside schema checks or in security-only mode.
@@ -1584,7 +1592,7 @@ def diagnose(
             status = WARNING
         elif sec_any:
             status = WARNING  # any security finding (even low) = warning
-        elif skip_probe or check_mode not in ("all", "connectivity"):
+        elif not run_probe:
             status = "config-ok"
         else:
             status = HEALTHY
@@ -2396,7 +2404,7 @@ def main() -> int:
         prog="mcp-doctor",
         description="Diagnose MCP server health for Codex. Zero dependencies.",
     )
-    parser.add_argument("--version", action="version", version="mcp-doctor 1.4.1")
+    parser.add_argument("--version", action="version", version="mcp-doctor 1.4.2")
     parser.add_argument(
         "--config", type=Path, default=None,
         help="Path to config.toml (default: auto-discover CODEX_HOME or ~/.codex/config.toml)",

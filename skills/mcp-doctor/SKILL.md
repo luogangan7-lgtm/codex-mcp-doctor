@@ -80,6 +80,12 @@ python3 scripts/doctor.py --timeout 15
 
 # Point to a different config file
 python3 scripts/doctor.py --config /path/to/config.toml
+
+# Custom baseline location (default: ~/.codex/mcp-doctor-baseline.json)
+python3 scripts/doctor.py --check-baseline --baseline-path /custom/path.json
+
+# Quiet mode — suppress output unless errors found (for hooks/automation)
+python3 scripts/doctor.py --quiet
 ```
 
 ## Exit Codes (Why This Skill Has Teeth)

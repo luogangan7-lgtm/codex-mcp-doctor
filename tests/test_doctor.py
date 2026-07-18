@@ -681,6 +681,46 @@ command = "echo"
         # Should be config-ok since no probe ran
         self.assertEqual(report.servers[0].status, "config-ok")
 
+    def test_check_schema_probes_and_finds_issues(self):
+        """--check schema must probe to get tools and check their schemas.
+        Regression: schema mode previously skipped the probe entirely,
+        so schema issues were never detected."""
+        mock_path = str(Path(__file__).parent / "mock_server.py")
+        cfg = self._write_config(
+            f'[mcp_servers.mock]\ncommand = "{sys.executable}"\nargs = ["{mock_path}"]\n'
+        )
+        report = doctor.diagnose(cfg, timeout=10, skip_probe=False, only=None, check_mode="schema")
+        s = report.servers[0]
+        self.assertGreater(len(s.tools_found), 0, "schema mode must probe to get tools")
+        self.assertGreater(len(s.schema_issues), 0, "schema mode must detect schema issues")
+        self.assertEqual(s.status, doctor.ERROR)
+
+    def test_check_security_probes_and_reports_healthy(self):
+        """--check security with a clean server should report healthy,
+        not config-ok. Regression: security mode probed tools but was
+        marked config-ok due to a status logic bug."""
+        mock_path = str(Path(__file__).parent / "mock_server.py")
+        cfg = self._write_config(
+            f'[mcp_servers.mock]\ncommand = "{sys.executable}"\nargs = ["{mock_path}"]\n'
+        )
+        report = doctor.diagnose(cfg, timeout=10, skip_probe=False, only=None, check_mode="security")
+        s = report.servers[0]
+        self.assertGreater(len(s.tools_found), 0, "security mode must probe to get tools")
+        self.assertNotEqual(s.status, "config-ok",
+                           "security mode with successful probe should not be config-ok")
+
+    def test_check_schema_includes_resource_prompt_schema(self):
+        """--check schema should also validate resource and prompt schemas,
+        not just tool schemas."""
+        mock_path = str(Path(__file__).parent / "mock_server.py")
+        cfg = self._write_config(
+            f'[mcp_servers.mock]\ncommand = "{sys.executable}"\nargs = ["{mock_path}"]\n'
+        )
+        report = doctor.diagnose(cfg, timeout=10, skip_probe=False, only=None, check_mode="schema")
+        codes = [si["code"] for si in report.servers[0].schema_issues]
+        self.assertIn("resource_missing_description", codes,
+                     "schema mode must check resource schemas, not just tools")
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # Output formatting tests

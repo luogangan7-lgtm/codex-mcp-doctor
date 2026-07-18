@@ -5,6 +5,30 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2026-07-18
+
+### Fixed
+
+- **`--check schema` never probed** - schema-only mode skipped the
+  connectivity probe entirely, so it could never see tool definitions
+  and never detected schema issues. It returned `config-ok` even on
+  servers with broken schemas. Now schema mode probes and runs full
+  schema validation (tools + resources + prompts).
+- **`--check security` misreported `config-ok`** - after a successful
+  probe with no security findings, servers were marked `config-ok`
+  instead of `healthy`. The status logic only treated `all` and
+  `connectivity` modes as probe-worthy. Now any mode that probed
+  successfully reports `healthy` when clean.
+- **Resource/prompt schema gaps in `--check schema`** - resource and
+  prompt schema validation only ran in the cross-server security pass
+  (`all`/`security` modes). `--check schema` now validates resource
+  and prompt schemas in the per-server loop.
+
+### Added
+
+- 3 regression tests covering the above fixes (209 total).
+- `--baseline-path` and `--quiet` flags documented in SKILL.md.
+
 ## [1.4.1] - 2026-07-18
 
 ### Fixed
