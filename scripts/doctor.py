@@ -417,6 +417,17 @@ def validate_http_config(name: str, cfg: dict) -> list[dict]:
         })
         return issues
 
+    # Guard against non-string url values (list, int, etc.) that would
+    # crash urlparse() with AttributeError.
+    if not isinstance(url, str):
+        issues.append({
+            "severity": "error",
+            "code": "invalid_url_type",
+            "message": f"'url' must be a string, got {type(url).__name__}: {repr(url)[:60]}",
+            "fix": "Set url to a string, e.g. url = \"https://your-server.com/mcp\".",
+        })
+        return issues
+
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         issues.append({

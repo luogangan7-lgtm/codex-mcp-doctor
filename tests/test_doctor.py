@@ -148,6 +148,26 @@ class TestConfigValidation(unittest.TestCase):
         issues = doctor.validate_stdio_config("x", {"command": {"a": 1}})
         self.assertTrue(any(i["code"] == "invalid_command_type" for i in issues))
 
+    def test_url_as_list_rejected(self):
+        """A list-typed url must not crash urlparse()."""
+        issues = doctor.validate_http_config("x", {"url": ["http://x"]})
+        self.assertTrue(any(i["code"] == "invalid_url_type" for i in issues))
+
+    def test_url_as_int_rejected(self):
+        """An int-typed url must not crash urlparse()."""
+        issues = doctor.validate_http_config("x", {"url": 42})
+        self.assertTrue(any(i["code"] == "invalid_url_type" for i in issues))
+
+    def test_url_as_dict_rejected(self):
+        """A dict-typed url must not crash urlparse()."""
+        issues = doctor.validate_http_config("x", {"url": {"a": 1}})
+        self.assertTrue(any(i["code"] == "invalid_url_type" for i in issues))
+
+    def test_url_as_bool_rejected(self):
+        """A bool-typed url must be rejected."""
+        issues = doctor.validate_http_config("x", {"url": True})
+        self.assertTrue(any(i["code"] == "invalid_url_type" for i in issues))
+
 
 class TestSchemaValidation(unittest.TestCase):
 
