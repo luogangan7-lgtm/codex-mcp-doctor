@@ -1670,7 +1670,8 @@ class TestSupplyChainDocker(unittest.TestCase):
 
 class TestConfigSecrets(unittest.TestCase):
     def test_openai_key_in_env_flagged(self):
-        cfg = {"env": {"API_KEY": "sk-1234567890abcdefghijklmnop"}}
+        # Low-entropy fake (TESTFAKE marker) so secret scanners do not flag it.
+        cfg = {"env": {"API_KEY": "sk-TESTFAKE0000000000"}}
         issues = doctor.check_config_secrets("srv", cfg)
         self.assertTrue(any(i["code"] == "plaintext_secret_env" for i in issues))
 
@@ -1685,7 +1686,8 @@ class TestConfigSecrets(unittest.TestCase):
         self.assertEqual(issues, [])
 
     def test_bearer_in_header_flagged(self):
-        cfg = {"http_headers": {"Authorization": "Bearer mos_abcdef0123456789abcdefghij0123456789"}}
+        # Low-entropy fake; still matches mos_ regex (24-char suffix).
+        cfg = {"http_headers": {"Authorization": "Bearer mos_TESTFAKE0000000000000000"}}
         issues = doctor.check_config_secrets("srv", cfg)
         self.assertTrue(any(i["code"] == "plaintext_secret_header" for i in issues))
 
