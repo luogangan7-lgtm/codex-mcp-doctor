@@ -45,7 +45,7 @@ Worse, MCP servers can be **silently hostile**: a tool description containing `<
 
 ### How We Built It
 
-Built entirely with Codex desktop + GPT-5.6 as the development environment. The entire codebase — 2500 lines of doctor logic, 1900 lines of tests, hooks, CI, examples, docs — was written, debugged, and hardened through iterative agent-driven development.
+Built entirely with Codex desktop + GPT-5.6 as the development environment. The entire codebase — 2,725 lines of doctor logic, 2,371 lines of tests, hooks, CI, examples, docs — was written, debugged, and hardened through iterative agent-driven development.
 
 The zero-dependency constraint was deliberate: a diagnostic tool that requires `pip install` defeats the purpose. If your MCP setup is broken, the last thing you need is another dependency that might also be broken.
 
@@ -77,6 +77,15 @@ cat examples/broken-stdio/config.toml
 
 **Narration:** "No error. No log. Just... missing tools."
 
+
+**Expected on-screen (the failure):**
+```
+[mcp_servers.broken-path]
+command = "/usr/local/bin/nonexistent-mcp-server"
+```
+→ Codex starts, no error, but `tools/list` returns nothing. The user sees a working chat with zero MCP tools loaded. No log line tells them why.
+
+
 ### Scene 2: The Doctor Diagnoses (0:30 - 1:15)
 
 **Narration:** "Run the doctor. One command, zero dependencies."
@@ -90,7 +99,21 @@ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
 
 **Narration:** "It tells you exactly what's wrong: the binary doesn't exist. And the second server crashes because a Python module is missing. Both root-caused in under a second."
 
-### Scene 3: Security Layer (1:15 - 2:00)
+**Expected on-screen (doctor output):**
+```
+❌ broken-path  🔴 0.0
+   ❌ [command_not_found] Command path does not exist: /usr/local/bin/nonexistent-mcp-server
+      → fix: Verify the path or reinstall the MCP server.
+
+❌ broken-env  🔴 0.0
+   ❌ [process_crashed] Server process exited with code 1.
+      → fix: A Python dependency is missing.
+      stderr: No module named my_missing_mcp_server
+```
+Both root-caused in under a second. Red error → exact cause → one-line fix suggestion.
+
+
+### Scene 3: Security Layer (1:15 - 1:45)
 
 **Narration:** "But finding broken servers is the easy part. What about servers that are silently hostile?"
 
@@ -103,20 +126,19 @@ python3 scripts/doctor.py --config examples/security-issues/config.toml --check 
 
 **Narration:** "This server pulls a package without version pinning — a supply-chain risk. And this one has a hardcoded API key in the config. The doctor catches both."
 
-### Scene 3b: Cyrillic Homoglyph Attack (1:45 - 2:00)
+**Expected on-screen:**
+```
+⚠️  unpinned-npx  🟢 90.0
+   ⚠️  [unpinned_package] Server uses 'some-mcp-server' without a version pin.
+      → fix: Pin to a concrete version, e.g. some-mcp-server@1.2.3.
 
-**Narration:** "Here's a subtle attack: a tool named `fil\u0435system` — looks like `filesystem`, but the 'e' is Cyrillic."
-
-**Action:**
-```bash
-# Tool name: fil\u0435system (Cyrillic \u0435)
-python3 scripts/doctor.py --config examples/security-issues/config.toml --check security --skip-probe
+⚠️  plaintext-secret  🟢 90.0
+   ⚠️  [plaintext_secret_header] Hardcoded secret in http_headers['Authorization'].
+      → fix: Prefer bearer_token_env_var over a literal token in http_headers.
 ```
 
-**On-screen:** W022 warning — mixed-script word with Cyrillic lookalike U+0435, normalizes to 'filesystem'.
 
-**Narration:** "The doctor catches the impersonation and shows the normalized form — so you know exactly what the attacker was disguising."
-### Scene 3b: Cyrillic Homoglyph Attack (1:45 - 2:00)
+### Scene 3b: Cyrillic Homoglyph Attack (1:45 - 2:15)
 
 **Narration:** "Here's a subtle attack: a tool named `fil\u0435system_read` — looks like `filesystem_read`, but the 'e' is Cyrillic."
 
@@ -129,7 +151,19 @@ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
 
 **Narration:** "The doctor probes the server, sees the tool name, and catches the impersonation. It even shows the normalized form — so you know exactly what the attacker was disguising."
 
-### Scene 4: Rug-Pull Detection (2:00 - 2:30)
+**Expected on-screen:**
+```
+⚠️  poisoned-fs  🟡 50.0
+   tools: filеsystem_read            ← the 'e' is Cyrillic U+0435
+   security: 🔴 1 high
+     🔴 [W022] Tool 'filеsystem_read' contains mixed-script word with Cyrillic
+        lookalikes (U+0435). Normalizes to 'filesystem_read'.
+        → fix: Replace Cyrillic lookalike characters with ASCII equivalents.
+```
+The normalized form `'filesystem_read'` is the punchline — the viewer instantly sees what the attacker was impersonating.
+
+
+### Scene 4: Rug-Pull Detection (2:15 - 2:45)
 
 **Narration:** "The most dangerous attack: a tool description that changes silently."
 
@@ -146,7 +180,7 @@ python3 scripts/doctor.py --check-baseline
 
 **Narration:** "First run pins trusted descriptions. Later runs flag any tool whose description hash changed — a rug-pull attack. This is the first CLI tool to offer this; Invariant Labs' MCP-Scan is web-only."
 
-### Scene 5: Auto-Triggering Hook (2:30 - 3:00)
+### Scene 5: Auto-Triggering Hook (2:45 - 3:15)
 
 **Narration:** "Best part: you don't even need to remember to run it."
 
@@ -184,8 +218,8 @@ python3 scripts/doctor.py --check-baseline
 
 | Metric | Value |
 |--------|-------|
-| Lines of code (doctor.py) | ~2,500 |
-| Lines of tests | ~1,950 |
+| Lines of code (doctor.py) | 2,725 |
+| Lines of tests | 2,371 |
 | Test count | 266 |
 | External dependencies | 0 |
 | Time to full diagnostic | < 1s (config-only), < 5s (with probe) |

@@ -217,6 +217,26 @@ Security issues cap the health score: critical → max 20, high → max 50.
 python3 scripts/doctor.py --check security
 ```
 
+### W022 in action
+
+A malicious MCP server ships a tool whose name *looks* like `filesystem_read`,
+but the `e` is Cyrillic U+0435. It passes any human code review and any
+model's tool-name log. The doctor catches it:
+
+```
+$ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
+
+  ⚠️  poisoned-fs  🟡 50.0
+     tools: filеsystem_read            ← visually identical to filesystem_read
+     security: 🔴 1 high
+       🔴 [W022] Tool 'filеsystem_read' contains mixed-script word with
+          Cyrillic lookalikes (U+0435). Normalizes to 'filesystem_read'.
+          → fix: Replace Cyrillic lookalike characters with ASCII equivalents.
+```
+
+The "Normalizes to" line is the key: it shows the attacker's intent in plain
+ASCII, so a reviewer or model instantly sees what was being impersonated.
+
 ## v1.4 - Rug-Pull, Supply Chain, Secrets, Latency, Resource/Prompt Security
 
 v1.4 extends the security layer with five new check dimensions, all
