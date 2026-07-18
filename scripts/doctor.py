@@ -79,6 +79,7 @@ class ProbeResult:
     protocol_version: str = ""
     capabilities: dict = field(default_factory=dict)
     notifications: list[dict] = field(default_factory=list)
+    rpc_error: dict = field(default_factory=dict)  # JSON-RPC error response, if any
 
 
 @dataclass
@@ -466,6 +467,15 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
 
         probe = _parse_stdio_responses(stdout_data.decode(errors="replace"))
 
+        if probe.rpc_error:
+            err = probe.rpc_error
+            issues.append({
+                "severity": "error",
+                "code": "rpc_error",
+                "message": f"Server returned JSON-RPC error {err.get('code','?')}: {err.get('message','?')}",
+                "fix": "The server rejected the request. Check protocol version, auth, or server compatibility.",
+            })
+
         if not probe.tools and proc.returncode != 0:
             stderr_text = stderr_data.decode(errors="replace").strip()
             issues.append({
@@ -581,6 +591,9 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
         _http_notify(url, "notifications/initialized", {}, headers, remaining())
 
         probe = ProbeResult()
+        # Capture JSON-RPC error if the server returned one instead of a result
+        if isinstance(init_resp.get("error"), dict):
+            probe.rpc_error = init_resp["error"]
         init_result = init_resp.get("result", {})
         probe.server_info = init_result.get("serverInfo", {})
         probe.protocol_version = init_result.get("protocolVersion", "")
@@ -611,6 +624,15 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
             pass
 
         latency = (time.monotonic() - t0) * 1000
+
+        if probe.rpc_error:
+            err = probe.rpc_error
+            issues.append({
+                "severity": "error",
+                "code": "rpc_error",
+                "message": f"Server returned JSON-RPC error {err.get('code','?')}: {err.get('message','?')}",
+                "fix": "The server rejected the request. Check protocol version, auth, or server compatibility.",
+            })
 
         if not probe.tools and not probe.resources and not probe.prompts:
             issues.append({
@@ -816,6 +838,10 @@ def _parse_stdio_responses(stdout: str) -> ProbeResult:
                     "method": method,
                     "params": msg.get("params", {}),
                 })
+            continue
+        # JSON-RPC error response: server explicitly returned an error
+        if "error" in msg:
+            probe.rpc_error = msg["error"]
             continue
         result = msg.get("result", {})
         if not isinstance(result, dict):

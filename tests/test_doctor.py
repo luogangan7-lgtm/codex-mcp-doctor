@@ -380,6 +380,20 @@ class TestJsonRpcParsing(unittest.TestCase):
         obj = doctor._parse_sse_payload(raw)
         self.assertEqual(obj.get("id"), 1)
 
+    def test_parse_stdio_captures_rpc_error(self):
+        """A JSON-RPC error response should be captured, not silently ignored."""
+        raw = '{"jsonrpc":"2.0","id":1,"error":{"code":-32600,"message":"Invalid Request"}}'
+        probe = doctor._parse_stdio_responses(raw)
+        self.assertEqual(probe.rpc_error.get("code"), -32600)
+        self.assertEqual(probe.server_info, {})
+
+    def test_parse_stdio_valid_response_no_rpc_error(self):
+        """A valid result response should not set rpc_error."""
+        raw = '{"jsonrpc":"2.0","id":1,"result":{"serverInfo":{"name":"ok"}}}'
+        probe = doctor._parse_stdio_responses(raw)
+        self.assertEqual(probe.rpc_error, {})
+        self.assertEqual(probe.server_info.get("name"), "ok")
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # Integration: stdio probe against mock server
