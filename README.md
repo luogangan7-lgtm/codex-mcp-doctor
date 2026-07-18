@@ -306,7 +306,6 @@ No `pip install`, no virtualenv, no compilation. Just Python 3.11+.
 
 ## Roadmap
 
-- **Plugin marketplace submission** - package for `codex plugins install codex-mcp-doctor`
 - **Watch mode** - `--watch` flag for continuous monitoring during development
 - **Diff mode** - compare two configs to see what changed between environments
 - **Team baselines** - shared baseline file for team-wide rug-pull detection
