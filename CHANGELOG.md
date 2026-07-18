@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Marketplace packaging** - added `.agents/plugins/marketplace.json` so the repo installs via `codex plugin marketplace add` + `codex plugin add`. The old README claimed `codex plugins add .` worked but that command does not exist in any Codex CLI version.
+- Fixed installation docs: replaced non-existent `codex plugins add .` with verified `codex plugin marketplace add` + `codex plugin add` flow.
 - Removed `UserPromptSubmit` hook trigger: running a full server probe on every user message caused multi-second delays. `SessionStart` (once per session) plus the SKILL.md auto-trigger (on-demand) provides better coverage without latency cost.
 - Health score now applies a latency penalty and an E003 rug-pull cap (max 50
   for high-severity description changes).

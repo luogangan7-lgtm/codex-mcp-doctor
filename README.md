@@ -84,24 +84,19 @@ python3 scripts/doctor.py --check security` to run only what you need.
 
 ## Installation
 
-### As a Codex Plugin
+### As a Codex Plugin (recommended)
 
-Clone the repo, then register it as a personal Codex plugin:
+The repo ships as a self-contained marketplace. Add it and install in two commands:
 
 ```bash
+# From GitHub:
+codex plugin marketplace add https://github.com/luogangan7-lgtm/codex-mcp-doctor.git
+codex plugin add codex-mcp-doctor@codex-mcp-doctor
+
+# Or from a local clone:
 git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git
-cd codex-mcp-doctor
-codex plugins add .
-```
-
-Or manually copy to your plugins cache:
-
-```bash
-mkdir -p ~/.codex/plugins/cache/personal/codex-mcp-doctor/1.4.0
-cp -r . ~/.codex/plugins/cache/personal/codex-mcp-doctor/1.4.0/
-# Add to ~/.codex/config.toml:
-#   [plugins."codex-mcp-doctor@personal"]
-#   enabled = true
+codex plugin marketplace add ./codex-mcp-doctor
+codex plugin add codex-mcp-doctor@codex-mcp-doctor
 ```
 
 The SessionStart hook runs the doctor automatically at the start of each new session. It is best-effort: output is suppressed unless errors are found (`--quiet`), and failures are silently ignored (`|| true`) so a broken probe never blocks your session. For mid-session MCP issues, the SKILL.md auto-trigger instructs the model to run diagnostics when tools are missing or failing.
