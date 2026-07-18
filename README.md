@@ -383,3 +383,11 @@ No `pip install`, no virtualenv, no compilation. Just Python 3.11+.
 - **Python 3.11+** (uses stdlib `tomllib`, added in 3.11).
 - On macOS, use Homebrew `python3` — the system `/usr/bin/python3` is 3.9 and lacks `tomllib`.
 - No `pip install`, no virtualenv, no compilation. Pure stdlib only.
+
+## Contributing
+
+Bug reports, new detection classes, and example configs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the zero-dependency rule, how to add a detection class, and the CI gates.
+
+## Security Policy
+
+Found a vulnerability in the doctor detection logic? Do not open a public issue. See [SECURITY.md](SECURITY.md) for the private advisory flow, the threat model, and what is explicitly out of scope.

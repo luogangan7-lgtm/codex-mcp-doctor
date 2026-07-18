@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.16] - 2026-07-19
+
+### Fixed
+
+- **Screenshot assets drift: assets/*.png no longer matches docs/*.png.** The PIL-rendered screenshots in docs/ (from v1.6.10) are the canonical versions used by README, devpost-submission.md, and devpost-form-guide.md. But assets/screenshot-real-report.png and assets/screenshot-rugpull-detection.png were still the older hand-drawn v1.4.0 versions (different MD5, different byte size) because plugin.json references assets/ and nobody had refreshed them after the PIL migration. A judge cloning the repo would see two different-looking screenshots for the same logical image. Fixed by regenerating all four docs/*.png via docs/generate-images.py and copying screenshot-real-report.png + screenshot-rugpull-detection.png into assets/. Both locations now hash identical.
+
+### Added
+
+- **SECURITY.md.** A security tool without a security policy defeats its own purpose. The policy covers the private-advisory reporting flow, the explicit threat model (config is trusted, probe responses are untrusted, baseline is a trust anchor), what is in scope vs out of scope (the MCP protocol itself is out; detection-logic false negatives are in), and an honest list of what the doctor does NOT do (it does not block attacks, does not scan the network path, does not verify server binaries match their claimed source).
+
+- **CONTRIBUTING.md.** Documents the zero-dependency rule and how it is enforced (AST gate + fresh-clone test), the convention for adding a new detection class (W-code + severity + evidence + fix + test + example), the CI gates across Python 3.11/3.12/3.13/3.14, and the bump-version.py lockstep workflow. README now links to both CONTRIBUTING.md and SECURITY.md.
+
+- **doctor.py --version 1.6.15 -> 1.6.16.**
+
 ## [1.6.15] - 2026-07-19
 
 ### Changed
