@@ -807,12 +807,14 @@ def _http_notify(url: str, method: str, params: dict, headers: dict, timeout: fl
 
 
 def _parse_sse_payload(raw: str) -> dict:
-    """Parse a Server-Sent Events payload and return the first JSON-RPC result.
+    """Parse a Server-Sent Events payload and return the RPC response.
 
     Handles both `data: {...}` framed responses (Streamable HTTP transport)
     and plain JSON fallbacks. MCP servers using SSE wrap each JSON-RPC message
-    in an event frame; we extract the first valid JSON object.
+    in an event frame; we extract the response containing a result or error,
+    skipping notifications (which only have a method field).
     """
+    fallback: dict = {}
     for block in raw.split("\n\n"):
         data_lines = []
         for line in block.splitlines():
@@ -823,9 +825,17 @@ def _parse_sse_payload(raw: str) -> dict:
             try:
                 obj = json.loads(candidate)
                 if isinstance(obj, dict):
-                    return obj
+                    # Prefer RPC responses (have result or error) over
+                    # notifications (only have method). SSE streams may
+                    # contain notifications before the actual response.
+                    if "result" in obj or "error" in obj:
+                        return obj
+                    if not fallback:
+                        fallback = obj
             except json.JSONDecodeError:
                 continue
+    if fallback:
+        return fallback
     # Fallback: try the whole thing as JSON
     try:
         obj = json.loads(raw)
@@ -2506,7 +2516,13 @@ def main() -> int:
         print(format_report_human(report))
 
     if report.config_errors and not report.servers:
-        return 2
+        # Distinguish real config errors (TOML parse failure, bad structure)
+        # from the informational "no entries" message. Only real errors
+        # warrant exit 2 (config unreadable); empty config is exit 3.
+        real_errors = [e for e in report.config_errors
+                       if "No [mcp_servers.*] entries" not in e]
+        if real_errors:
+            return 2
 
     # Baseline save confirmation - after the report, before exit codes.
     if args.save_baseline:

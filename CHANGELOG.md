@@ -24,9 +24,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`all`/`security` modes). `--check schema` now validates resource
   and prompt schemas in the per-server loop.
 
+### Fixed
+
+- **SSE parser returned wrong message** - when an SSE stream contained
+  a notification before the actual RPC response, the parser returned the
+  first valid JSON dict (the notification) instead of continuing to find
+  the response with `result` or `error`. Now skips notifications and
+  prefers RPC responses.
+- **Empty config exit code** - empty config (0 servers, valid file)
+  returned exit 2 ("config unreadable") instead of exit 3 ("no servers
+  found"). The informational "no entries" message was treated as a
+  config error. Now distinguishes parse errors from info messages.
+
 ### Added
 
-- 3 regression tests covering the above fixes (209 total).
+- 8 regression tests covering all above fixes (214 total).
 - `--baseline-path` and `--quiet` flags documented in SKILL.md.
 
 ## [1.4.1] - 2026-07-18

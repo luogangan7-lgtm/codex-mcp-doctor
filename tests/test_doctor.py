@@ -380,6 +380,30 @@ class TestJsonRpcParsing(unittest.TestCase):
         obj = doctor._parse_sse_payload(raw)
         self.assertEqual(obj.get("id"), 1)
 
+    def test_parse_sse_notification_then_result(self):
+        """SSE stream may send a notification before the actual RPC response.
+        Parser must skip the notification and return the response with result."""
+        raw = (
+            'data: {"jsonrpc":"2.0","method":"notifications/initialized"}\n\n'
+            'data: {"jsonrpc":"2.0","id":1,"result":{"tools":[]}}\n\n'
+        )
+        obj = doctor._parse_sse_payload(raw)
+        self.assertIn("result", obj, "parser must prefer RPC responses over notifications")
+
+    def test_parse_sse_error_response(self):
+        """SSE stream with a JSON-RPC error response should be returned."""
+        raw = 'data: {"jsonrpc":"2.0","id":1,"error":{"code":-32601,"message":"Method not found"}}\n\n'
+        obj = doctor._parse_sse_payload(raw)
+        self.assertIn("error", obj)
+
+    def test_parse_sse_only_notification(self):
+        """If the SSE stream only contains a notification (no response),
+        the parser should still return something (fallback to the notification),
+        not an empty dict."""
+        raw = 'data: {"jsonrpc":"2.0","method":"notifications/initialized"}\n\n'
+        obj = doctor._parse_sse_payload(raw)
+        self.assertEqual(obj.get("method"), "notifications/initialized")
+
     def test_parse_stdio_captures_rpc_error(self):
         """A JSON-RPC error response should be captured, not silently ignored."""
         raw = '{"jsonrpc":"2.0","id":1,"error":{"code":-32600,"message":"Invalid Request"}}'
@@ -674,6 +698,29 @@ command = "echo"
         cfg = self._write_config("[mcp_servers.bad]\ncommand = \"/nope\"\n")
         report = doctor.diagnose(cfg, timeout=5, skip_probe=False, only=None)
         self.assertGreater(report.errors, 0)
+
+    def test_exit_code_empty_config_is_3(self):
+        """Empty config (0 servers, valid file) should exit 3, not 2.
+        Regression: 'No entries' info was treated as a config error."""
+        import subprocess
+        cfg = self._write_config("")
+        result = subprocess.run(
+            [sys.executable, "scripts/doctor.py", "--config", str(cfg)],
+            capture_output=True, text=True, timeout=10, cwd="/Volumes/data/codex-mcp-doctor"
+        )
+        self.assertEqual(result.returncode, 3,
+                         f"empty config should exit 3, got {result.returncode}")
+
+    def test_exit_code_malformed_toml_is_2(self):
+        """Malformed TOML should exit 2 (config unreadable)."""
+        import subprocess
+        cfg = self._write_config("this is not = valid = toml\n")
+        result = subprocess.run(
+            [sys.executable, "scripts/doctor.py", "--config", str(cfg)],
+            capture_output=True, text=True, timeout=10, cwd="/Volumes/data/codex-mcp-doctor"
+        )
+        self.assertEqual(result.returncode, 2,
+                         f"malformed TOML should exit 2, got {result.returncode}")
 
     def test_check_mode_schema_only(self):
         cfg = self._write_config('[mcp_servers.echo]\ncommand = "echo"\n')
