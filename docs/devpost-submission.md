@@ -257,7 +257,7 @@ python3 scripts/doctor.py --check-baseline
 - [x] Public repo: https://github.com/luogangan7-lgtm/codex-mcp-doctor
 - [x] Working code with 285 passing tests
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
-- [x] Zero external dependencies (AST-verified)
+- [x] Zero external dependencies (AST-verified in CI via `scripts/verify-zero-deps.py`)
 - [x] Screenshots: `docs/screenshot-real-report.png`, `docs/screenshot-rugpull-detection.png`
 - [x] Guided demo script: `./scripts/demo.sh` (one command, every scene from the video script below — just screen-record it)
 - [ ] Demo video (use script above)

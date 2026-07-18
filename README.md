@@ -71,7 +71,7 @@ $ python3 scripts/doctor.py
 
 ## Features
 
-- **Zero dependencies** - pure Python 3.11+ stdlib (`tomllib`, `urllib`, `subprocess`, `socket`). No pip install.
+- **Zero dependencies** - pure Python 3.11+ stdlib (`tomllib`, `urllib`, `subprocess`, `socket`). No pip install. **Verified in CI** via AST scan (`scripts/verify-zero-deps.py`).
 - **All three MCP primitives** - checks `tools/list`, `resources/list`, and `prompts/list` (not just tools like v1.0).
 - **Schema quality validation** - catches missing descriptions, broken required fields, invalid types (like destilabs/mcp-doctor and mcp-probe do).
 - **Health scoring** - 0-100 score per server combining connectivity, schema quality, and description coverage.

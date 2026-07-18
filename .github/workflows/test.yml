@@ -22,6 +22,11 @@ jobs:
       - name: Run test suite
         run: |
           python3 tests/test_doctor.py
+      - name: Verify zero external dependencies (AST scan)
+        run: |
+          # Fail CI if doctor.py imports any non-stdlib module.
+          # This is the CI gate for the zero-dependency claim.
+          python3 scripts/verify-zero-deps.py
       - name: Run doctor on examples
         run: |
           # broken-stdio and broken-http are expected to report errors (exit 1)
