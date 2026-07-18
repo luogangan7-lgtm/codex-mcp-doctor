@@ -85,11 +85,15 @@ breakdown in `docs/devpost-submission.md`.
 
 ---
 
-## Scene 5 — Auto-Triggering Hook (2:45 – 3:00)
+## Scene 5 — Two Layers of Protection (2:45 – 3:00)
 
-`[2:45]` `[VO]` Best part: you don't run it. The SessionStart hook fires on every Codex session — silent when healthy, loud when something broke.
+`[2:45]` `[VO]` Best part: you don't run it. Two layers of protection.
 
-`[2:55]` `[VO]` Two sixty-six tests. Zero dependencies. codex-mcp-doctor — the npm doctor, for MCP.
+`[2:48]` `[CLICK]` Flash `hooks/hooks.json` on screen, then flash `--watch --interval 30`.
+
+`[2:50]` `[VO]` The SessionStart hook fires every Codex session — silent when healthy, loud when broken. Watch mode extends that into continuous runtime monitoring, only printing when server state actually changes.
+
+`[2:58]` `[VO]` Two eighty-five tests. Zero dependencies. codex-mcp-doctor.
 
 `[3:00]` `[END CARD]` GitHub URL on screen for 2s. Stop recording.
 

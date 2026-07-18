@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [1.6.0] - 2026-07-19
+
 ### Added
 
 - **`--debug` flag** - surfaces hidden probe warnings. Best-effort exceptions
@@ -15,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Default mode hides them (output unchanged); `--debug` renders them per server
   with a `⚙ debug:` block. Addresses the "silent catch hides real bugs behind
   no_content_returned" risk identified in the v1.5.0 audit.
+- **`--watch` mode** - continuously re-runs diagnostics every `--interval`
+  seconds (default 30). Only prints when server **status changes** (not on
+  every tick), so it's safe to leave running during development. Ctrl+C
+  stops cleanly with exit code reflecting the last report. Pairs with
+  `--quiet` for hook-style guard duty. Closes the "session-start hook only
+  fires once" gap — now you get continuous monitoring.
+- **`--interval N`** - seconds between watch iterations (default 30, floored
+  at 1s).
 
 ### Changed
 
@@ -25,22 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   factory). `ServerResult` stashes warnings via `_probe_warnings` private
   attribute (non-polluting, not in `to_dict()`).
 
-### Added
-
-- **`--watch` mode** - continuously re-runs diagnostics every `--interval`
-  seconds (default 30). Only prints when server **status changes** (not on
-  every tick), so it's safe to leave running during development. Ctrl+C
-  stops cleanly with exit code reflecting the last report. Pairs with
-  `--quiet` for hook-style guard duty. Closes the "session-start hook only
-  fires once" gap — now you get continuous monitoring.
-- **`--interval N`** - seconds between watch iterations (default 30, floored
-  at 1s).
-
 ### Tests
 
-- 12 new tests for `_watch_signature` stability: latency-insensitive,
-  status-change-sensitive, issue-order-insensitive, tool-set-sensitive,
-  config-error-sensitive. Plus argparse help text. (273 → 285 tests)
+- 19 new tests (266 → 285): 7 for `--debug` flag (field independence,
+  hidden-by-default, shown-when-debug-on, empty-when-no-warnings,
+  missing-attr safety, argparse help); 12 for `_watch_signature` stability
+  (latency-insensitive, status-change-sensitive, issue-order-insensitive,
+  tool-set-sensitive, config-error-sensitive, argparse help).
 
 
 ## [1.5.0] - 2026-07-19

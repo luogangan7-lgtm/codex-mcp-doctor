@@ -160,7 +160,7 @@ All four must pass before submitting. If any fails, stop and fix.
 ## Submission Checklist (from devpost-submission.md)
 
 - [x] Public repo: https://github.com/luogangan7-lgtm/codex-mcp-doctor
-- [x] Working code with 266 passing tests
+- [x] Working code with 285 passing tests
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
 - [x] Zero external dependencies (AST-verified)
 - [x] Plugin manifest passes Codex validator

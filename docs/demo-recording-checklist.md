@@ -32,7 +32,7 @@ cd /Volumes/data/codex-mcp-doctor
 
 # 1. Tests pass
 python3 tests/test_doctor.py | tail -3
-# Expect: "Ran 266 tests ... OK"
+# Expect: "Ran 285 tests ... OK"
 
 # 2. Plugin manifest valid
 python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .

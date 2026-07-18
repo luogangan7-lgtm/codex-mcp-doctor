@@ -45,7 +45,7 @@ $ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
      ℹ️  [probe_skipped] Skipping connectivity probe due to config errors above.
 
   ❌ broken-env  🔴 0.0
-     transport: stdio  |  0 tools (33ms)
+     transport: stdio  |  0 tools (22ms)
      ❌ [process_crashed] Server process exited with code 1.
         → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
         stderr: python3: No module named my_missing_mcp_server
@@ -96,7 +96,7 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools (24ms)
+     transport: stdio  |  1 tools (23ms)
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
      tools: filеsystem_read
@@ -139,7 +139,7 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --che
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools (34ms)
+     transport: stdio  |  1 tools (22ms)
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
      tools: filеsystem_read
@@ -183,7 +183,46 @@ Try it locally:
   # then start a new Codex session
 
 ================================================================
+  SCENE 6 — Debug Visibility & Continuous Watch
+================================================================
+Two new v1.6 flags: --debug surfaces hidden probe warnings, --watch re-runs continuously and only prints on status change.
+
+
+--debug: surfaces best-effort exceptions normally hidden behind 'no_content_returned':
+  (running doctor --debug against broken-stdio example)
+
+================================================================
+  MCP DOCTOR - Diagnostic Report
+================================================================
+  Config: examples/broken-stdio/config.toml
+
+  Servers: 2 total  ✅ 0 healthy  ❌ 2 errors  🔴 avg score 0.0
+
+  ❌ broken-path  🔴 0.0
+     transport: stdio  |  0 tools
+     ❌ [command_not_found] Command path does not exist: /usr/local/bin/nonexistent-mcp-server
+        → fix: Verify the path or reinstall the MCP server. Check if the binary moved.
+     ℹ️  [probe_skipped] Skipping connectivity probe due to config errors above.
+
+  ❌ broken-env  🔴 0.0
+     transport: stdio  |  0 tools (21ms)
+     ❌ [process_crashed] Server process exited with code 1.
+        → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
+        stderr: python3: No module named my_missing_mcp_server
+
+================================================================
+  RESULT: 2 error(s), 0 warning(s) - issues found.
+  Fix the errors above, then re-run: python3 scripts/doctor.py
+================================================================
+
+--watch: continuous monitoring, silent until status changes:
+  python3 scripts/doctor.py --watch --interval 30   # Ctrl+C to stop
+  python3 scripts/doctor.py --watch --quiet          # hook-style guard duty
+
+Two layers of protection: SessionStart hook (boot) + --watch (runtime).
+
+================================================================
   END OF DEMO
-  266 tests · 0 dependencies · pure Python 3.11+ stdlib
+  285 tests · 0 dependencies · pure Python 3.11+ stdlib
   https://github.com/luogangan7-lgtm/codex-mcp-doctor
 ================================================================

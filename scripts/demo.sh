@@ -140,9 +140,26 @@ echo "  cp hooks/hooks.json ~/.codex/hooks.json"
 echo "  # then start a new Codex session"
 do_pause
 
+# --- Scene 6 -------------------------------------------------------------
+scene 6 "Debug Visibility & Continuous Watch" \
+    "Two new v1.6 flags: --debug surfaces hidden probe warnings, --watch re-runs continuously and only prints on status change."
+echo
+echo "--debug: surfaces best-effort exceptions normally hidden behind 'no_content_returned':"
+echo "  (running doctor --debug against broken-stdio example)"
+echo
+$PYTHON scripts/doctor.py --config examples/broken-stdio/config.toml --debug 2>&1 | head -25 || true
+echo
+echo "--watch: continuous monitoring, silent until status changes:"
+echo "  $PYTHON scripts/doctor.py --watch --interval 30   # Ctrl+C to stop"
+echo "  $PYTHON scripts/doctor.py --watch --quiet          # hook-style guard duty"
+echo
+echo "Two layers of protection: SessionStart hook (boot) + --watch (runtime)."
+do_pause
+
+
 echo
 echo "================================================================"
 echo "  END OF DEMO"
-echo "  266 tests · 0 dependencies · pure Python 3.11+ stdlib"
+echo "  285 tests · 0 dependencies · pure Python 3.11+ stdlib"
 echo "  https://github.com/luogangan7-lgtm/codex-mcp-doctor"
 echo "================================================================"

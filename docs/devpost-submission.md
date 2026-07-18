@@ -41,11 +41,11 @@ Worse, MCP servers can be **silently hostile**: a tool description containing `<
 - **Auto-triggering** — ships with a Codex hook (`hooks/hooks.json`) that runs diagnostics on `SessionStart`. If something breaks, you see it before your first prompt — not after 20 minutes of debugging.
 - **All three MCP primitives** — checks tools, resources, *and* prompts (not just tools like most scanners).
 - **Rug-pull detection** — first CLI implementation of tool-description pinning (Inspired by Invariant Labs' MCP-Scan, which is web-only).
-- **266 tests** — every crash path, malformed input, and attack vector is tested.
+- **285 tests** — every crash path, malformed input, and attack vector is tested.
 
 ### How We Built It
 
-Built entirely inside **Codex desktop with GPT-5.6** as the development environment — not just "used Codex to write some code," but dogfooded Codex end-to-end to build tooling *for* Codex. The entire codebase (2,725 lines of doctor logic, 2,371 lines of tests, hooks, CI, examples, docs) was written, debugged, and hardened through **agent-driven iterative development**: each session picked up state from a shared memory canvas, ran a verification gate (266 tests + plugin validator + demo smoke), and only advanced when green.
+Built entirely inside **Codex desktop with GPT-5.6** as the development environment — not just "used Codex to write some code," but dogfooded Codex end-to-end to build tooling *for* Codex. The entire codebase (2,725 lines of doctor logic, 2,593 lines of tests, hooks, CI, examples, docs) was written, debugged, and hardened through **agent-driven iterative development**: each session picked up state from a shared memory canvas, ran a verification gate (285 tests + plugin validator + demo smoke), and only advanced when green.
 
 The development loop itself uses Codex's native affordances as load-bearing infrastructure, not decoration:
 
@@ -206,15 +206,15 @@ python3 scripts/doctor.py --check-baseline
 
 **Narration:** "First run pins trusted descriptions. Later runs flag any tool whose description hash changed — a rug-pull attack. This is the first CLI tool to offer this; Invariant Labs' MCP-Scan is web-only."
 
-### Scene 5: Auto-Triggering Hook (2:45 - 3:00)
+### Scene 5: Two Layers of Protection — Hook + Watch (2:45 - 3:00)
 
-**Narration:** "Best part: you don't even need to remember to run it."
+**Narration:** "Best part: you don't run it. Two layers of protection."
 
-**Action:** Show the hooks/hooks.json file, then start a new Codex session.
+**Action:** Show `hooks/hooks.json`, then flash `--watch --interval 30`.
 
-**On-screen:** The hook runs automatically on SessionStart.
+**Narration:** "The SessionStart hook fires on every Codex session — silent when healthy, loud when broken. `--watch` extends that into continuous runtime monitoring, only printing when server state actually changes. Boot-time hook, runtime watch, same engine."
 
-**Narration:** "The hook runs on every session start. If your MCP setup is healthy, it's completely silent. If something broke, you see it immediately. 266 tests, zero dependencies, pure Python stdlib."
+**Narration:** "285 tests, zero dependencies, pure Python stdlib."
 
 **End card:** GitHub URL + "codex-mcp-doctor — npm doctor for MCP"
 
@@ -223,7 +223,7 @@ python3 scripts/doctor.py --check-baseline
 ## Submission Checklist
 
 - [x] Public repo: https://github.com/luogangan7-lgtm/codex-mcp-doctor
-- [x] Working code with 266 passing tests
+- [x] Working code with 285 passing tests
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
 - [x] Zero external dependencies (AST-verified)
 - [x] Screenshots: `docs/screenshot-real-report.png`, `docs/screenshot-rugpull-detection.png`
@@ -236,7 +236,7 @@ python3 scripts/doctor.py --check-baseline
 
 - **Language:** Python 3.11+ (stdlib only: tomllib, subprocess, urllib, socket, hashlib, json, re, argparse)
 - **Framework:** None — single-file CLI script
-- **Testing:** unittest (stdlib), 266 tests
+- **Testing:** unittest (stdlib), 285 tests
 - **CI:** GitHub Actions (Python 3.11, 3.12, 3.13, 3.14)
 - **Dependencies:** literally zero — verified via AST scan
 - **Platform:** macOS, Linux, Windows (any OS with Python 3.11+)
@@ -246,8 +246,8 @@ python3 scripts/doctor.py --check-baseline
 | Metric | Value |
 |--------|-------|
 | Lines of code (doctor.py) | 2,725 |
-| Lines of tests | 2,371 |
-| Test count | 266 |
+| Lines of tests | 2,593 |
+| Test count | 285 |
 | External dependencies | 0 |
 | Time to full diagnostic | < 1s (config-only), < 5s (with probe) |
 | Security check types | 8 (injection, shadowing, rug-pull, Unicode, Cyrillic homoglyphs, supply-chain, secrets, capability) |
