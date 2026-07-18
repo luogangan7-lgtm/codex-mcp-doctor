@@ -128,6 +128,27 @@ class TestConfigValidation(unittest.TestCase):
 # Schema validation tests (L2.5)
 # ═══════════════════════════════════════════════════════════════════════
 
+    def test_command_as_list_rejected(self):
+        """A list-typed command must not crash os.path.isabs / Popen."""
+        issues = doctor.validate_stdio_config("x", {"command": ["a", "b"]})
+        self.assertTrue(any(i["code"] == "invalid_command_type" for i in issues))
+
+    def test_command_as_int_rejected(self):
+        """An int-typed command must not crash os.path.isabs / Popen."""
+        issues = doctor.validate_stdio_config("x", {"command": 42})
+        self.assertTrue(any(i["code"] == "invalid_command_type" for i in issues))
+
+    def test_command_as_bool_rejected(self):
+        """A bool-typed command must be rejected (True is truthy but not str)."""
+        issues = doctor.validate_stdio_config("x", {"command": True})
+        self.assertTrue(any(i["code"] == "invalid_command_type" for i in issues))
+
+    def test_command_as_dict_rejected(self):
+        """A dict-typed command must not crash os.path.isabs."""
+        issues = doctor.validate_stdio_config("x", {"command": {"a": 1}})
+        self.assertTrue(any(i["code"] == "invalid_command_type" for i in issues))
+
+
 class TestSchemaValidation(unittest.TestCase):
 
     def test_good_tool(self):

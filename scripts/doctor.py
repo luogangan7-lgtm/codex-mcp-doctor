@@ -341,6 +341,17 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
         })
         return issues
 
+    # Guard against non-string command values (list, int, etc.) that would
+    # crash os.path.isabs() and subprocess.Popen with TypeError.
+    if not isinstance(cmd, str):
+        issues.append({
+            "severity": "error",
+            "code": "invalid_command_type",
+            "message": f"'command' must be a string, got {type(cmd).__name__}: {repr(cmd)[:60]}",
+            "fix": "Set command to a string path, e.g. command = \"/usr/bin/python3\".",
+        })
+        return issues
+
     if os.path.isabs(cmd):
         if not os.path.exists(cmd):
             issues.append({
