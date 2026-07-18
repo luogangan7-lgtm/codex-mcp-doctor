@@ -1325,6 +1325,16 @@ class TestHealthScoreV14(unittest.TestCase):
 class TestQuietFlag(unittest.TestCase):
     """The --quiet flag is used by hooks; it must not break anything."""
 
+    def test_version_flag(self):
+        """--version should print version and exit 0."""
+        import subprocess
+        r = subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / 'doctor.py'), '--version'],
+            capture_output=True, text=True, timeout=5,
+        )
+        self.assertEqual(r.returncode, 0)
+        self.assertIn('1.4', r.stdout)
+
     def test_quiet_flag_exists(self):
         import subprocess
         r = subprocess.run(

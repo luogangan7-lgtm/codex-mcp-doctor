@@ -283,3 +283,36 @@ argument descriptions). Issues are prefixed `resource:` / `prompt:` so you
 can tell which primitive was poisoned.
 
 
+## Quick Start (for reviewers)
+
+```bash
+# Clone and test in under 30 seconds - no dependencies needed
+git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git
+cd codex-mcp-doctor
+
+# 1. Run the test suite (151 tests, ~1 second)
+python3 tests/test_doctor.py
+
+# 2. Run against the example broken configs
+python3 scripts/doctor.py --config examples/broken-stdio/config.toml
+python3 scripts/doctor.py --config examples/broken-http/config.toml
+
+# 3. Run against your real Codex config (if you have MCP servers)
+python3 scripts/doctor.py
+
+# 4. Try the security scanner
+python3 scripts/doctor.py --check security
+
+# 5. JSON output for programmatic use
+python3 scripts/doctor.py --json | python3 -m json.tool | head -30
+```
+
+No `pip install`, no virtualenv, no compilation. Just Python 3.11+.
+
+## Roadmap
+
+- **Plugin marketplace submission** - package for `codex plugins install codex-mcp-doctor`
+- **Watch mode** - `--watch` flag for continuous monitoring during development
+- **Diff mode** - compare two configs to see what changed between environments
+- **Team baselines** - shared baseline file for team-wide rug-pull detection
+- **Resource/prompt schema validation** - extend schema checks beyond tools
