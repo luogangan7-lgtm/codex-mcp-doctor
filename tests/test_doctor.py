@@ -1777,6 +1777,20 @@ class TestHealthScoreV14(unittest.TestCase):
 
 
 
+    def test_resource_schema_issue_no_crash_with_tools(self):
+        """Regression: resource/prompt schema issues (ToolSchemaIssue objects)
+        used to crash compute_health_score when the server had tools, because
+        the score loop accessed i['severity'] on a dataclass. Now converted
+        to dicts via schema_issues_to_dicts."""
+        s = doctor.ServerResult(name="s", transport="http", status="healthy")
+        s.tools_found = ["a"]
+        # Simulate what diagnose() does: convert resource schema issues to dicts
+        res_issues = doctor.validate_resource_schema({"name": "broken"})
+        s.schema_issues.extend(doctor.schema_issues_to_dicts(res_issues))
+        score = doctor.compute_health_score(s)  # must not raise
+        self.assertLess(score, 100.0)  # schema error should penalize
+
+
 class TestQuietFlag(unittest.TestCase):
     """The --quiet flag is used by hooks; it must not break anything."""
 

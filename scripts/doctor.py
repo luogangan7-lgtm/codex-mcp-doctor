@@ -1645,11 +1645,11 @@ def diagnose(
             res_dicts = getattr(s, "_baseline_resources", None) or []
             for r in res_dicts:
                 s.security_issues.extend(validate_resource_security(r))
-                s.schema_issues.extend(validate_resource_schema(r))
+                s.schema_issues.extend(schema_issues_to_dicts(validate_resource_schema(r)))
             pr_dicts = getattr(s, "_baseline_prompts", None) or []
             for p_item in pr_dicts:
                 s.security_issues.extend(validate_prompt_security(p_item))
-                s.schema_issues.extend(validate_prompt_schema(p_item))
+                s.schema_issues.extend(schema_issues_to_dicts(validate_prompt_schema(p_item)))
 
             # Recompute health score with security issues included
             s.health_score = compute_health_score(s)
