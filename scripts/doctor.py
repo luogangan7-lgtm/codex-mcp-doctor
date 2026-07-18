@@ -1037,6 +1037,12 @@ _INJECTION_PATTERNS: list[tuple[str, str]] = [
     # Hidden instruction markers (model-specific tokens)
     (r"\[INST\]", "llama-inst-marker"),
     (r"</?s>", "bos-eos-marker"),
+    # Exfiltration via shell piping (pipe/feed/stream through curl/wget/nc)
+    (r"(?:pipe|feed|stream)\s+.+(?:through|via|\|)\s+(?:curl|wget|nc|netcat)\b", "exfiltration-command"),
+    # curl/wget to a suspicious endpoint (attacker/evil/c2/exfil/webhook)
+    (r"\b(?:curl|wget)\b.{0,40}(?:attacker|evil|c2|exfil|collect|hook|webhook)\b", "exfiltration-command"),
+    # Tool poisoning: description contradicts itself ("actually deletes/removes/...")
+    (r"\bactually\s+(?:deletes?|removes?|overwrites?|destroys?|wipes?|formats?)\b", "tool-poisoning"),
 ]
 _INJECTION_REGEXES = [(re.compile(p, re.IGNORECASE), label) for p, label in _INJECTION_PATTERNS]
 
