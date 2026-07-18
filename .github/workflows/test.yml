@@ -29,3 +29,4 @@ jobs:
           python3 scripts/doctor.py --config examples/broken-stdio/config.toml --json || [ $? -eq 1 ]
           python3 scripts/doctor.py --config examples/broken-http/config.toml --json || [ $? -eq 1 ]
           python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe --json
+          python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --json

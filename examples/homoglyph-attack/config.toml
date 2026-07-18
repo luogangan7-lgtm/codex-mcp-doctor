@@ -1,0 +1,15 @@
+# Example: Cyrillic homoglyph attack on MCP tool namespace
+#
+# This config points to a mock server that returns a tool named
+# 'fil\u0435system_read' (Cyrillic е) — visually identical to 'filesystem_read'
+# but a completely different identifier. An attacker uses this to impersonate
+# a trusted filesystem tool and intercept file-read requests.
+#
+# Run: python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
+#
+# Expected: W022 cyrillic-homoglyph warning (high severity) showing the
+# normalized form 'filesystem_read' so you understand the disguise.
+
+[mcp_servers.poisoned-fs]
+command = "python3"
+args = ["examples/homoglyph-attack/mock_server.py"]

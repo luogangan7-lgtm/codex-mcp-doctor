@@ -116,6 +116,18 @@ python3 scripts/doctor.py --config examples/security-issues/config.toml --check 
 **On-screen:** W022 warning — mixed-script word with Cyrillic lookalike U+0435, normalizes to 'filesystem'.
 
 **Narration:** "The doctor catches the impersonation and shows the normalized form — so you know exactly what the attacker was disguising."
+### Scene 3b: Cyrillic Homoglyph Attack (1:45 - 2:00)
+
+**Narration:** "Here's a subtle attack: a tool named `fil\u0435system_read` — looks like `filesystem_read`, but the 'e' is Cyrillic."
+
+**Action:**
+```bash
+python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
+```
+
+**On-screen:** W022 warning (high) — mixed-script word with Cyrillic lookalike U+0435, normalizes to 'filesystem_read'.
+
+**Narration:** "The doctor probes the server, sees the tool name, and catches the impersonation. It even shows the normalized form — so you know exactly what the attacker was disguising."
 
 ### Scene 4: Rug-Pull Detection (2:00 - 2:30)
 
