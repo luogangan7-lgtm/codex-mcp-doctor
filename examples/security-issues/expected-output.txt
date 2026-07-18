@@ -5,14 +5,14 @@ $ python3 scripts/doctor.py --config examples/security-issues/config.toml --chec
 ================================================================
   Config: examples/security-issues/config.toml
 
-  Servers: 2 total  ✅ 0 healthy  ⚠️  2 warnings  🔴 avg score 0.0
+  Servers: 2 total  ✅ 0 healthy  ⚠️  2 warnings  🟢 avg score 90.0
 
-  ⚠️  unpinned-npx  🔴 0.0
+  ⚠️  unpinned-npx  🟢 90.0
      transport: stdio  |  0 tools
      ⚠️  [unpinned_package] Server 'unpinned-npx' uses 'some-mcp-server' without a version pin.
         → fix: Pin to a concrete version, e.g. some-mcp-server@1.2.3, so a republished package can't silently change behavior.
 
-  ⚠️  plaintext-secret  🔴 0.0
+  ⚠️  plaintext-secret  🟢 90.0
      transport: http  |  0 tools
      ⚠️  [plaintext_secret_header] Server 'plaintext-secret' has a hardcoded secret in http_headers['Authorization'].
         → fix: Codex doesn't resolve $VAR in http_headers; either keep the token in a secrets manager, or accept the risk. At minimum, ensure config.toml is not committed to version control.
@@ -24,3 +24,6 @@ $ python3 scripts/doctor.py --config examples/security-issues/config.toml --chec
 This example uses --skip-probe so no servers are actually contacted.
 The security checks (supply-chain pinning + plaintext secrets) run
 purely against the config file, making this demo fully portable.
+
+Note: scores reflect config-layer findings only (no probe = no connectivity
+deduction). Each warning costs 10 points from a 100 baseline.

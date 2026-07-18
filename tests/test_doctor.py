@@ -216,9 +216,22 @@ class TestHealthScoring(unittest.TestCase):
             schema_issues=schema_issues or [],
         )
 
-    def test_healthy_no_tools_scores_0(self):
+    def test_no_tools_no_issues_scores_100(self):
+        """Unprobed server with no config findings scores 100 (config looks clean)."""
         s = self._make_server(doctor.HEALTHY, tools=[])
-        self.assertEqual(doctor.compute_health_score(s), 0.0)
+        self.assertEqual(doctor.compute_health_score(s), 100.0)
+
+    def test_no_tools_with_warning_scores_90(self):
+        """Unprobed server with one config warning loses 10 points."""
+        s = self._make_server(doctor.WARNING, tools=[])
+        s.issues = [{"level": "warning", "type": "x", "message": "m"}]
+        self.assertEqual(doctor.compute_health_score(s), 90.0)
+
+    def test_no_tools_with_error_scores_75(self):
+        """Unprobed server with one config error loses 25 points."""
+        s = self._make_server(doctor.WARNING, tools=[])
+        s.issues = [{"level": "error", "type": "x", "message": "m"}]
+        self.assertEqual(doctor.compute_health_score(s), 75.0)
 
     def test_error_scores_0(self):
         s = self._make_server(doctor.ERROR, tools=["a"])

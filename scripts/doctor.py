@@ -1225,7 +1225,24 @@ def compute_health_score(server: ServerResult) -> float:
     if server.status == "config-ok":
         return 100.0  # config valid, not probed - assume ok
     if not server.tools_found:
-        return 0.0
+        # Not probed (skip-probe or config-only check mode). Score reflects
+        # config-layer findings only: start from a neutral baseline and
+        # deduct per error/warning so the score is meaningful, not a misleading 0.
+        score = 100.0
+        for i in server.issues:
+            if i.get("level") == "error":
+                score -= 25.0
+            elif i.get("level") == "warning":
+                score -= 10.0
+        # Security findings on unprobed servers come from config-layer checks
+        # (e.g. plaintext secrets). Apply the same caps as probed servers.
+        sec_critical = sum(1 for i in server.security_issues if i.get("severity") == "critical")
+        sec_high = sum(1 for i in server.security_issues if i.get("severity") == "high")
+        if sec_critical > 0:
+            score = min(score, 20.0)
+        elif sec_high > 0:
+            score = min(score, 50.0)
+        return max(0.0, round(score, 1))
 
     total_tools = len(server.tools_found)
     schema_errs = sum(1 for i in server.schema_issues if i["severity"] == "error")
@@ -1402,7 +1419,7 @@ def diagnose(
             status = WARNING
         elif sec_any:
             status = WARNING  # any security finding (even low) = warning
-        elif skip_probe or check_mode in ("schema", "security"):
+        elif skip_probe or check_mode not in ("all", "connectivity"):
             status = "config-ok"
         else:
             status = HEALTHY
@@ -2154,7 +2171,7 @@ def main() -> int:
         print(f"Baseline saved: {bpath} "
               f"({sum(len(getattr(s, '_baseline_tools', []) or []) for s in report.servers)} tools)")
 
-    if args.quiet and report.errors == 0:
+    if args.quiet and report.errors == 0 and not report.config_errors:
         pass  # hooks: silent when no server errors, exit code still reflects status
     elif args.json:
         print(format_report_json(report))
