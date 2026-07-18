@@ -4,10 +4,10 @@ codex-mcp-doctor: MCP server health diagnostics.
 Pure stdlib, zero dependencies. Python 3.11+ (uses tomllib).
 
 Exit codes (forces model to respond):
-  0  — all servers healthy, no issues found
-  1  — one or more servers have problems (details in output)
-  2  — could not parse config / internal error
-  3  — no MCP servers found to diagnose
+  0  - all servers healthy, no issues found
+  1  - one or more servers have problems (details in output)
+  2  - could not parse config / internal error
+  3  - no MCP servers found to diagnose
 """
 
 from __future__ import annotations
@@ -53,7 +53,7 @@ VALID_JSON_TYPES = {
     "string", "number", "integer", "boolean", "array", "object", "null"
 }
 
-# Read-only tool name patterns — safe to actually call during probes
+# Read-only tool name patterns - safe to actually call during probes
 READONLY_TOOL_HINTS = (
     "list", "get", "search", "read", "fetch", "query", "status", "ping",
     "health", "info", "describe", "show", "view", "inspect", "browse",
@@ -317,7 +317,7 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
         issues.append({
             "level": "error",
             "type": "missing_command",
-            "message": f"No 'command' field — stdio server needs an executable path.",
+            "message": f"No 'command' field - stdio server needs an executable path.",
             "fix": f"Add: command = \"/path/to/your/mcp-server\" under [mcp_servers.{name}]",
         })
         return issues
@@ -382,7 +382,7 @@ def validate_http_config(name: str, cfg: dict) -> list[dict]:
         issues.append({
             "level": "error",
             "type": "missing_url",
-            "message": f"No 'url' field — HTTP server needs an endpoint URL.",
+            "message": f"No 'url' field - HTTP server needs an endpoint URL.",
             "fix": f"Add: url = \"https://your-server.com/mcp\" under [mcp_servers.{name}]",
         })
         return issues
@@ -407,14 +407,14 @@ def validate_http_config(name: str, cfg: dict) -> list[dict]:
     issues.extend(validate_codex_config_fields(name, cfg))
     # Auth header heuristic
     issues.extend(_check_http_auth_headers(name, cfg))
-    # v1.4: plaintext secrets (NSA) — also scan URL + headers
+    # v1.4: plaintext secrets (NSA) - also scan URL + headers
     issues.extend(check_config_secrets(name, cfg))
 
     return issues
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Connectivity probes (L1) — stdio
+# Connectivity probes (L1) - stdio
 # ═══════════════════════════════════════════════════════════════════════
 
 def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict], float]:
@@ -518,7 +518,7 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Connectivity probes (L1) — HTTP / SSE
+# Connectivity probes (L1) - HTTP / SSE
 # ═══════════════════════════════════════════════════════════════════════
 
 def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict], float]:
@@ -565,7 +565,7 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
         tools_resp = _http_rpc(url, "tools/list", {}, headers, timeout)
         probe.tools = _extract_items_from_rpc(tools_resp, "tools")
 
-        # resources/list (best-effort — not all servers support it)
+        # resources/list (best-effort - not all servers support it)
         try:
             res_resp = _http_rpc(url, "resources/list", {}, headers, timeout)
             probe.resources = _extract_items_from_rpc(res_resp, "resources")
@@ -610,7 +610,7 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
                 "type": "auth_failed",
                 "message": f"Authentication failed: HTTP {e.code}.",
                 "body": body,
-                "fix": f"Check http_headers — your API key or Bearer token may be invalid or expired.",
+                "fix": f"Check http_headers - your API key or Bearer token may be invalid or expired.",
             })
         else:
             issues.append({
@@ -932,7 +932,7 @@ def schema_issues_to_dicts(issues: list[ToolSchemaIssue]) -> list[dict]:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Security analysis (L4) — prompt injection, tool shadowing, hidden Unicode
+# Security analysis (L4) - prompt injection, tool shadowing, hidden Unicode
 # ═══════════════════════════════════════════════════════════════════════
 #
 # Inspired by Snyk agent-scan issue codes (E001, E002, W001, W021) and
@@ -1023,9 +1023,9 @@ def validate_tool_security(tool: dict) -> list[dict]:
     """Analyze a single tool for security risks in its description and name.
 
     Checks:
-      E001 — prompt injection patterns (regex match against known attack patterns)
-      W001 — suspicious manipulative words (urgency / override language)
-      W021 — hidden Unicode characters (zero-width, bidi override, tag sequences)
+      E001 - prompt injection patterns (regex match against known attack patterns)
+      W001 - suspicious manipulative words (urgency / override language)
+      W021 - hidden Unicode characters (zero-width, bidi override, tag sequences)
 
     Returns list of issue dicts with keys:
       tool, severity, code, label, message, evidence
@@ -1033,7 +1033,7 @@ def validate_tool_security(tool: dict) -> list[dict]:
     issues: list[dict] = []
     name = tool.get("name", "<unnamed>")
     desc = str(tool.get("description", ""))
-    full_text = f"{name} {desc}"  # scan name too — it's also model-visible
+    full_text = f"{name} {desc}"  # scan name too - it's also model-visible
 
     # --- E001: Prompt injection ---
     seen: set[str] = set()
@@ -1086,7 +1086,7 @@ def validate_tool_security(tool: dict) -> list[dict]:
             sev = "medium"
         detail = f"{len(hidden_chars)} char(s), types: {', '.join(sorted(distinct_cats))}"
         if decoded:
-            detail += f" — hidden message: \"{decoded[:80]}\""
+            detail += f" - hidden message: \"{decoded[:80]}\""
         issues.append({
             "tool": name,
             "severity": sev,
@@ -1140,7 +1140,7 @@ def validate_server_security(
                         "severity": "high",
                         "code": "E002",
                         "label": "cross-server-shadow",
-                        "message": f"Server '{server_name}' references tool '{otname}' from server '{other_server}' — potential tool shadowing.",
+                        "message": f"Server '{server_name}' references tool '{otname}' from server '{other_server}' - potential tool shadowing.",
                         "evidence": otname,
                     })
 
@@ -1178,7 +1178,7 @@ def validate_server_security(
             "severity": "low",
             "code": "W015",
             "label": "untrusted-content",
-            "message": f"Server '{server_name}' fetches/processes external web content — combined with other tools this creates prompt-injection risk.",
+            "message": f"Server '{server_name}' fetches/processes external web content - combined with other tools this creates prompt-injection risk.",
             "evidence": _UNTRUSTED_CONTENT_RE.search(all_text).group()[:80],
         })
 
@@ -1202,7 +1202,7 @@ def compute_health_score(server: ServerResult) -> float:
     if server.status in (ERROR, DISABLED):
         return 0.0
     if server.status == "config-ok":
-        return 100.0  # config valid, not probed — assume ok
+        return 100.0  # config valid, not probed - assume ok
     if not server.tools_found:
         return 0.0
 
@@ -1234,7 +1234,7 @@ def compute_health_score(server: ServerResult) -> float:
     elif sec_high > 0:
         score = min(score, 50.0)   # high-risk patterns → yellow zone max
 
-    # v1.4: rug-pull (E003) — a changed tool description is a high-severity
+    # v1.4: rug-pull (E003) - a changed tool description is a high-severity
     # trust violation. Cap at 50 like other high findings.
     e003_high = sum(
         1 for i in server.security_issues
@@ -1243,7 +1243,7 @@ def compute_health_score(server: ServerResult) -> float:
     if e003_high and sec_critical == 0:
         score = min(score, 50.0)
 
-    # v1.4: latency penalty — slow but functional servers lose a few points
+    # v1.4: latency penalty - slow but functional servers lose a few points
     # so they don't appear pristine. >15s loses 10, >5s loses 5.
     if server.latency_ms is not None:
         if server.latency_ms >= LATENCY_ERROR_MS:
@@ -1517,7 +1517,7 @@ def format_report_human(report: DiagnosticsReport) -> str:
     summary = report.to_dict()["summary"]
 
     lines.append("=" * 64)
-    lines.append("  MCP DOCTOR — Diagnostic Report")
+    lines.append("  MCP DOCTOR - Diagnostic Report")
     lines.append("=" * 64)
     lines.append(f"  Config: {report.config_path}")
     lines.append("")
@@ -1662,10 +1662,10 @@ def format_report_human(report: DiagnosticsReport) -> str:
     lines.append("=" * 64)
     config_ok_count = summary.get("config_ok", 0)
     if report.errors > 0:
-        lines.append(f"  RESULT: {report.errors} error(s), {report.warnings} warning(s) — issues found.")
+        lines.append(f"  RESULT: {report.errors} error(s), {report.warnings} warning(s) - issues found.")
         lines.append("  Fix the errors above, then re-run: python3 scripts/doctor.py")
     elif report.warnings > 0:
-        lines.append(f"  RESULT: {report.warnings} warning(s) — servers running but check the warnings.")
+        lines.append(f"  RESULT: {report.warnings} warning(s) - servers running but check the warnings.")
     elif summary["healthy"] > 0:
         lines.append("  RESULT: All servers healthy. ✅")
     elif config_ok_count > 0:
@@ -1682,7 +1682,7 @@ def format_report_json(report: DiagnosticsReport) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# v1.4 — Supply chain, secrets, latency, rug-pull baseline, resource/prompt security
+# v1.4 - Supply chain, secrets, latency, rug-pull baseline, resource/prompt security
 # All pure-stdlib. Imported and merged into doctor.py by build step.
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -1692,7 +1692,7 @@ _REGISTRY_COMMANDS = {
 }
 # A pinned package looks like `pkg@1.2.3` or `pkg@^1.2.3` or `pkg@>=1`.
 # Unpinned: bare `pkg`, or `pkg@latest`/`pkg@next`/`pkg@*`.
-# A pinned version: @1.2.3, @^1.2.3, @~1.2, @>=1.2.0 — anything with a digit after @
+# A pinned version: @1.2.3, @^1.2.3, @~1.2, @>=1.2.0 - anything with a digit after @
 # (possibly preceded by a SemVer range operator like ^ ~ > < =).
 _PINNED_VERSION_RE = re.compile(r"@[\^~>=<!]*\d+\.\d+", re.IGNORECASE)
 _UNPINNED_TAG_RE = re.compile(r"@(?:latest|next|beta|alpha|\*)\b", re.IGNORECASE)
@@ -1779,7 +1779,7 @@ def check_supply_chain(name: str, cfg: dict) -> list[dict]:
         issues.append({
             "level": "warning",
             "type": "unpinned_package",
-            "message": f"Server '{name}' uses '{pkg}' — rolling tag, not pinned to a version.",
+            "message": f"Server '{name}' uses '{pkg}' - rolling tag, not pinned to a version.",
             "fix": f"Pin to a concrete version, e.g. {pkg.split('@')[0]}@1.2.3.",
         })
     elif "@" not in pkg or not _PINNED_VERSION_RE.search(pkg):
@@ -1811,7 +1811,7 @@ _SECRET_PATTERNS = [
     re.compile(r"Bearer\s+[A-Za-z0-9_\-\.]{32,}"),
 ]
 _EMBEDDED_CREDS_RE = re.compile(r"https?://[^/\s:@]+:[^/\s:@]+@")
-# $VAR / ${VAR} references are fine — they pull from environment
+# $VAR / ${VAR} references are fine - they pull from environment
 _ENV_VAR_REF_RE = re.compile(r"^\$\{?[A-Z_][A-Z0-9_]*\}?$")
 
 
@@ -1944,7 +1944,7 @@ BASELINE_PATH = Path.home() / ".codex" / "mcp-doctor-baseline.json"
 
 def _tool_hash(tool: dict) -> str:
     """Stable hash of a tool's name + description. Args/inputSchema are
-    intentionally excluded — attackers mutate the description text, which
+    intentionally excluded - attackers mutate the description text, which
     is what the model reads and trusts."""
     name = str(tool.get("name", ""))
     desc = str(tool.get("description", ""))
@@ -1962,7 +1962,7 @@ def save_baseline(report: "DiagnosticsReport", path: Path | None = None) -> Path
     target.parent.mkdir(parents=True, exist_ok=True)
     baseline: dict[str, dict[str, str]] = {}
     for s in report.servers:
-        # We need the full tool dicts, not just names — re-derive from the
+        # We need the full tool dicts, not just names - re-derive from the
         # diagnose() probe cache via the report's private channel.
         tools = getattr(s, "_baseline_tools", None) or []
         if not tools:
@@ -1996,7 +1996,7 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
         current = {t.get("name", "?"): _tool_hash(t) for t in tools if isinstance(t, dict)}
         known = stored.get(s.name, {})
         if not known:
-            continue  # server not in baseline — skip (user should re-save)
+            continue  # server not in baseline - skip (user should re-save)
         for tname, thash in current.items():
             if tname not in known:
                 issues.append({
@@ -2015,7 +2015,7 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
                     "code": "E003",
                     "label": "tool-description-changed",
                     "message": f"Tool '{s.name}:{tname}' description changed since the last "
-                               f"baseline — possible rug-pull. Re-run with --save-baseline "
+                               f"baseline - possible rug-pull. Re-run with --save-baseline "
                                f"only after verifying the new description is safe.",
                     "evidence": "description hash mismatch",
                 })

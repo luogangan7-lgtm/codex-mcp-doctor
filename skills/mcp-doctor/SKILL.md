@@ -5,7 +5,7 @@ description: Diagnose MCP server connectivity, configuration, runtime health, an
 
 # MCP Doctor
 
-Diagnose MCP server health — like `npm doctor` but for MCP. Zero external dependencies (pure Python 3.11+ stdlib). Checks **all three MCP primitives**: tools, resources, and prompts.
+Diagnose MCP server health - like `npm doctor` but for MCP. Zero external dependencies (pure Python 3.11+ stdlib). Checks **all three MCP primitives**: tools, resources, and prompts.
 
 ## When to Run This (Automatic Triggers)
 
@@ -16,12 +16,12 @@ Run this skill **without waiting for the user to ask** when any of these happen:
 - **The user says** anything like: "my MCP is broken", "tools aren't working", "X is not responding", "MCP tools disappeared".
 - **At session start** if you notice MCP servers are configured but their tools are absent.
 - **The user asks** to check, diagnose, or troubleshoot their MCP setup.
-- **A tool exists but behaves oddly** — schema issues may be the cause (missing descriptions, broken required fields).
-- **A new MCP server or plugin is installed** — scan for prompt injection and tool shadowing before trusting it.
-- **A tool behaves suspiciously** — it might contain hidden Unicode or injection patterns manipulating the model.
-- **A tool's behavior changes subtly** — re-run `--check-baseline`; its description may have been silently mutated (rug-pull).
-- **Config contains tokens or API keys** — run `--check secrets` to flag plaintext secrets that should be in environment variables.
-- **A server uses `npx`/`uvx`/`docker run`** — run `--check supply-chain` to flag unpinned package versions and untagged docker images.
+- **A tool exists but behaves oddly** - schema issues may be the cause (missing descriptions, broken required fields).
+- **A new MCP server or plugin is installed** - scan for prompt injection and tool shadowing before trusting it.
+- **A tool behaves suspiciously** - it might contain hidden Unicode or injection patterns manipulating the model.
+- **A tool's behavior changes subtly** - re-run `--check-baseline`; its description may have been silently mutated (rug-pull).
+- **Config contains tokens or API keys** - run `--check secrets` to flag plaintext secrets that should be in environment variables.
+- **A server uses `npx`/`uvx`/`docker run`** - run `--check supply-chain` to flag unpinned package versions and untagged docker images.
 
 When in doubt, run it. It's fast (≤10s per server), read-only, and has zero side effects.
 
@@ -62,7 +62,7 @@ python3 scripts/doctor.py --check security
 # v1.4: Save a trusted baseline of current tool-description hashes
 python3 scripts/doctor.py --save-baseline
 
-# v1.4: Detect rug-pull — flag any tool whose description changed since baseline
+# v1.4: Detect rug-pull - flag any tool whose description changed since baseline
 python3 scripts/doctor.py --check-baseline
 
 # v1.4: Check only supply-chain version pinning (MCP04)
@@ -91,7 +91,7 @@ Exit code 1 forces you to report the diagnostic results and the suggested fixes.
 
 ## What It Diagnoses
 
-### L1 — Connectivity (Live Probe)
+### L1 - Connectivity (Live Probe)
 
 Probes **all three MCP primitives** in a single handshake:
 
@@ -100,7 +100,7 @@ Probes **all three MCP primitives** in a single handshake:
 - Reports latency, server info (name + version), protocol version, tool/resource/prompt counts.
 - Connection error root-cause analysis: DNS failure, connection refused, auth failure, timeout, SSL errors.
 
-### L2 — Configuration Correctness
+### L2 - Configuration Correctness
 
 - Missing `command` (stdio) or `url` (http) fields.
 - Command path doesn't exist, isn't executable, or isn't on PATH.
@@ -110,24 +110,24 @@ Probes **all three MCP primitives** in a single handshake:
 - `enabled = false` (reports as disabled, not an error).
 
 **Codex-specific field validation (v1.2+)**:
-- `startup_timeout_sec` — warns if <1s (too short) or >120s (blocks Codex startup).
-- `tool_timeout_sec` — warns if <5s (kills I/O tools mid-execution).
-- `env` with `$VAR` references — warns if the variable isn't set in your shell.
-- `http_headers` — warns about missing `Authorization` on HTTPS API endpoints.
+- `startup_timeout_sec` - warns if <1s (too short) or >120s (blocks Codex startup).
+- `tool_timeout_sec` - warns if <5s (kills I/O tools mid-execution).
+- `env` with `$VAR` references - warns if the variable isn't set in your shell.
+- `http_headers` - warns about missing `Authorization` on HTTPS API endpoints.
 
-### L2.5 — Schema Quality (Tool Health)
+### L2.5 - Schema Quality (Tool Health)
 
 Validates each tool's schema the way competitors (destilabs/mcp-doctor, mcp-probe) do:
 
-- **Missing description** — tool has no description; model can't decide when to call it.
-- **Short description** — under 10 chars, too vague for reliable tool selection.
-- **Missing inputSchema** — no parameter schema at all.
-- **Required field not in properties** — a required param doesn't exist (broken schema).
-- **Invalid JSON type** — property type isn't a valid JSON Schema type.
-- **Property missing description** — individual parameters lack descriptions.
-- **Invalid schema structure** — properties/required not the right shape.
+- **Missing description** - tool has no description; model can't decide when to call it.
+- **Short description** - under 10 chars, too vague for reliable tool selection.
+- **Missing inputSchema** - no parameter schema at all.
+- **Required field not in properties** - a required param doesn't exist (broken schema).
+- **Invalid JSON type** - property type isn't a valid JSON Schema type.
+- **Property missing description** - individual parameters lack descriptions.
+- **Invalid schema structure** - properties/required not the right shape.
 
-### L2.6 — Server Capabilities (v1.2+)
+### L2.6 - Server Capabilities (v1.2+)
 
 Extracts and reports the `capabilities` dict from each server's `initialize` response:
 - Which primitives the server supports: tools, resources, prompts.
@@ -135,7 +135,7 @@ Extracts and reports the `capabilities` dict from each server's `initialize` res
 - Change notifications: `tools.listChanged`, `resources.listChanged`, `prompts.listChanged`.
 - The negotiated protocol version (doctor advertises `2025-11-25`; server negotiates down if older).
 
-### L3 — Health Score
+### L3 - Health Score
 
 Each server gets a 0-100 score combining:
 
@@ -151,9 +151,9 @@ Score bands: 🟢 80+ (good) · 🟡 50-79 (fair) · 🔴 <50 (poor)
 
 ### stdio Notifications Capture (v1.2+)
 
-During stdio probes, the doctor captures `notifications/*` messages emitted by the server (log messages, progress updates, list-changed events). These are reported as a count — a server emitting many log notifications during a simple handshake may indicate verbose logging or startup issues.
+During stdio probes, the doctor captures `notifications/*` messages emitted by the server (log messages, progress updates, list-changed events). These are reported as a count - a server emitting many log notifications during a simple handshake may indicate verbose logging or startup issues.
 
-### L4 — Root Cause + Fix Suggestions
+### L4 - Root Cause + Fix Suggestions
 
 Every error includes a `fix` field with a concrete suggestion:
 
@@ -168,7 +168,7 @@ Every error includes a `fix` field with a concrete suggestion:
 - Does not modify any config files (read-only).
 - Does not install or start MCP servers.
 - Does not call tools with arguments (only verifies listing + schema).
-- Does not require any pip install — pure Python stdlib.
+- Does not require any pip install - pure Python stdlib.
 
 ## After Running
 
@@ -179,20 +179,20 @@ Every error includes a `fix` field with a concrete suggestion:
 ## Security Analysis (L4)
 
 The doctor scans every tool's name and description for security risks. This
-protects against **tool poisoning** — a real attack where a malicious MCP
+protects against **tool poisoning** - a real attack where a malicious MCP
 server's tool description contains hidden instructions that hijack the model.
 
 ### What It Detects
 
 | Code | Severity | What |
 |------|----------|------|
-| **E001** | critical/high | **Prompt injection** — patterns like "ignore previous instructions", `<|im_start|>`, "send data to https://", "execute command:", role hijacking |
-| **E002** | high | **Cross-server tool shadowing** — a tool description references a tool name from a *different* server, potentially overriding legitimate tools |
-| **W001** | low/medium | **Manipulative language** — urgency words like "crucial", "immediately", "must", "override", "bypass" that pressure the model |
-| **W021** | medium/high | **Hidden Unicode** — zero-width spaces (U+200B), bidirectional overrides (U+202E), private-use chars, and Unicode Tag sequences (U+E0000–U+E007F) that encode invisible messages |
-| **W015** | low | **Untrusted content** — tools that fetch/parse web content (prompt-injection entry point) |
-| **W017** | low/medium | **Sensitive data exposure** — tools accessing credentials, tokens, financial data |
-| **W019** | low/medium | **Destructive capabilities** — tools with delete/exec/destroy/rm operations |
+| **E001** | critical/high | **Prompt injection** - patterns like "ignore previous instructions", `<|im_start|>`, "send data to https://", "execute command:", role hijacking |
+| **E002** | high | **Cross-server tool shadowing** - a tool description references a tool name from a *different* server, potentially overriding legitimate tools |
+| **W001** | low/medium | **Manipulative language** - urgency words like "crucial", "immediately", "must", "override", "bypass" that pressure the model |
+| **W021** | medium/high | **Hidden Unicode** - zero-width spaces (U+200B), bidirectional overrides (U+202E), private-use chars, and Unicode Tag sequences (U+E0000–U+E007F) that encode invisible messages |
+| **W015** | low | **Untrusted content** - tools that fetch/parse web content (prompt-injection entry point) |
+| **W017** | low/medium | **Sensitive data exposure** - tools accessing credentials, tokens, financial data |
+| **W019** | low/medium | **Destructive capabilities** - tools with delete/exec/destroy/rm operations |
 
 ### Health Score Impact
 
@@ -202,14 +202,14 @@ Security issues cap the achievable health score:
 - **Medium/Low** → no score cap, but reported as a warning
 
 This means a server with a well-formed schema but an active prompt-injection
-pattern will show a low score — not a false "healthy" green.
+pattern will show a low score - not a false "healthy" green.
 
-## v1.4 — Extended Security & Supply Chain
+## v1.4 - Extended Security & Supply Chain
 
 v1.4 adds five new check layers, all aligned with the OWASP MCP Top 10
 (2025 draft) and NSA AI security guidance. All are pure stdlib.
 
-### E003 — Rug-Pull Detection (Tool Description Pinning)
+### E003 - Rug-Pull Detection (Tool Description Pinning)
 
 Inspired by Invariant Labs' MCP-Scan. A "rug pull" is when a previously-trusted
 tool silently changes its description to inject new malicious instructions.
@@ -231,9 +231,9 @@ trust it → later run `--check-baseline` to detect silent mutations.
 Flags stdio commands that pull packages from registries without pinning:
 
 - `npx`/`npm`/`pnpm`/`yarn`/`bunx`/`uvx`/`pipx` with a bare package name or
-  `@latest`/`@next`/`@*` — a republished package can change behavior at any time.
+  `@latest`/`@next`/`@*` - a republished package can change behavior at any time.
 - `docker run <image>` with no `@sha256:` digest and no concrete `:tag` (or
-  `:latest`) — supply-chain risk.
+  `:latest`) - supply-chain risk.
 
 Caret/tilde ranges (`@^1.2.3`, `@~1.2`) count as pinned. Scoped packages
 (`@scope/pkg@1.2.3`) are handled correctly.
@@ -260,7 +260,7 @@ variable indirections and not flagged.
 | < 5s | none | none |
 
 Servers that do heavy work during `tools/list` (e.g. embedding computation
-on first call) will show elevated latency — this is informational, not a failure.
+on first call) will show elevated latency - this is informational, not a failure.
 
 ### Resource & Prompt Security Scanning
 

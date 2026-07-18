@@ -5,8 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${PLUGIN_ROOT:-$HOME/.codex/plugins/codex-mcp-doctor}/scripts/doctor.py\" --json --timeout 5 2>/dev/null || true",
-            "timeout": 5
+            "command": "python3 \"${PLUGIN_ROOT:-$HOME/.codex/plugins/codex-mcp-doctor}/scripts/doctor.py\" --quiet --timeout 8 2>/dev/null || true",
+            "timeout": 10
           }
         ]
       }
@@ -16,8 +16,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${PLUGIN_ROOT:-$HOME/.codex/plugins/codex-mcp-doctor}/scripts/doctor.py\" --json --timeout 5 --quiet 2>/dev/null || true",
-            "timeout": 5
+            "command": "python3 \"${PLUGIN_ROOT:-$HOME/.codex/plugins/codex-mcp-doctor}/scripts/doctor.py\" --quiet --timeout 8 2>/dev/null || true",
+            "timeout": 10
           }
         ]
       }

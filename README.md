@@ -1,6 +1,6 @@
 # codex-mcp-doctor
 
-> **`npm doctor` for MCP.** Diagnose MCP server connectivity, configuration, runtime health, tool schema quality, **and multi-layer security** (prompt injection, tool shadowing, hidden Unicode, rug-pull detection, supply-chain pinning, plaintext secrets) — zero dependencies, pure Python stdlib. Checks all three MCP primitives: tools, resources, and prompts.
+> **`npm doctor` for MCP.** Diagnose MCP server connectivity, configuration, runtime health, tool schema quality, **and multi-layer security** (prompt injection, tool shadowing, hidden Unicode, rug-pull detection, supply-chain pinning, plaintext secrets) - zero dependencies, pure Python stdlib. Checks all three MCP primitives: tools, resources, and prompts.
 
 [![Codex Plugin](https://img.shields.io/badge/Codex-Plugin-10B981)](https://openai.com/codex)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)](https://python.org)
@@ -10,7 +10,7 @@
 
 ## The Problem
 
-MCP servers fail silently. You configure a server in `config.toml`, restart Codex, and... nothing. Tools don't appear. No error message. No log. Or worse — tools appear but don't work right because their schemas are broken.
+MCP servers fail silently. You configure a server in `config.toml`, restart Codex, and... nothing. Tools don't appear. No error message. No log. Or worse - tools appear but don't work right because their schemas are broken.
 
 **`codex-mcp-doctor` answers all of these in seconds:**
 
@@ -34,7 +34,7 @@ MCP servers fail silently. You configure a server in `config.toml`, restart Code
 $ python3 scripts/doctor.py
 
 ================================================================
-  MCP DOCTOR — Diagnostic Report
+  MCP DOCTOR - Diagnostic Report
 ================================================================
   Config: /Users/you/.codex/config.toml
 
@@ -58,25 +58,25 @@ $ python3 scripts/doctor.py
        ... +7 more schema issues
 
 ================================================================
-  RESULT: 12 warning(s) — servers running but check the warnings.
+  RESULT: 12 warning(s) - servers running but check the warnings.
 ================================================================
 ```
 
 ## Features
 
-- **Zero dependencies** — pure Python 3.11+ stdlib (`tomllib`, `urllib`, `subprocess`, `socket`). No pip install.
-- **All three MCP primitives** — checks `tools/list`, `resources/list`, and `prompts/list` (not just tools like v1.0).
-- **Schema quality validation** — catches missing descriptions, broken required fields, invalid types (like destilabs/mcp-doctor and mcp-probe do).
-- **Health scoring** — 0-100 score per server combining connectivity, schema quality, and description coverage.
-- **SSE / Streamable HTTP support** — handles Server-Sent Events responses, not just plain HTTP.
+- **Zero dependencies** - pure Python 3.11+ stdlib (`tomllib`, `urllib`, `subprocess`, `socket`). No pip install.
+- **All three MCP primitives** - checks `tools/list`, `resources/list`, and `prompts/list` (not just tools like v1.0).
+- **Schema quality validation** - catches missing descriptions, broken required fields, invalid types (like destilabs/mcp-doctor and mcp-probe do).
+- **Health scoring** - 0-100 score per server combining connectivity, schema quality, and description coverage.
+- **SSE / Streamable HTTP support** - handles Server-Sent Events responses, not just plain HTTP.
 - **Four diagnostic layers**:
   - **L1 Connectivity**: full handshake (initialize + tools/list + resources/list + prompts/list).
   - **L2 Config validation**: paths, executability, URL validity, required fields.
   - **L2.5 Schema quality**: tool descriptions, inputSchema structure, required field integrity, JSON type validity.
   - **L3 Root cause**: stderr/HTTP error analysis with concrete fix suggestions + health score.
-- **Automatic triggering** — SKILL.md instructs the model to run diagnostics when MCP tools are missing or failing.
-- **Exit codes that force model response** — exit 1 means issues found, the model must report them.
-- **Selective checks** — `--check connectivity` or `--check schema
+- **Automatic triggering** - SKILL.md instructs the model to run diagnostics when MCP tools are missing or failing.
+- **Exit codes that force model response** - exit 1 means issues found, the model must report them.
+- **Selective checks** - `--check connectivity` or `--check schema
 
 # Security analysis only (injection, shadowing, hidden Unicode)
 python3 scripts/doctor.py --check security` to run only what you need.
@@ -86,13 +86,29 @@ python3 scripts/doctor.py --check security` to run only what you need.
 
 ### As a Codex Plugin
 
+Clone the repo, then register it as a personal Codex plugin:
+
 ```bash
-git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git ~/.codex/codex-mcp-doctor
+git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git
+cd codex-mcp-doctor
+codex plugins add .
 ```
+
+Or manually copy to your plugins cache:
+
+```bash
+mkdir -p ~/.codex/plugins/cache/personal/codex-mcp-doctor/1.4.0
+cp -r . ~/.codex/plugins/cache/personal/codex-mcp-doctor/1.4.0/
+# Add to ~/.codex/config.toml:
+#   [plugins."codex-mcp-doctor@personal"]
+#   enabled = true
+```
+
+The SessionStart hook will auto-run the doctor on every new session.
 
 ### Standalone Usage
 
-No install needed — just run the script:
+No install or Codex registration needed - just run the script:
 
 ```bash
 python3 scripts/doctor.py
@@ -167,16 +183,16 @@ python3 tests/test_doctor.py
 
 ## Requirements
 
-- Python 3.11+ (for `tomllib` — bundled in standard library since 3.11)
+- Python 3.11+ (for `tomllib` - bundled in standard library since 3.11)
 - No pip packages, no virtualenv, no compilation
 
 ## Differentiation
 
 vs. `destilabs/mcp-doctor`: We're Codex-native (auto-reads `config.toml`, zero-config). They focus on quality scoring with NPX support; we focus on connectivity + config + schema in one pass.
 
-vs. `@incultniteollc/mcp-probe`: They call every tool with auto-generated args and do contract testing. We're lighter — we verify listing + schema without side-effectful tool calls, which is safer for a diagnostic tool.
+vs. `@incultniteollc/mcp-probe`: They call every tool with auto-generated args and do contract testing. We're lighter - we verify listing + schema without side-effectful tool calls, which is safer for a diagnostic tool.
 
-Our unique angle: **zero-config, auto-triggering, Codex-integrated** — you don't tell it what to check, it reads your config and checks everything.
+Our unique angle: **zero-config, auto-triggering, Codex-integrated** - you don't tell it what to check, it reads your config and checks everything.
 
 vs. **Invariant MCP-Scan**: They pioneered tool pinning / rug-pull detection as a web app. v1.4 brings the same capability to the CLI with zero dependencies and automatic config discovery - no browser, no upload.
 
@@ -188,11 +204,11 @@ MIT
 
 v1.3 adds a security layer that scans MCP tool descriptions for attack patterns:
 
-- **E001 Prompt Injection** — detects "ignore previous instructions", ChatGPT token injection (`<|im_start|>`), data exfiltration commands, role hijacking, and hidden instruction markers
-- **E002 Tool Shadowing** — flags cross-server tool name references (a poisoned tool mentioning another server's tools)
-- **W001 Manipulative Language** — urgency words like "crucial", "must", "override"
-- **W021 Hidden Unicode** — zero-width spaces, bidi overrides, and Unicode Tag sequences (U+E0000-U+E007F) that encode invisible messages
-- **W015/017/019 Capability Risks** — untrusted content, sensitive data, destructive operations
+- **E001 Prompt Injection** - detects "ignore previous instructions", ChatGPT token injection (`<|im_start|>`), data exfiltration commands, role hijacking, and hidden instruction markers
+- **E002 Tool Shadowing** - flags cross-server tool name references (a poisoned tool mentioning another server's tools)
+- **W001 Manipulative Language** - urgency words like "crucial", "must", "override"
+- **W021 Hidden Unicode** - zero-width spaces, bidi overrides, and Unicode Tag sequences (U+E0000-U+E007F) that encode invisible messages
+- **W015/017/019 Capability Risks** - untrusted content, sensitive data, destructive operations
 
 Security issues cap the health score: critical → max 20, high → max 50.
 

@@ -1,7 +1,7 @@
 $ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
 
 ================================================================
-  MCP DOCTOR — Diagnostic Report
+  MCP DOCTOR - Diagnostic Report
 ================================================================
   Config: examples/broken-stdio/config.toml
 
@@ -20,6 +20,6 @@ $ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
         stderr: /opt/homebrew/opt/python@3.14/bin/python3.14: No module named my_missing_mcp_server
 
 ================================================================
-  RESULT: 2 error(s), 0 warning(s) — issues found.
+  RESULT: 2 error(s), 0 warning(s) - issues found.
   Fix the errors above, then re-run: python3 scripts/doctor.py
 ================================================================
