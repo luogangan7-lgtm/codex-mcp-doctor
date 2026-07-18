@@ -38,9 +38,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Non-string `http_headers` values** - `X-Key = 42` (int/list) warns.
   HTTP headers are always strings.
 
+### Fixed
+
+- **JSON-RPC parser crashes on malformed tool/resource/prompt lists** -
+  a server returning `"tools": null`, `"tools": 42`, or `"tools": "string"`
+  crashed `_parse_stdio_responses` with `TypeError: object of type has no
+  len()`. A string value was silently iterated char-by-char, reporting a
+  false tool count. Both `_parse_stdio_responses` and
+  `_extract_items_from_rpc` now validate that the value is a list before
+  use, defaulting to `[]`.
+
 ### Changed
 
-- 242 tests (was 234).
+- 250 tests (was 242).
 
 ## [1.4.2] - 2026-07-18
 

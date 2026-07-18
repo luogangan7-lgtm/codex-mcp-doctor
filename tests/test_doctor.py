@@ -538,6 +538,47 @@ class TestJsonRpcParsing(unittest.TestCase):
 # Integration: stdio probe against mock server
 # ═══════════════════════════════════════════════════════════════════════
 
+    def test_tools_null_does_not_crash(self):
+        """A server returning tools: null must not crash len()."""
+        probe = doctor._parse_stdio_responses('{"id": 2, "result": {"tools": null}}')
+        self.assertEqual(len(probe.tools), 0)
+
+    def test_tools_int_does_not_crash(self):
+        """A server returning tools: 42 must not crash len()."""
+        probe = doctor._parse_stdio_responses('{"id": 2, "result": {"tools": 42}}')
+        self.assertEqual(len(probe.tools), 0)
+
+    def test_tools_string_not_counted_as_items(self):
+        """A string tools value must not be iterated char-by-char (was a bug: len=9)."""
+        probe = doctor._parse_stdio_responses('{"id": 2, "result": {"tools": "notarray"}}')
+        self.assertEqual(len(probe.tools), 0)
+
+    def test_tools_dict_does_not_crash(self):
+        """A dict tools value must not crash."""
+        probe = doctor._parse_stdio_responses('{"id": 2, "result": {"tools": {"a": 1}}}')
+        self.assertEqual(len(probe.tools), 0)
+
+    def test_resources_null_does_not_crash(self):
+        """resources: null must not crash."""
+        probe = doctor._parse_stdio_responses('{"id": 3, "result": {"resources": null}}')
+        self.assertEqual(len(probe.resources), 0)
+
+    def test_prompts_int_does_not_crash(self):
+        """prompts: int must not crash."""
+        probe = doctor._parse_stdio_responses('{"id": 4, "result": {"prompts": 42}}')
+        self.assertEqual(len(probe.prompts), 0)
+
+    def test_extract_items_null_does_not_crash(self):
+        """_extract_items_from_rpc must handle null tools value."""
+        items = doctor._extract_items_from_rpc({"result": {"tools": None}}, "tools")
+        self.assertEqual(items, [])
+
+    def test_extract_items_int_does_not_crash(self):
+        """_extract_items_from_rpc must handle int tools value."""
+        items = doctor._extract_items_from_rpc({"result": {"tools": 42}}, "tools")
+        self.assertEqual(items, [])
+
+
 class TestStdioProbeIntegration(unittest.TestCase):
 
     @classmethod

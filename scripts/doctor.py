@@ -938,11 +938,14 @@ def _parse_stdio_responses(stdout: str) -> ProbeResult:
             probe.protocol_version = result.get("protocolVersion", "")
             probe.capabilities = result.get("capabilities", {}) if isinstance(result.get("capabilities"), dict) else {}
         elif mid == 2:
-            probe.tools = result.get("tools", [])
+            _items = result.get("tools", [])
+            probe.tools = _items if isinstance(_items, list) else []
         elif mid == 3:
-            probe.resources = result.get("resources", [])
+            _items = result.get("resources", [])
+            probe.resources = _items if isinstance(_items, list) else []
         elif mid == 4:
-            probe.prompts = result.get("prompts", [])
+            _items = result.get("prompts", [])
+            probe.prompts = _items if isinstance(_items, list) else []
     return probe
 
 
@@ -950,6 +953,8 @@ def _extract_items_from_rpc(resp: dict, key: str) -> list[dict]:
     """Extract item list from a JSON-RPC response dict."""
     result = resp.get("result", {})
     items = result.get(key, [])
+    if not isinstance(items, list):
+        return []
     return [i for i in items if isinstance(i, dict)]
 
 
