@@ -40,9 +40,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   like unpinned packages, plaintext secrets, and invalid env types.
   Now applies per-issue penalties.
 
+### Fixed
+
+- **`const` property false positive** - a JSON Schema property using
+  `const` without a `type` field triggered `property_missing_type`.
+  `const` is a valid standalone constraint per JSON Schema spec.
+- **E002 false positive on common words** - tool names that are also
+  common English words (4-5 chars: `time`, `count`, `email`) triggered
+  cross-server shadowing false positives when they appeared naturally
+  in another server's tool description. Minimum name length raised
+  from 4 to 6.
+
 ### Added
 
-- 11 regression tests covering all above fixes (217 total).
+- 14 regression tests covering all above fixes (221 total).
 - `--baseline-path` and `--quiet` flags documented in SKILL.md.
 
 ## [1.4.1] - 2026-07-18

@@ -1019,15 +1019,15 @@ def validate_tool_schema(tool: dict) -> list[ToolSchemaIssue]:
                 fix=f"Use one of: {', '.join(sorted(VALID_JSON_TYPES))}.",
             ))
         elif not ptype and not any(
-            k in prop_schema for k in ("$ref", "anyOf", "oneOf", "allOf")
+            k in prop_schema for k in ("$ref", "anyOf", "oneOf", "allOf", "const")
         ):
             # No type and no composition keyword - the model can't tell what
-            # kind of value to pass. Skip if a composition keyword is present
-            # (those are valid JSON Schema alternatives to a flat type).
+            # kind of value to pass. Skip if a composition keyword or const is
+            # present (those are valid JSON Schema alternatives to a flat type).
             issues.append(ToolSchemaIssue(
                 tool=name, severity="warning", kind="property_missing_type",
                 message=f"Tool '{name}' property '{prop_name}' has no type "
-                        f"(and no $ref/anyOf/oneOf/allOf).",
+                        f"(and no $ref/anyOf/oneOf/allOf/const).",
                 fix=f"Add a 'type' to '{prop_name}' (e.g. string, number, boolean, array, object).",
             ))
 
@@ -1321,8 +1321,11 @@ def validate_server_security(
             if other_server == server_name:
                 continue
             for otname in other_tools:
-                # Skip very short or generic names to reduce false positives
-                if len(otname) < 4:
+                # Skip short names to reduce false positives. Common English
+                # words like 'time', 'file', 'list' (4-5 chars) that are also
+                # valid tool names cause noise. Most shadowing targets use
+                # descriptive names (read_file, delete_file) >= 6 chars.
+                if len(otname) < 6:
                     continue
                 # Word-boundary match in this server's tool descriptions
                 pat = re.compile(r"\b" + re.escape(otname) + r"\b", re.IGNORECASE)

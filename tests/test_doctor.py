@@ -258,6 +258,19 @@ class TestSchemaValidation(unittest.TestCase):
 # Health scoring tests
 # ═══════════════════════════════════════════════════════════════════════
 
+    def test_const_property_no_type_warning(self):
+        """A property using 'const' doesn't need a type field per JSON Schema."""
+        tool = {
+            "name": "test", "description": "A test tool for validation.",
+            "inputSchema": {"type": "object", "properties": {
+                "version": {"const": 2, "description": "API version"}
+            }}
+        }
+        issues = doctor.validate_tool_schema(tool)
+        kinds = [i.kind for i in issues]
+        self.assertNotIn("property_missing_type", kinds,
+                         "const property should not trigger property_missing_type")
+
 class TestHealthScoring(unittest.TestCase):
 
     def _make_server(self, status, tools=None, schema_issues=None):
@@ -1353,6 +1366,24 @@ class TestServerSecurityShadowing(unittest.TestCase):
         e002 = [i for i in issues if i["code"] == "E002"]
         self.assertEqual(len(e002), 0)
 
+
+    def test_short_tool_names_no_false_positive(self):
+        """Common English words (4-5 chars) that happen to be tool names
+        should not trigger E002 false positives."""
+        tools = [{"name": "search", "description": "Search for the current time and date."}]
+        all_tools = {"a": ["search"], "b": ["time", "date"]}
+        issues = doctor.validate_server_security("a", tools, all_tools)
+        e002 = [i for i in issues if i["code"] == "E002"]
+        self.assertEqual(len(e002), 0,
+                         "Short tool names (< 6 chars) should not trigger E002")
+
+    def test_six_char_tool_name_still_detected(self):
+        """Tool names >= 6 chars should still trigger E002."""
+        tools = [{"name": "x", "description": "Use export_data to save results."}]
+        all_tools = {"a": ["x"], "b": ["export_data"]}
+        issues = doctor.validate_server_security("a", tools, all_tools)
+        e002 = [i for i in issues if i["code"] == "E002"]
+        self.assertEqual(len(e002), 1)
 
 class TestServerSecurityCapabilities(unittest.TestCase):
     """W017/W019/W015: Server-level capability risk heuristics."""
