@@ -1207,6 +1207,17 @@ _W001_HIGH_RE = [re.compile(r"\b" + w + r"\b", re.IGNORECASE) for w in _W001_HIG
 _W001_LOW_RE = [re.compile(r"\b" + w + r"\b", re.IGNORECASE) for w in _W001_LOW]
 
 # --- W021: Hidden Unicode detection ---
+
+# --- W022: Cyrillic homoglyph detection ---
+# Cyrillic letters that are visually identical to Latin equivalents.
+# Attackers substitute these to hide tool-name or keyword impersonation
+# (e.g. "fil\u0435system" looks like "filesystem" but the \u0435 is Cyrillic).
+_CYRILLIC_CONFUSABLES = {
+    0x0430: "a", 0x0435: "e", 0x043E: "o", 0x0440: "p", 0x0441: "c",
+    0x0445: "x", 0x0443: "y", 0x0410: "A", 0x0412: "B", 0x0415: "E",
+    0x041A: "K", 0x041C: "M", 0x041D: "H", 0x041E: "O", 0x0420: "P",
+    0x0421: "C", 0x0422: "T", 0x0425: "X",
+}
 _TAG_BLOCK_START = 0xE0000
 _TAG_BLOCK_END = 0xE007F
 _HIDDEN_CATEGORIES = {"Cf", "Cc", "Co"}
@@ -1237,6 +1248,7 @@ _SEC_FIXES: dict[str, str] = {
     "W017": "Review whether this tool needs access to sensitive data. Restrict permissions if possible.",
     "W019": "Review destructive operations. Consider adding confirmation prompts or access controls.",
     "W021": "Remove hidden Unicode characters from the tool description. These may hide malicious instructions.",
+    "W022": "Replace Cyrillic lookalike characters with their ASCII equivalents in tool names and descriptions.",
 }
 
 
@@ -1262,6 +1274,7 @@ def validate_tool_security(tool: dict) -> list[dict]:
       E001 - prompt injection patterns (regex match against known attack patterns)
       W001 - suspicious manipulative words (urgency / override language)
       W021 - hidden Unicode characters (zero-width, bidi override, tag sequences)
+      W022 - Cyrillic homoglyph attacks (mixed Latin/Cyrillic in same word)
 
     Returns list of issue dicts with keys:
       tool, severity, code, label, message, evidence
@@ -1354,6 +1367,38 @@ def validate_tool_security(tool: dict) -> list[dict]:
             "fix": _SEC_FIXES["W021"],
         })
 
+
+    # --- W022: Cyrillic homoglyph (mixed-script word) ---
+    # Split on non-alphanumeric to get individual "words", then check each
+    # for mixed Latin+Cyrillic script where the Cyrillic chars are confusables.
+    for token in re.split(r"[^\w]+", full_text):
+        if len(token) < 3:
+            continue
+        has_latin = any(c.isascii() and c.isalpha() for c in token)
+        cyr_positions = [i for i, c in enumerate(token) if 0x0400 <= ord(c) <= 0x04FF]
+        if has_latin and cyr_positions:
+            # Only flag if at least one Cyrillic char is a known confusable
+            confusable_hits = [c for c in token if ord(c) in _CYRILLIC_CONFUSABLES]
+            if confusable_hits:
+                normalized = "".join(
+                    _CYRILLIC_CONFUSABLES.get(ord(c), c) for c in token
+                )
+                hits_display = ", ".join(
+                    f"U+{ord(c):04X}" for c in sorted(set(confusable_hits))
+                )
+                issues.append({
+                    "tool": name,
+                    "severity": "high",
+                    "code": "W022",
+                    "label": "cyrillic-homoglyph",
+                    "message": (
+                        f"Tool '{name}' contains mixed-script word "
+                        f"'{token}' with Cyrillic lookalikes ({hits_display}). "
+                        f"Normalizes to '{normalized}'."
+                    ),
+                    "evidence": token,
+                    "fix": _SEC_FIXES["W022"],
+                })
     return issues
 
 

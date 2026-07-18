@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+### Added
+
+- **Cyrillic homoglyph detection (W022)** - detects mixed-script words
+  where Cyrillic lookalike characters (а="a", е="e", о="o",
+  etc.) are substituted into otherwise-Latin identifiers. Attackers use
+  this to impersonate trusted tool names (e.g. `filеsystem` looks
+  like `filesystem` but the "e" is Cyrillic). Reports the normalized
+  ASCII form so the model can understand the intended disguise.
+- **Devpost submission materials** - `docs/devpost-submission.md` with
+  full demo video script (5 scenes), project description, and submission
+  checklist for OpenAI Build Week.
+
 ### Fixed
 
 - **Baseline file with non-dict server values** - a corrupted or tampered

@@ -1446,6 +1446,73 @@ class TestToolSecurityHiddenUnicode(unittest.TestCase):
         self.assertEqual(len(w021), 0)
 
 
+
+class TestToolSecurityCyrillicHomoglyph(unittest.TestCase):
+    """W022: Cyrillic homoglyph (mixed-script word) detection."""
+
+    def test_mixed_script_cyrillic_e_in_word(self):
+        # 'fil' + Cyrillic U+0435 (е, looks like 'e') + 'system'
+        tool = {"name": "filеsystem", "description": "Reads filеsystem paths"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        self.assertGreaterEqual(len(w022), 1)
+        self.assertEqual(w022[0]["severity"], "high")
+        self.assertEqual(w022[0]["label"], "cyrillic-homoglyph")
+        # Normalized form should contain "filesystem"
+        self.assertIn("filesystem", w022[0]["message"])
+
+    def test_mixed_script_cyrillic_o_and_a(self):
+        # Cyrillic о (o) + Latin mix
+        tool = {"name": "ok", "description": "blоcked access"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        self.assertGreaterEqual(len(w022), 1)
+
+    def test_mixed_script_cyrillic_a(self):
+        # Cyrillic а (а, looks like 'a')
+        tool = {"name": "dаtabase", "description": "Queries the dаtabase"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        self.assertGreaterEqual(len(w022), 1)
+        self.assertIn("database", w022[0]["message"])
+
+    def test_pure_latin_no_false_positive(self):
+        tool = {"name": "filesystem", "description": "Reads filesystem paths and files"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        self.assertEqual(len(w022), 0)
+
+    def test_pure_cyrillic_no_false_positive(self):
+        # A legitimate Russian word, all Cyrillic, no Latin mix
+        tool = {"name": "файл", "description": "читает файл"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        self.assertEqual(len(w022), 0)
+
+    def test_short_token_ignored(self):
+        # Tokens shorter than 3 chars should not trigger
+        tool = {"name": "аb", "description": "short"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        self.assertEqual(len(w022), 0)
+
+    def test_cyrillic_non_confusable_not_flagged(self):
+        # Cyrillic char that is NOT in the confusable map (e.g. ф = 'ф')
+        # mixed with Latin — should NOT trigger W022
+        tool = {"name": "testфoo", "description": "mixed but not confusable"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        self.assertEqual(len(w022), 0)
+
+    def test_fix_field_present(self):
+        tool = {"name": "filеsystem", "description": "reads files"}
+        issues = doctor.validate_tool_security(tool)
+        w022 = [i for i in issues if i["code"] == "W022"]
+        if w022:
+            self.assertIn("fix", w022[0])
+            self.assertIn("Cyrillic", w022[0]["fix"])
+
+
 class TestServerSecurityShadowing(unittest.TestCase):
     """E002: Cross-server tool shadowing detection."""
 
