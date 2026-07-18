@@ -104,7 +104,7 @@ cp -r . ~/.codex/plugins/cache/personal/codex-mcp-doctor/1.4.0/
 #   enabled = true
 ```
 
-The SessionStart hook will auto-run the doctor on every new session.
+The SessionStart hook runs the doctor automatically at the start of each new session. It is best-effort: output is suppressed unless errors are found (`--quiet`), and failures are silently ignored (`|| true`) so a broken probe never blocks your session. For mid-session MCP issues, the SKILL.md auto-trigger instructs the model to run diagnostics when tools are missing or failing.
 
 ### Standalone Usage
 

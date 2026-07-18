@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed `UserPromptSubmit` hook trigger: running a full server probe on every user message caused multi-second delays. `SessionStart` (once per session) plus the SKILL.md auto-trigger (on-demand) provides better coverage without latency cost.
 - Health score now applies a latency penalty and an E003 rug-pull cap (max 50
   for high-severity description changes).
 - `--check` accepts `supply-chain` and `secrets` in addition to `all`,

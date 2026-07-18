@@ -5,18 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${PLUGIN_ROOT:-$HOME/.codex/plugins/codex-mcp-doctor}/scripts/doctor.py\" --quiet --timeout 8 2>/dev/null || true",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${PLUGIN_ROOT:-$HOME/.codex/plugins/codex-mcp-doctor}/scripts/doctor.py\" --quiet --timeout 8 2>/dev/null || true",
+            "command": "python3 \"${PLUGIN_ROOT}/scripts/doctor.py\" --quiet --timeout 8 2>/dev/null || true",
             "timeout": 10
           }
         ]
