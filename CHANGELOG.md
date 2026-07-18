@@ -62,7 +62,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `plaintext_secret_header` fix now recommends `bearer_token_env_var` over
   inlining tokens in `http_headers`.
 - Test HTTP servers now call `server_close()` to clear `ResourceWarning`.
-- 11 new tests (149 → 160 total).
+- **W001 false-positive reduction** - the manipulative-language word list
+  had a single tier including common technical words (`must`, `always`,
+  `never`, `important`). These appear constantly in legitimate tool
+  descriptions ("the value must be a string"), making the security scan
+  feel noisy and unreliable. Now split into two tiers: high-confidence
+  verbs (`crucial`, `immediately`, `override`, `bypass`, `secretly`)
+  trigger on their own; common words only trigger when >=3 cluster in one
+  description. W001 findings on a real 3-server setup dropped from 4 to 2.
+- 13 new tests (149 → 162 total).
 
 ## [1.3.0] - 2026-07-17
 
