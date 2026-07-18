@@ -117,7 +117,7 @@ ready to be called from anywhere MCP is called.
 
 ### What's Next
 
-**Shipped now (v1.6.21):** 7 security check classes (prompt injection E001, tool shadowing E002, hidden Unicode W021, Cyrillic homoglyph W022, rug-pull baseline drift E003, supply-chain pinning, plaintext secrets), connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
+**Shipped now (v1.6.21):** 7 attack-vector detection classes covering prompt injection (E001), tool shadowing (E002), hidden Unicode (W021), Cyrillic homoglyph (W022), rug-pull baseline drift (E003), supply-chain pinning, and plaintext secrets, plus capability-risk signals for manipulative language, untrusted content, sensitive-data exposure, and destructive operations (W001/W015/W017/W019); connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
 
 **Next 30 days:**
 - **Semantic poisoning detection** — the current regex/pattern layer catches known attack shapes (Cyrillic lookalikes, literal injection phrases). The next layer uses embeddings to catch paraphrased injection and subtly manipulative language that passes lexical matching. This is the difference between catching "ignore previous instructions" and catching a description that is 94% normal and 6% adversarial.

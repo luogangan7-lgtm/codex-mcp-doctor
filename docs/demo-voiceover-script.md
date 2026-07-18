@@ -54,7 +54,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[0:55]` `[CLICK]` **Prep BEFORE recording:** open a second Codex desktop window with this repo loaded, and a terminal panel showing `git log --oneline -10` (so the commit history is visible). Have one prompt typed but not sent: `diagnose this repo's own MCP setup`. Do NOT show anything with real secrets.
 
-`[0:56]` `[VO]` Nearly three thousand lines of logic. Two hundred ninety tests. Every security analyzer.
+`[0:56]` `[VO]` Nearly three thousand lines of logic. Two hundred eighty-seven tests. Every security analyzer.
 
 `[1:02]` `[VO]` Written, debugged, and hardened through Codex with GPT-5.6.
 
@@ -100,7 +100,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[2:22]` `[CLICK]` Run the check-baseline demo step from `demo.sh`
 
-`[2:23]` `[VO]` Two E003 tiers fire at once: high for a tampered description, low for a tool that vanished from your baseline. The doctor names the exact tool, the exact change, and what to do. First CLI implementation of tool-description pinning.
+`[2:23]` `[VO]` Three E003 tiers fire at once: high for a tampered description, medium for a tool that appeared since baseline, low for one that vanished. The doctor names the exact tool, the exact change, and what to do. First CLI implementation of tool-description pinning.
 
 `[2:42]` `[VO]` The server you trusted on Monday is not the server you're running on Friday.
 
@@ -124,7 +124,7 @@ breakdown in `docs/devpost-submission.md`.
 
 - Total target: 3:00. If you finish Scene 5 early, hold the end card — do not start a new sentence.
 - If you run long, cut from Scene 2 first (the doctor output speaks for itself, narration can be shorter). Never cut Scene 4 — rug-pull is the flagship.
-- Speak at conversational pace, not presentation pace. The timestamps assume ~150 words per minute (conversational pace). At 423 total words that leaves ~11s of breathing room under the 3:00 hard limit.
+- Speak at conversational pace, not presentation pace. The timestamps assume ~150 words per minute (conversational pace). At 425 total words that leaves ~10s of breathing room under the 3:00 hard limit.
 - The `[PAUSE]` moments matter — let the screen show the report. Judges read the terminal, not just listen to you.
 
 
