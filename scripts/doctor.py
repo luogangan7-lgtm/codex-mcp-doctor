@@ -1030,7 +1030,7 @@ _SENSITIVE_DATA_RE = re.compile(
     re.IGNORECASE,
 )
 _DESTRUCTIVE_RE = re.compile(
-    r"\b(?:shell|exec|execute|\brm\b|delete|destroy|format|kill|truncate|drop\s+table|wipe)\b",
+    r"\b(?:shell|exec|execute|\brm\b|delete|destroy|format|kill|truncate|drop\s+table|wipe|overwrite|erase|purge)\b",
     re.IGNORECASE,
 )
 _UNTRUSTED_CONTENT_RE = re.compile(

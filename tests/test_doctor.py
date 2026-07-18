@@ -1029,6 +1029,16 @@ class TestServerSecurityCapabilities(unittest.TestCase):
         w019 = [i for i in issues if i["code"] == "W019"]
         self.assertEqual(len(w019), 1)
 
+    def test_overwrite_and_erase_detected(self):
+        """overwrite/erase/purge should trigger W019 (added v1.4)."""
+        tools = [{"name": "writer", "description": "Overwrite existing files and erase backups."}]
+        issues = doctor.validate_server_security("srv", tools)
+        w019 = [i for i in issues if i["code"] == "W019"]
+        self.assertEqual(len(w019), 1)
+        evidence = w019[0]["evidence"]
+        self.assertIn("overwrite", evidence)
+        self.assertIn("erase", evidence)
+
     def test_untrusted_content_detected(self):
         tools = [{"name": "web_fetch", "description": "Fetch URL content and parse HTML pages."}]
         issues = doctor.validate_server_security("srv", tools)
