@@ -1547,6 +1547,29 @@ class TestRugPullBaseline(unittest.TestCase):
         self.assertNotIn("empty", data)
 
 
+    def test_corrupted_baseline_warns(self):
+        """Corrupted JSON should warn, not silently return []."""
+        self.path.write_text("not valid json {{{")
+        report = self._make_report({"srv": [{"name": "foo", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertTrue(any(i["label"] == "baseline-unreadable" for i in issues))
+        self.assertTrue(any(i["severity"] == "high" for i in issues))
+
+    def test_empty_baseline_warns(self):
+        """Empty file should warn, not silently return []."""
+        self.path.write_text("")
+        report = self._make_report({"srv": [{"name": "foo", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertTrue(any(i["label"] == "baseline-unreadable" for i in issues))
+
+    def test_non_object_baseline_warns(self):
+        """Valid JSON array (wrong structure) should warn, not crash."""
+        self.path.write_text("[]")
+        report = self._make_report({"srv": [{"name": "foo", "description": "safe"}]})
+        issues = doctor.check_baseline(report, self.path)
+        self.assertTrue(any(i["label"] == "baseline-invalid-structure" for i in issues))
+
+
 class TestHealthScoreV14(unittest.TestCase):
     def test_latency_error_penalty(self):
         s = doctor.ServerResult(name="s", transport="stdio", status="healthy")

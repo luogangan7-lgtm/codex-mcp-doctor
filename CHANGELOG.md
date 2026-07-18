@@ -80,7 +80,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `elevated_latency` info issue alongside the `timeout` error. The latency
   note is now suppressed when a timeout issue is already present; high
   latency is implied by the timeout itself.
-- 14 new tests (149 → 175 total).
+- 14 new tests (149 → 178 total).
+- **Baseline corruption detection (E003)** - a corrupted, empty, or
+  structurally invalid baseline file (valid JSON but not an object) no
+  longer causes silent failure or a crash. check_baseline now returns a
+  high-severity `baseline-unreadable` / `baseline-invalid-structure`
+  warning so the user knows rug-pull detection is not active. The
+  warning surfaces in the report header as a config-level error.
 - **Credential-file-access detection (E001)** - tool descriptions referencing
   SSH private keys (`~/.ssh/id_rsa`, `id_ed25519`, `authorized_keys`, `config`),
   AWS credentials (`~/.aws/credentials`), GPG keys (`~/.gnupg/`), and `.env`

@@ -2117,8 +2117,30 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
         return []
     try:
         stored = json.loads(target.read_text())
-    except (json.JSONDecodeError, OSError):
-        return []
+    except (json.JSONDecodeError, OSError) as e:
+        # Baseline is unreadable - warn loudly so the user knows
+        # rug-pull detection is NOT active (silent failure is dangerous).
+        return [{
+            "tool": "(baseline)",
+            "severity": "high",
+            "code": "E003",
+            "label": "baseline-unreadable",
+            "message": f"Baseline file {target} is corrupted or unreadable ({type(e).__name__}). "
+                       "Rug-pull detection cannot run. Re-run with --save-baseline.",
+            "evidence": "invalid JSON or I/O error",
+            "fix": "Delete the baseline file and re-run with --save-baseline to recreate it.",
+        }]
+    if not isinstance(stored, dict):
+        return [{
+            "tool": "(baseline)",
+            "severity": "high",
+            "code": "E003",
+            "label": "baseline-invalid-structure",
+            "message": f"Baseline file {target} is valid JSON but not an object "
+                       f"(got {type(stored).__name__}). Rug-pull detection cannot run.",
+            "evidence": f"type: {type(stored).__name__}",
+            "fix": "Delete the baseline file and re-run with --save-baseline to recreate it.",
+        }]
 
     issues: list[dict] = []
     for s in report.servers:
@@ -2254,6 +2276,15 @@ def main() -> int:
             if target:
                 target.security_issues.append(issue)
                 target.health_score = compute_health_score(target)
+            if target:
+                target.security_issues.append(issue)
+                target.health_score = compute_health_score(target)
+            elif not sname:
+                # Baseline-level issue (corrupted/invalid file) has no server target.
+                # Surface it as a config-level error so the user sees it.
+                report.config_errors.append(
+                    f"[{issue.get('label','baseline')}] {issue.get('message','')}"
+                )
         # re-aggregate warnings count
         for s in report.servers:
             pass  # aggregation already happens in diagnose; we just appended
