@@ -66,15 +66,16 @@ bottom of `docs/demo-voiceover-script.md`.
 
 **Paste the entire "Long Description" section** from
 `docs/devpost-submission.md` — from `### The Problem` through `### What's Next`.
-This includes five subsections, all of which map to the four judging criteria:
+This includes six subsections, all of which map to the four judging criteria:
 
 1. **The Problem** — sets up the "silent failure + silent hostility" hook (Creativity & Originality).
 2. **What It Does** — the layer-by-layer feature table + key differentiators (Technological Implementation).
 3. **How We Built It** — dogfooded Codex end-to-end: skills as the deployment surface, `SessionStart` hook for auto-trigger, `--watch` for continuous monitoring, Codex's MCP client as the test oracle, memory canvas for multi-session continuity. **This is the strongest answer to "How thoroughly and skillfully does the project use Codex?"** — the central Technological Implementation question. Paste the whole section.
 4. **Design Philosophy** — the terminal report IS the UX. Emoji severity, health score transparency, `→ fix:` actionable suggestions, ASCII alignment. **Directly serves the Design & UX judging dimension** — do not trim this.
-5. **What's Next** — roadmap (semantic poisoning detection, marketplace publication).
+5. **Why This Matters Now** — MCP ecosystem at inflection point, silent failure is the default, security tooling hasn't caught up. **Directly serves the Potential Impact judging dimension** — this is the section that answers "so what?" Lead the judges to the conclusion that this belongs in Codex's default plugin set.
+6. **What's Next** — roadmap (semantic poisoning detection, marketplace publication).
 
-Devpost accepts long Markdown; paste all five subsections verbatim. The
+Devpost accepts long Markdown; paste all six subsections verbatim. The
 layer table inside "What It Does" renders cleanly on Devpost.
 
 ---

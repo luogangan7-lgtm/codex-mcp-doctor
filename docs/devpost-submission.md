@@ -69,6 +69,38 @@ The terminal report **is** the UX. There is no GUI, and that is the point — a 
 
 This is deliberate restraint, not absence of design: the tool's job is to deliver a verdict fast, and every pixel (or character) earns its place.
 
+### Why This Matters Now
+
+The MCP ecosystem is at an inflection point. Codex's plugin system, the Codex
+marketplace, and the broader Model Context Protocol are all expanding fast —
+every week brings new MCP servers, new integrations, new `npx -y` commands
+running in developer environments. That growth is the opportunity and the risk:
+
+- **Every new MCP server is a new attack surface.** A `npx -y some-server@latest`
+  can pull a compromised update. A tool description can inject a system prompt.
+  A Cyrillic lookalike can shadow a trusted tool. The attack vectors scale with
+  the ecosystem.
+- **Silent failure is the default, not the exception.** Codex, Claude Desktop,
+  and every MCP client today share the same failure mode: a broken server just
+  disappears, with no diagnostic. Users lose hours guessing at config typos.
+- **Security tooling has not caught up.** Existing scanners (Snyk, MCP-Scan,
+  destilabs/mcp-doctor) each cover a slice — but none run inside the agent
+  loop, none auto-trigger on session start, none detect homoglyph attacks, and
+  none are zero-dependency.
+
+`codex-mcp-doctor` is built for the moment MCP becomes infrastructure, not a
+toy. The zero-dependency constraint means it can ship *inside* Codex's default
+plugin set — every Codex user gets MCP diagnostics for free, no install step.
+The hook architecture means security becomes a property of the session, not a
+chore the user remembers. And because it speaks the MCP protocol itself
+(initialize, tools/list, resources/list, prompts/list), it ages with the
+protocol instead of against it.
+
+The terminal report is the API: the same JSON the doctor produces can feed a
+CI gate, a marketplace review queue, or a security dashboard. The tool is a
+single file today; the diagnostic engine underneath is protocol-native and
+ready to be called from anywhere MCP is called.
+
 ### What's Next
 
 - Semantic tool-poisoning detection (beyond regex patterns)
