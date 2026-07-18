@@ -227,7 +227,7 @@ Both root-caused in under a second. Red error → exact cause → one-line fix s
 
 **Action:** Switch screen recording to the Codex desktop window.
 
-**Narration:** "Two thousand eight hundred lines. Two hundred eighty-five tests. Every security analyzer."
+**Narration:** "Nearly three thousand lines of logic. Two hundred ninety tests. Every security analyzer."
 
 **Narration:** "Written, debugged, and hardened through Codex with GPT-5.6."
 

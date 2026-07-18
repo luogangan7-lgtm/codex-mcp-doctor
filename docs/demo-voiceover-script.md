@@ -54,7 +54,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[0:55]` `[CLICK]` **Prep BEFORE recording:** open a second Codex desktop window with this repo loaded, and a terminal panel showing `git log --oneline -10` (so the commit history is visible). Have one prompt typed but not sent: `diagnose this repo's own MCP setup`. Do NOT show anything with real secrets.
 
-`[0:56]` `[VO]` Two thousand eight hundred lines. Two hundred eighty-five tests. Every security analyzer.
+`[0:56]` `[VO]` Nearly three thousand lines of logic. Two hundred ninety tests. Every security analyzer.
 
 `[1:02]` `[VO]` Written, debugged, and hardened through Codex with GPT-5.6.
 
