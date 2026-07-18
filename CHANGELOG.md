@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.13] - 2026-07-19
+
+### Fixed
+
+- **Short Description was 303 chars, over Devpost 280 limit.** The Devpost card Short Description field has a hard ~280 character limit. The previous version was 303 chars and would force a truncation or rewrite at submission time. Rewrote to 273 chars with a stronger hook: opens with the pain point ("MCP servers fail silently"), asserts the ambition ("the diagnostic CLI Codex should ship with"), lists the four most visual detections (broken servers, prompt injection, Cyrillic homoglyph, rug-pulls), claims differentiation ("that no other MCP scanner detects"), and closes with dogfooding ("Built in Codex with GPT-5.6").
+
+- **Project Title had backticks that Devpost would render as literal characters.** Devpost title is a plain-text field; backticks do not render as code formatting and would show as raw punctuation. Cleaned to a plain hyphenated title.
+
+- **form-guide tagline section now offers both the 273-char card description and a 48-char one-line tagline**, so the submitter has the right length for whichever Devpost field they are filling.
+
+- **doctor.py --version 1.6.12 -> 1.6.13.**
+
+
 ## [1.6.12] - 2026-07-19
 
 ### Changed

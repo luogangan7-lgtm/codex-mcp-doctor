@@ -9,11 +9,11 @@ Track: **Developer Tools** ("Tools for developers, including testing, DevOps, ag
 
 ## Project Title
 
-**codex-mcp-doctor** — `npm doctor` for MCP
+**codex-mcp-doctor** - npm doctor for MCP
 
 ## Short Description (for Devpost card, ~280 chars)
 
-Zero-dependency MCP diagnostics for Codex. Detects broken servers, bad config, schema issues, prompt injection, tool shadowing, hidden Unicode attacks, rug-pull (tool-description mutation), supply-chain risks, and plaintext secrets — all in one `python3` command. Pure stdlib, auto-triggering via hooks.
+MCP servers fail silently. codex-mcp-doctor is the diagnostic CLI Codex should ship with — one zero-dependency command catches broken servers, prompt injection, Cyrillic homoglyph attacks, and silent rug-pulls that no other MCP scanner detects. Built in Codex with GPT-5.6.
 
 ## Long Description (for project page)
 

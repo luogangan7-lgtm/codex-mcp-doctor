@@ -2704,7 +2704,7 @@ def main() -> int:
         prog="mcp-doctor",
         description="Diagnose MCP server health for Codex. Zero dependencies.",
     )
-    parser.add_argument("--version", action="version", version="mcp-doctor 1.6.12")
+    parser.add_argument("--version", action="version", version="mcp-doctor 1.6.13")
     parser.add_argument(
         "--config", type=Path, default=None,
         help="Path to config.toml (default: auto-discover CODEX_HOME or ~/.codex/config.toml)",

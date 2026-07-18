@@ -24,10 +24,19 @@ codex-mcp-doctor — `npm doctor` for MCP
 
 **Field:** `Subtitle / Tagline` (required, ~35-60 char limit)
 
-**Paste:**
+**Paste (two options, pick based on field limit):**
+
+If the field is the Short Description (Devpost card, ~280 char limit):
 ```
-Zero-dependency MCP diagnostics for Codex
+MCP servers fail silently. codex-mcp-doctor is the diagnostic CLI Codex should ship with — one zero-dependency command catches broken servers, prompt injection, Cyrillic homoglyph attacks, and silent rug-pulls that no other MCP scanner detects. Built in Codex with GPT-5.6.
 ```
+(273 chars — problem-first hook + differentiation + dogfooding. The previous version was 303 chars and over the limit.)
+
+If the field is a one-line tagline (~35-60 chars):
+```
+npm doctor for MCP. Built in Codex with GPT-5.6.
+```
+(48 chars — uses the established tagline + Build Week dogfooding signal.)
 
 ---
 
