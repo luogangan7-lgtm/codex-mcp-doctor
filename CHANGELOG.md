@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-07-19
+
+### Changed
+
+- **README first-screen dogfooding signal** — added "Built with Codex + GPT-5.6" and "OpenAI Build Week" badges plus a dogfooding callout paragraph. The dogfooding story was previously buried in devpost-submission.md; judges who only skim the README first screen now see the key differentiator immediately.
+- **Fixed LOC claim** — devpost-submission.md claimed "2,725 lines of doctor logic" but doctor.py is actually 2,865 lines. A judge running wc -l would have caught the discrepancy and it would undercut credibility. Fixed both occurrences.
+- **Demo Scene 4 now triggers two E003 severity tiers** — was 1 high (description-changed), now 2 high (W022 + E003-changed) + 1 low (E003-removed via ghost-tool injection). Makes the flagship rug-pull scene visually richer in the video.
+- **Voiceover aligned with demo.sh** — added a recording note that Scenes 3b+4 share one terminal segment (homoglyph-attack example triggers W022 and E003 in the same run), plus a trailing note that demo.sh Scene 6 (--debug/--watch) is intentionally excluded from the 3:00 cut. Prevents a real recording failure mode.
 
 ## [1.6.1] - 2026-07-19
 
