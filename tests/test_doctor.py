@@ -1321,5 +1321,37 @@ class TestHealthScoreV14(unittest.TestCase):
         self.assertLessEqual(score, 50.0)
 
 
+
+class TestQuietFlag(unittest.TestCase):
+    """The --quiet flag is used by hooks; it must not break anything."""
+
+    def test_quiet_flag_exists(self):
+        import subprocess
+        r = subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / 'doctor.py'), '--quiet', '--help'],
+            capture_output=True, text=True, timeout=5,
+        )
+        self.assertEqual(r.returncode, 0)
+        self.assertIn('--quiet', r.stdout)
+
+    def test_quiet_suppresses_output_on_healthy_config(self):
+        """With --quiet and a config that has no server errors, output is empty."""
+        import subprocess, tempfile, os
+        config_body = '[mcp_servers.test]\ncommand = "echo"\nargs = ["hello"]\n'
+        with tempfile.NamedTemporaryFile(suffix='.toml', delete=False, mode='w') as f:
+            f.write(config_body)
+            tmp = f.name
+        try:
+            r = subprocess.run(
+                [sys.executable, str(SCRIPTS_DIR / 'doctor.py'),
+                 '--config', tmp, '--quiet', '--skip-probe'],
+                capture_output=True, text=True, timeout=5,
+            )
+            # skip-probe = no connectivity attempt = no errors = quiet prints nothing
+            self.assertEqual(r.stdout.strip(), '')
+        finally:
+            os.unlink(tmp)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

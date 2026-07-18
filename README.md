@@ -5,7 +5,8 @@
 [![Codex Plugin](https://img.shields.io/badge/Codex-Plugin-10B981)](https://openai.com/codex)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)](https://python.org)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-success)]()
-[![Tests](https://img.shields.io/badge/Tests-149%20passing-brightgreen)]()
+[![Tests](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml/badge.svg)](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## The Problem
 

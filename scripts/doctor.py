@@ -2084,6 +2084,10 @@ def main() -> int:
         "--baseline-path", type=Path, default=None,
         help="Override baseline file location (default: ~/.codex/mcp-doctor-baseline.json).",
     )
+    parser.add_argument(
+        "--quiet", action="store_true",
+        help="Suppress all output unless errors are found (for hooks). Exit code still reflects health.",
+    )
     args = parser.parse_args()
 
     # Rug-pull baseline needs a full probe (to see tool descriptions), so we
@@ -2123,7 +2127,9 @@ def main() -> int:
         print(f"Baseline saved: {bpath} "
               f"({sum(len(getattr(s, '_baseline_tools', []) or []) for s in report.servers)} tools)")
 
-    if args.json:
+    if args.quiet and report.errors == 0:
+        pass  # hooks: silent when no server errors, exit code still reflects status
+    elif args.json:
         print(format_report_json(report))
     else:
         print(format_report_human(report))
