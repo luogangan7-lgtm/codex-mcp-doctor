@@ -200,6 +200,24 @@ class TestSchemaValidation(unittest.TestCase):
         issues = doctor.validate_tool_schema(tool)
         self.assertTrue(any(i.kind == "invalid_schema_type" for i in issues))
 
+    def test_array_missing_items(self):
+        """type: array without items leaves the model blind to element type."""
+        tool = {"name": "t", "description": "d", "inputSchema": {"type": "object", "properties": {"list": {"type": "array"}}}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertTrue(any(i.kind == "array_missing_items" for i in issues))
+
+    def test_array_with_items_no_warning(self):
+        """type: array WITH items should not trigger array_missing_items."""
+        tool = {"name": "t", "description": "d", "inputSchema": {"type": "object", "properties": {"list": {"type": "array", "items": {"type": "string"}}}}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertFalse(any(i.kind == "array_missing_items" for i in issues))
+
+    def test_invalid_enum_not_list(self):
+        """enum must be a list per JSON Schema spec."""
+        tool = {"name": "t", "description": "d", "inputSchema": {"type": "object", "properties": {"s": {"type": "string", "enum": "notarray"}}}}
+        issues = doctor.validate_tool_schema(tool)
+        self.assertTrue(any(i.kind == "invalid_enum" for i in issues))
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # Health scoring tests

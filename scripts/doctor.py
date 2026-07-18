@@ -948,6 +948,21 @@ def validate_tool_schema(tool: dict) -> list[ToolSchemaIssue]:
                 fix=f"Add a description to '{prop_name}' so the model knows what to pass.",
             ))
 
+        # 4. type-specific schema completeness
+        if ptype == "array" and "items" not in prop_schema:
+            issues.append(ToolSchemaIssue(
+                tool=name, severity="warning", kind="array_missing_items",
+                message=f"Tool '{name}' property '{prop_name}' is an array without 'items' schema.",
+                fix=f"Add 'items' to '{prop_name}' so the model knows the element type.",
+            ))
+        enum_val = prop_schema.get("enum")
+        if enum_val is not None and not isinstance(enum_val, list):
+            issues.append(ToolSchemaIssue(
+                tool=name, severity="error", kind="invalid_enum",
+                message=f"Tool '{name}' property '{prop_name}' enum is not a list (got {type(enum_val).__name__}).",
+                fix=f"Set enum to a list of allowed values for '{prop_name}'.",
+            ))
+
     return issues
 
 
