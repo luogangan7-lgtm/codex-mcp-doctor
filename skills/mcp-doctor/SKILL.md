@@ -192,7 +192,7 @@ server's tool description contains hidden instructions that hijack the model.
 |------|----------|------|
 | **E001** | critical/high | **Prompt injection** - patterns like "ignore previous instructions", `<|im_start|>`, "send data to https://", "execute command:", role hijacking |
 | **E002** | high | **Cross-server tool shadowing** - a tool description references a tool name from a *different* server, potentially overriding legitimate tools |
-| **W001** | low/medium | **Manipulative language** - urgency words like "crucial", "immediately", "must", "override", "bypass" that pressure the model |
+| **W001** | low/medium | **Manipulative language** - two-tier: high-confidence verbs (crucial, immediately, override, bypass, secretly) trigger on their own; common words (must, always, never, important) only trigger when >=3 appear clustered. Designed to minimize false positives on legitimate technical descriptions. |
 | **W021** | medium/high | **Hidden Unicode** - zero-width spaces (U+200B), bidirectional overrides (U+202E), private-use chars, and Unicode Tag sequences (U+E0000–U+E007F) that encode invisible messages |
 | **W015** | low | **Untrusted content** - tools that fetch/parse web content (prompt-injection entry point) |
 | **W017** | low/medium | **Sensitive data exposure** - tools accessing credentials, tokens, financial data |

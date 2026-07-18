@@ -38,9 +38,9 @@ $ python3 scripts/doctor.py
 ================================================================
   Config: /Users/you/.codex/config.toml
 
-  Servers: 3 total  ✅ 1 healthy  ⚠️  1 warnings  ⏸️  1 disabled  🟢 avg score 98.7
+  Servers: 3 total  ✅ 0 healthy  ⚠️  2 warnings  ⏸️  1 disabled  🟢 avg score 96.2
 
-  ✅ node_repl  🟢 100.0
+  ⚠️  node_repl  🟢 100.0
      transport: stdio  |  3 tools (104ms)
      server: rmcp v1.5.0
      tools: js, js_add_node_module_dir, js_reset
@@ -58,7 +58,7 @@ $ python3 scripts/doctor.py
        ... +7 more schema issues
 
 ================================================================
-  RESULT: 12 warning(s) - servers running but check the warnings.
+  RESULT: 20 warning(s) - servers running but check the warnings.
 ================================================================
 ```
 

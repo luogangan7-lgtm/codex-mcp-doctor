@@ -1011,12 +1011,13 @@ _CRITICAL_LABELS = frozenset({
 })
 
 # --- W001: Suspicious manipulative words ---
-_SUSPICIOUS_WORDS = [
-    "important", "crucial", "critical", "vital", "urgent",
-    "immediately", "must", "always", "never",
-    "override", "bypass", "secretly",
-]
-_SUSPICIOUS_REGEXES = [re.compile(r"\b" + w + r"\b", re.IGNORECASE) for w in _SUSPICIOUS_WORDS]
+# Two tiers: high-confidence manipulation verbs trigger on their own;
+# common-but-ambiguous words (must/always/never/important) only trigger
+# when >=3 appear together (clustered urgency = likely manipulation).
+_W001_HIGH = ["crucial", "vital", "urgent", "immediately", "override", "bypass", "secretly"]
+_W001_LOW = ["important", "critical", "must", "always", "never"]
+_W001_HIGH_RE = [re.compile(r"\b" + w + r"\b", re.IGNORECASE) for w in _W001_HIGH]
+_W001_LOW_RE = [re.compile(r"\b" + w + r"\b", re.IGNORECASE) for w in _W001_LOW]
 
 # --- W021: Hidden Unicode detection ---
 _TAG_BLOCK_START = 0xE0000
@@ -1100,13 +1101,21 @@ def validate_tool_security(tool: dict) -> list[dict]:
                 "fix": _SEC_FIXES["E001"],
             })
 
-    # --- W001: Suspicious words ---
-    word_hits: list[str] = []
-    for regex in _SUSPICIOUS_REGEXES:
+    # --- W001: Suspicious words (two-tier to reduce false positives) ---
+    high_hits: list[str] = []
+    for regex in _W001_HIGH_RE:
         m = regex.search(desc)
         if m:
-            word_hits.append(m.group())
-    if word_hits:
+            high_hits.append(m.group())
+    low_hits: list[str] = []
+    for regex in _W001_LOW_RE:
+        m = regex.search(desc)
+        if m:
+            low_hits.append(m.group())
+
+    word_hits = high_hits + low_hits
+    if high_hits:
+        # High-confidence manipulation verbs: trigger on their own
         sev = "medium" if len(word_hits) >= 3 else "low"
         issues.append({
             "tool": name,
@@ -1115,6 +1124,17 @@ def validate_tool_security(tool: dict) -> list[dict]:
             "label": "suspicious-words",
             "message": f"Tool '{name}' uses manipulative language: {', '.join(sorted(set(word_hits)))}.",
             "evidence": ", ".join(sorted(set(word_hits))),
+            "fix": _SEC_FIXES["W001"],
+        })
+    elif len(low_hits) >= 3:
+        # Common words only flag when clustered (>=3 in one description)
+        issues.append({
+            "tool": name,
+            "severity": "low",
+            "code": "W001",
+            "label": "suspicious-words",
+            "message": f"Tool '{name}' uses manipulative language: {', '.join(sorted(set(low_hits)))}.",
+            "evidence": ", ".join(sorted(set(low_hits))),
             "fix": _SEC_FIXES["W001"],
         })
 
