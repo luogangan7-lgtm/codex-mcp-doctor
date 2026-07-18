@@ -1,0 +1,25 @@
+$ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
+
+================================================================
+  MCP DOCTOR — Diagnostic Report
+================================================================
+  Config: examples/broken-stdio/config.toml
+
+  Servers: 2 total  ✅ 0 healthy  ❌ 2 errors  🔴 avg score 0.0
+
+  ❌ broken-path  🔴 0.0
+     transport: stdio  |  0 tools
+     ❌ [command_not_found] Command path does not exist: /usr/local/bin/nonexistent-mcp-server
+        → fix: Verify the path or reinstall the MCP server. Check if the binary moved.
+     ℹ️  [probe_skipped] Skipping connectivity probe due to config errors above.
+
+  ❌ broken-env  🔴 0.0
+     transport: stdio  |  0 tools (28ms)
+     ❌ [process_crashed] Server process exited with code 1.
+        → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
+        stderr: /opt/homebrew/opt/python@3.14/bin/python3.14: No module named my_missing_mcp_server
+
+================================================================
+  RESULT: 2 error(s), 0 warning(s) — issues found.
+  Fix the errors above, then re-run: python3 scripts/doctor.py
+================================================================

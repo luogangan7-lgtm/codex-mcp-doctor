@@ -1,0 +1,268 @@
+# codex-mcp-doctor
+
+> **`npm doctor` for MCP.** Diagnose MCP server connectivity, configuration, runtime health, tool schema quality, **and multi-layer security** (prompt injection, tool shadowing, hidden Unicode, rug-pull detection, supply-chain pinning, plaintext secrets) — zero dependencies, pure Python stdlib. Checks all three MCP primitives: tools, resources, and prompts.
+
+[![Codex Plugin](https://img.shields.io/badge/Codex-Plugin-10B981)](https://openai.com/codex)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)](https://python.org)
+[![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-success)]()
+[![Tests](https://img.shields.io/badge/Tests-149%20passing-brightgreen)]()
+
+## The Problem
+
+MCP servers fail silently. You configure a server in `config.toml`, restart Codex, and... nothing. Tools don't appear. No error message. No log. Or worse — tools appear but don't work right because their schemas are broken.
+
+**`codex-mcp-doctor` answers all of these in seconds:**
+
+- Is the server process starting? Is the URL reachable?
+- Is the config syntax right? Is my API key valid?
+- Are tool schemas valid? Do tools have descriptions the model can use?
+- Are resources and prompts also working?
+- What capabilities does the server advertise? (tools/resources/prompts/logging/elicitation)
+- Is `startup_timeout_sec` or `tool_timeout_sec` misconfigured?
+- Does `env` reference unset variables? Is auth missing on HTTPS endpoints?
+- What's the overall health score?
+- **Are tool descriptions being silently mutated?** (rug-pull detection)
+- **Are packages pinned to versions?** Or pulling `@latest` from registries?
+- **Are there plaintext API keys in config** that should be in env vars?
+- **Is latency elevated?** Which server is slow during `tools/list`?
+- **Are resources and prompts also safe** from injection, not just tools?
+
+## What It Does
+
+```
+$ python3 scripts/doctor.py
+
+================================================================
+  MCP DOCTOR — Diagnostic Report
+================================================================
+  Config: /Users/you/.codex/config.toml
+
+  Servers: 3 total  ✅ 1 healthy  ⚠️  1 warnings  ⏸️  1 disabled  🟢 avg score 98.7
+
+  ✅ node_repl  🟢 100.0
+     transport: stdio  |  3 tools (104ms)
+     server: rmcp v1.5.0
+     tools: js, js_add_node_module_dir, js_reset
+
+  ⏸️  computer-use
+     transport: stdio  |  0 tools
+
+  ⚠️  humaux-memory  🟢 97.4
+     transport: http  |  14 tools (4519ms)
+     server: humaux-memory v2.0.0
+     tools: memory_search, memory_store, memory_task_canvas, +11 more
+     schema: ❌ 0 error(s), ⚠️  12 warning(s)
+       ⚠️  Tool 'memory_task_canvas' property 'action' has no description.
+       ⚠️  Tool 'memory_delete' property 'memory_id' has no description.
+       ... +7 more schema issues
+
+================================================================
+  RESULT: 12 warning(s) — servers running but check the warnings.
+================================================================
+```
+
+## Features
+
+- **Zero dependencies** — pure Python 3.11+ stdlib (`tomllib`, `urllib`, `subprocess`, `socket`). No pip install.
+- **All three MCP primitives** — checks `tools/list`, `resources/list`, and `prompts/list` (not just tools like v1.0).
+- **Schema quality validation** — catches missing descriptions, broken required fields, invalid types (like destilabs/mcp-doctor and mcp-probe do).
+- **Health scoring** — 0-100 score per server combining connectivity, schema quality, and description coverage.
+- **SSE / Streamable HTTP support** — handles Server-Sent Events responses, not just plain HTTP.
+- **Four diagnostic layers**:
+  - **L1 Connectivity**: full handshake (initialize + tools/list + resources/list + prompts/list).
+  - **L2 Config validation**: paths, executability, URL validity, required fields.
+  - **L2.5 Schema quality**: tool descriptions, inputSchema structure, required field integrity, JSON type validity.
+  - **L3 Root cause**: stderr/HTTP error analysis with concrete fix suggestions + health score.
+- **Automatic triggering** — SKILL.md instructs the model to run diagnostics when MCP tools are missing or failing.
+- **Exit codes that force model response** — exit 1 means issues found, the model must report them.
+- **Selective checks** — `--check connectivity` or `--check schema
+
+# Security analysis only (injection, shadowing, hidden Unicode)
+python3 scripts/doctor.py --check security` to run only what you need.
+- **JSON output** for programmatic use.
+
+## Installation
+
+### As a Codex Plugin
+
+```bash
+git clone https://github.com/luolimo/codex-mcp-doctor.git ~/.codex/codex-mcp-doctor
+```
+
+### Standalone Usage
+
+No install needed — just run the script:
+
+```bash
+python3 scripts/doctor.py
+```
+
+## Usage
+
+```bash
+# Full diagnostic (auto-discovers ~/.codex/config.toml)
+python3 scripts/doctor.py
+
+# JSON output
+python3 scripts/doctor.py --json
+
+# Only check specific servers
+python3 scripts/doctor.py --only humaux-memory node_repl
+
+# Config validation only (no live probes)
+python3 scripts/doctor.py --skip-probe
+
+# Run only connectivity checks
+python3 scripts/doctor.py --check connectivity
+
+# Run only schema quality checks
+python3 scripts/doctor.py --check schema
+
+# Custom config path
+python3 scripts/doctor.py --config /path/to/config.toml
+```
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | All servers healthy |
+| 1 | Issues found (errors/warnings, including schema issues) |
+| 2 | Config file unreadable |
+| 3 | No MCP servers found |
+
+## How It Works
+
+### stdio Probe
+
+1. Spawns the server process with its configured `command`, `args`, `env`, `cwd`.
+2. Sends `initialize` + `notifications/initialized` + `tools/list` + `resources/list` + `prompts/list`.
+3. Parses multi-message stdout, extracts server info, tools, resources, prompts.
+4. Captures stderr on failure for root-cause hints.
+
+### HTTP/SSE Probe
+
+1. Sends JSON-RPC `initialize` to the configured `url` with `http_headers`.
+2. Handles both plain HTTP JSON responses and SSE (Streamable HTTP) event frames.
+3. Sends `tools/list`, `resources/list`, `prompts/list` (resources/prompts best-effort).
+4. Captures HTTP errors (401/403 → auth, connection refused → server down, timeout → unreachable).
+
+### Schema Validation
+
+For each tool returned, validates:
+- Has a description (≥10 chars).
+- Has an `inputSchema` object.
+- Every `required` field exists in `properties`.
+- Property types are valid JSON Schema types.
+- Properties have descriptions.
+
+## Testing
+
+```bash
+python3 tests/test_doctor.py
+```
+
+50 tests covering config parsing, config validation, schema validation, health scoring, JSON-RPC parsing, SSE parsing, stdio probe integration (mock server), HTTP probe integration (mock server), and the full diagnose flow.
+
+## Requirements
+
+- Python 3.11+ (for `tomllib` — bundled in standard library since 3.11)
+- No pip packages, no virtualenv, no compilation
+
+## Differentiation
+
+vs. `destilabs/mcp-doctor`: We're Codex-native (auto-reads `config.toml`, zero-config). They focus on quality scoring with NPX support; we focus on connectivity + config + schema in one pass.
+
+vs. `@incultniteollc/mcp-probe`: They call every tool with auto-generated args and do contract testing. We're lighter — we verify listing + schema without side-effectful tool calls, which is safer for a diagnostic tool.
+
+Our unique angle: **zero-config, auto-triggering, Codex-integrated** — you don't tell it what to check, it reads your config and checks everything.
+
+vs. **Invariant MCP-Scan**: They pioneered tool pinning / rug-pull detection as a web app. v1.4 brings the same capability to the CLI with zero dependencies and automatic config discovery - no browser, no upload.
+
+## License
+
+MIT
+
+## Security Analysis
+
+v1.3 adds a security layer that scans MCP tool descriptions for attack patterns:
+
+- **E001 Prompt Injection** — detects "ignore previous instructions", ChatGPT token injection (`<|im_start|>`), data exfiltration commands, role hijacking, and hidden instruction markers
+- **E002 Tool Shadowing** — flags cross-server tool name references (a poisoned tool mentioning another server's tools)
+- **W001 Manipulative Language** — urgency words like "crucial", "must", "override"
+- **W021 Hidden Unicode** — zero-width spaces, bidi overrides, and Unicode Tag sequences (U+E0000-U+E007F) that encode invisible messages
+- **W015/017/019 Capability Risks** — untrusted content, sensitive data, destructive operations
+
+Security issues cap the health score: critical → max 20, high → max 50.
+
+```bash
+# Run security-only check
+python3 scripts/doctor.py --check security
+```
+
+## v1.4 - Rug-Pull, Supply Chain, Secrets, Latency, Resource/Prompt Security
+
+v1.4 extends the security layer with five new check dimensions, all
+OWASP-MCP-Top-10-aligned and pure stdlib:
+
+### Tool Rug-Pull Detection (E003 / MCP02)
+
+Inspired by Invariant Labs' [MCP-Scan](https://invariantlabs.ai/blog/introducing-mcp-scan).
+Stores a sha256 baseline of every tool's `name + description`, then flags any
+tool whose description hash changes on subsequent runs. The first CLI doctor
+to offer this - MCP-Scan is web-only.
+
+```bash
+# First time: pin trusted descriptions
+python3 scripts/doctor.py --save-baseline
+
+# Later: detect silent mutations
+python3 scripts/doctor.py --check-baseline
+```
+
+Baseline lives at `~/.codex/mcp-doctor-baseline.json`. Three severities:
+`tool-description-changed` (high, score capped at 50), `new-tool-since-baseline`
+(medium), `tool-removed-since-baseline` (low).
+
+### Supply-Chain Version Pinning (MCP04)
+
+Flags `npx`/`npm`/`uvx`/`pipx`/`docker run` commands that pull packages or
+images without a version/digest pin:
+
+```bash
+python3 scripts/doctor.py --check supply-chain
+```
+
+- `npx -y some-mcp-server` (no version) -> warning
+- `npx -y pkg@latest` (rolling tag) -> warning
+- `docker run img:latest` -> warning (no digest)
+- `npx -y pkg@1.2.3` / `pkg@^1.2.0` -> OK
+- `docker run img@sha256:abc...` -> OK
+
+### Plaintext Secrets Detection (NSA Guidance)
+
+Scans `env`, `http_headers`, and URLs for hardcoded API keys / tokens /
+private keys that should live in environment variables:
+
+```bash
+python3 scripts/doctor.py --check secrets
+```
+
+Recognizes `sk-*`, `mos_*`, `AKIA*`, `ghp_*`, `xox*`, `AIza*`, PEM private
+keys, and generic long Bearer tokens. `$VAR` / `${VAR}` references are
+not flagged.
+
+### Latency Thresholds
+
+> 15s probe latency -> warning, -10 health score points. 5-15s -> info, -5
+points. Flags slow servers without hard-failing them (embedding-heavy
+servers are legitimately slow on first call).
+
+### Resource & Prompt Security Scanning
+
+v1.3 only scanned **tool** descriptions. v1.4 applies the same E001/W001/W021
+checks to **resources** (URI + description) and **prompts** (description +
+argument descriptions). Issues are prefixed `resource:` / `prompt:` so you
+can tell which primitive was poisoned.
+
+

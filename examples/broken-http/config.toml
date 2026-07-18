@@ -1,0 +1,16 @@
+# Example: broken HTTP/SSE MCP server configs
+# These demonstrate common real-world failure modes
+
+# 1. Wrong port — connection refused (server not listening there)
+[mcp_servers.wrong-port]
+url = "http://localhost:99/mcp"
+
+# 2. HTTPS to a non-HTTPS endpoint — SSL error
+[mcp.services.ssl-mismatch]
+url = "https://localhost:8080/mcp"
+
+# 3. Placeholder for auth demo — replace with a real 401 endpoint to test
+# [mcp_servers.expired-key]
+# url = "https://your-real-server.com/mcp"
+# [mcp_servers.expired-key.http_headers]
+# Authorization = "Bearer expired_token_here"

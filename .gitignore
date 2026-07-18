@@ -1,0 +1,20 @@
+# Local baseline file (per-user, contains tool hashes)
+mcp-doctor-baseline.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo

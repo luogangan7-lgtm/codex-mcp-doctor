@@ -1,0 +1,12 @@
+# Example: broken stdio MCP server config
+# This server's command path doesn't exist — doctor will catch it at L2 (config validation)
+[mcp_servers.broken-path]
+command = "/usr/local/bin/nonexistent-mcp-server"
+args = ["--port", "8080"]
+
+[mcp_servers.broken-env]
+command = "python3"
+args = ["-m", "my_missing_mcp_server"]
+
+[mcp_servers.broken-env.env]
+DATABASE_URL = "postgresql://localhost:9999/nonexistent"

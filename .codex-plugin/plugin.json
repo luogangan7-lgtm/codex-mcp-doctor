@@ -1,0 +1,56 @@
+{
+  "name": "codex-mcp-doctor",
+  "version": "1.4.0",
+  "description": "Diagnose MCP server connectivity, configuration correctness, runtime health, tool schema quality, security risks (prompt injection, tool shadowing, hidden Unicode), supply-chain version pinning, plaintext secrets, latency thresholds, and rug-pull detection (tool-description baseline). Zero external dependencies - pure Python 3.11+ stdlib.",
+  "author": {
+    "name": "Luolimo",
+    "url": "https://github.com/luolimo"
+  },
+  "homepage": "https://github.com/luolimo/codex-mcp-doctor",
+  "repository": "https://github.com/luolimo/codex-mcp-doctor",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "config",
+    "diagnostics",
+    "doctor",
+    "health-check",
+    "mcp",
+    "model-context-protocol",
+    "prompt-injection",
+    "prompts",
+    "resources",
+    "schema",
+    "security",
+    "tool-poisoning",
+    "rug-pull",
+    "secrets",
+    "supply-chain",
+    "tool-shadowing",
+    "troubleshoot"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "MCP Doctor",
+    "shortDescription": "Diagnose and fix MCP server issues",
+    "longDescription": "Automatically detects MCP configuration problems, connectivity failures, missing tools, broken tool schemas, security risks (prompt injection, tool poisoning, hidden Unicode), supply-chain version pinning issues, plaintext secrets in config, elevated latency, and rug-pull attacks (tool-description changes). Runs zero-dependency diagnostics on stdio and HTTP/SSE MCP servers, checking all three primitives (tools, resources, prompts). Reports root causes with fix suggestions, health scores, schema quality issues, and multi-layer security analysis.",
+    "developerName": "Luolimo",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Run mcp-doctor to check my MCP servers",
+      "My MCP tools are missing, diagnose why",
+      "Check if all my MCP servers are healthy",
+      "Validate my MCP tool schemas",
+      "Scan my MCP servers for security risks",
+      "Check for prompt injection in my MCP tools",
+      "Check if my MCP tools changed since last baseline (rug-pull)",
+      "Scan my config for plaintext secrets and unpinned packages"
+    ],
+    "brandColor": "#10B981",
+    "screenshots": []
+  }
+}
