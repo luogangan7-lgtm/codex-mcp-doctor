@@ -1381,6 +1381,30 @@ class TestSupplyChainDocker(unittest.TestCase):
         self.assertTrue(issues)
         self.assertIn("img:latest", issues[0]["message"])
 
+    def test_docker_exec_not_flagged(self):
+        # `docker exec` operates on a running container, not a registry pull
+        cfg = {"command": "docker", "args": ["exec", "-it", "mycontainer", "bash"]}
+        issues = doctor.check_supply_chain("srv", cfg)
+        self.assertEqual(issues, [])
+
+    def test_docker_build_not_flagged(self):
+        # `docker build` uses a Dockerfile, not a registry pull
+        cfg = {"command": "docker", "args": ["build", "-t", "myimg", "."]}
+        issues = doctor.check_supply_chain("srv", cfg)
+        self.assertEqual(issues, [])
+
+    def test_docker_create_not_flagged(self):
+        # `docker create` creates a container from a local image
+        cfg = {"command": "docker", "args": ["create", "myimg"]}
+        issues = doctor.check_supply_chain("srv", cfg)
+        self.assertEqual(issues, [])
+
+    def test_docker_pull_flagged(self):
+        # `docker pull` DOES pull from registry, should check pinning
+        cfg = {"command": "docker", "args": ["pull", "unpinned-img"]}
+        issues = doctor.check_supply_chain("srv", cfg)
+        self.assertTrue(any(i["code"] == "unpinned_docker_image" for i in issues))
+
 
 class TestConfigSecrets(unittest.TestCase):
     def test_openai_key_in_env_flagged(self):

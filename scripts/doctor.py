@@ -1884,7 +1884,22 @@ def check_supply_chain(name: str, cfg: dict) -> list[dict]:
     reg_base = os.path.basename(reg_cmd) if "/" in reg_cmd else reg_cmd
 
     # Walk tokens after the registry command, skipping flags (and the values
-    # of flags that consume the next token). For docker, also skip run/exec.
+    # of flags that consume the next token). For docker, identify the
+    # subcommand first: only `run` and `pull` pull images from a registry,
+    # so only those warrant a version-pin check.
+    docker_subcmd = None
+    if reg_base == "docker":
+        for tok in tokens[reg_idx + 1:]:
+            if tok.startswith("-"):
+                continue
+            if tok in _DOCKER_SUBCOMMANDS:
+                docker_subcmd = tok
+            break
+        if docker_subcmd and docker_subcmd not in ("run", "pull"):
+            # exec/create/build/push operate on local state or a Dockerfile,
+            # not a registry pull - no pinning concern.
+            return issues
+
     skip_next = False
     candidate: str | None = None
     for tok in tokens[reg_idx + 1:]:
@@ -1896,7 +1911,7 @@ def check_supply_chain(name: str, cfg: dict) -> list[dict]:
             if "=" not in tok and key in _FLAG_TAKES_VALUE:
                 skip_next = True
             continue
-        # docker subcommands like `run`/`exec` come before the image name
+        # docker subcommands like `run`/`pull` come before the image name
         if reg_base == "docker" and tok in _DOCKER_SUBCOMMANDS:
             continue
         candidate = tok
