@@ -1503,7 +1503,9 @@ def diagnose(
         result._baseline_resources = probe.resources
         result._baseline_prompts = probe.prompts
         # v1.4: latency threshold issue (GAP5)
-        lat_issue = latency_issue(latency)
+        # Skip latency issue if the probe already timed out (redundant).
+        already_timed_out = any(i.get("code") == "timeout" for i in result.issues)
+        lat_issue = latency_issue(latency) if not already_timed_out else None
         if lat_issue:
             result.issues.append(lat_issue)
         result.health_score = compute_health_score(result)
