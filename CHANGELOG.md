@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.22] - 2026-07-19
+
+### Fixed
+
+- **Rug-pull demo now triggers all three E003 tiers as documented.** The Scene 4 baseline mutation script claimed to trigger high (changed), medium (new), and low (removed) tiers, but only actually triggered high and low. Root cause: the mock server returned only one tool, so there was no second tool to drop from the baseline for the medium tier. Added a second tool ('safe_config_write') to the mock server and rewrote the mutation logic to flip the first tool's hash (high), drop the second from the baseline (medium), and inject a ghost (low). The voiceover script's 'Three E003 tiers fire at once' claim is now accurate.
+
 ### Added
 
 - **CI plugin manifest validation gate.** New `scripts/validate-plugin.py` wired into `.github/workflows/test.yml` across Python 3.11-3.14. Catches a broken manifest before it reaches a judge. Required keys enforced: name/version/description (NOT `id` - verified against official notion/github/latex/sites plugins, none of which have an `id` field; Codex plugin identity is the `name`).
