@@ -48,9 +48,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `_extract_items_from_rpc` now validate that the value is a list before
   use, defaulting to `[]`.
 
+### Fixed
+
+- **NaN/negative latency silently bypassed score penalties** - `float('nan')`
+  latency passed all threshold comparisons as `False`, so a NaN-latency server
+  appeared perfectly healthy. Negative latency (from clock issues) also
+  bypassed checks. Now `latency_issue` and `compute_health_score` explicitly
+  guard against NaN and negative values.
+- **`--only` with unmatched server name silently returned nothing** - a typo
+  in `--only srv-name` produced zero results with no explanation. Now emits a
+  synthetic `only_filter_no_match` error listing available server names.
+
 ### Changed
 
-- 250 tests (was 242).
+- 258 tests (was 250).
 
 ## [1.4.2] - 2026-07-18
 

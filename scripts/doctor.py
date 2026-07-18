@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -1541,10 +1542,12 @@ def compute_health_score(server: ServerResult) -> float:
 
     # v1.4: latency penalty - slow but functional servers lose a few points
     # so they don't appear pristine. >15s loses 10, >5s loses 5.
-    if server.latency_ms is not None:
-        if server.latency_ms >= LATENCY_ERROR_MS:
+    # Guard against NaN (comparisons always False) and negative values.
+    lat = server.latency_ms
+    if lat is not None and not (isinstance(lat, float) and math.isnan(lat)) and lat >= 0:
+        if lat >= LATENCY_ERROR_MS:
             score = max(0.0, score - 10.0)
-        elif server.latency_ms >= LATENCY_WARN_MS:
+        elif lat >= LATENCY_WARN_MS:
             score = max(0.0, score - 5.0)
 
     return round(score, 1)
@@ -1789,6 +1792,26 @@ def diagnose(
             + sum(1 for i in s.schema_issues if i["severity"] == "warning")
             + sec_high + sec_med + sec_low
         )
+
+    # Warn about --only names that matched nothing (likely a typo).
+    if only:
+        found_names = {s.name for s in report.servers}
+        unmatched = [n for n in only if n not in found_names]
+        if unmatched:
+            report.servers.append(ServerResult(
+                name=", ".join(unmatched),
+                transport="none",
+                status=ERROR,
+                issues=[{
+                    "severity": "error",
+                    "code": "only_filter_no_match",
+                    "message": (
+                        f"--only {unmatched!r} matched no servers. "
+                        f"Available: {sorted(servers_cfg.keys())}."
+                    ),
+                    "fix": "Check the server name for typos, or run without --only to see all servers.",
+                }],
+            ))
 
     return report
 
@@ -2207,6 +2230,12 @@ LATENCY_ERROR_MS = 15000.0  # >15s = error
 def latency_issue(latency_ms: float | None) -> dict | None:
     """Return a config-style issue dict if latency crosses a threshold."""
     if latency_ms is None:
+        return None
+    # Guard against NaN (all comparisons with NaN return False) and negative
+    # values (nonsensical, shouldn't happen but could from clock issues).
+    if isinstance(latency_ms, float) and math.isnan(latency_ms):
+        return None
+    if latency_ms < 0:
         return None
     if latency_ms >= LATENCY_ERROR_MS:
         return {

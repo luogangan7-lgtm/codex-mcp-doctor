@@ -1872,6 +1872,31 @@ class TestLatencyThresholds(unittest.TestCase):
         self.assertIsNotNone(i)
         self.assertEqual(i["severity"], "warning")
 
+    def test_nan_latency_returns_none(self):
+        """NaN latency must not trigger any threshold (all comparisons are False)."""
+        self.assertIsNone(doctor.latency_issue(float("nan")))
+
+    def test_negative_latency_returns_none(self):
+        """Negative latency is nonsensical and must not trigger thresholds."""
+        self.assertIsNone(doctor.latency_issue(-100.0))
+
+    def test_health_score_nan_latency_no_penalty(self):
+        """NaN latency must not silently bypass score penalties."""
+        s = doctor.ServerResult(name="x", transport="stdio", status="healthy")
+        s.tools_found = ["a", "b"]
+        s.latency_ms = float("nan")
+        score = doctor.compute_health_score(s)
+        # Should be full score (no penalty applied), not silently docked
+        self.assertEqual(score, 100.0)
+
+    def test_health_score_negative_latency_no_penalty(self):
+        """Negative latency must not trigger score deduction."""
+        s = doctor.ServerResult(name="x", transport="stdio", status="healthy")
+        s.tools_found = ["a", "b"]
+        s.latency_ms = -500.0
+        score = doctor.compute_health_score(s)
+        self.assertEqual(score, 100.0)
+
 
 class TestResourcePromptSecurity(unittest.TestCase):
     def test_resource_injection_detected(self):
@@ -2221,6 +2246,56 @@ class TestResourcesOnlyServer(unittest.TestCase):
         self.assertTrue(any(i["code"] == "resources_only" for i in issues),
                         f"Expected resources_only info, got: {issues}")
         self.assertEqual(issues[0]["severity"], "info")
+
+
+
+class TestOnlyFilterNoMatch(unittest.TestCase):
+    """--only with unmatched server names should warn, not silently return nothing."""
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False)
+        self.tmp.write('[mcp_servers.real]\ncommand = "echo"\n[mcp_servers.other]\nurl = "http://localhost:1"\n')
+        self.tmp.close()
+        self.path = doctor.Path(self.tmp.name)
+
+    def tearDown(self):
+        try:
+            self.path.unlink()
+        except OSError:
+            pass
+
+    def test_only_no_match_warns(self):
+        """Typo'd server name produces a clear error, not silent empty output."""
+        r = doctor.diagnose(self.path, timeout=1.0, skip_probe=True, only=["typo"])
+        # Should have 1 synthetic result with only_filter_no_match error
+        matched = [s for s in r.servers if s.name == "typo"]
+        self.assertTrue(matched, "Expected synthetic error result for unmatched --only")
+        self.assertEqual(matched[0].status, doctor.ERROR)
+        codes = [i["code"] for i in matched[0].issues]
+        self.assertIn("only_filter_no_match", codes)
+
+    def test_only_valid_name_still_works(self):
+        """Valid --only name still produces normal results."""
+        r = doctor.diagnose(self.path, timeout=1.0, skip_probe=True, only=["real"])
+        names = [s.name for s in r.servers]
+        self.assertIn("real", names)
+        self.assertNotIn("other", names)
+
+    def test_only_partial_match_no_false_positive(self):
+        """Substring match should not trigger (only exact name match)."""
+        r = doctor.diagnose(self.path, timeout=1.0, skip_probe=True, only=["re"])
+        # 're' is not an exact server name, so should warn
+        matched = [s for s in r.servers if s.name == "re"]
+        self.assertTrue(matched, "Expected warning for non-exact match")
+
+    def test_only_mixed_match_and_no_match(self):
+        """One valid + one invalid name: valid server processes, invalid warns."""
+        r = doctor.diagnose(self.path, timeout=1.0, skip_probe=True, only=["real", "ghost"])
+        names = [s.name for s in r.servers]
+        self.assertIn("real", names)
+        # ghost should appear as a synthetic error
+        ghost = [s for s in r.servers if s.name == "ghost"]
+        self.assertTrue(ghost)
 
 
 
