@@ -180,9 +180,15 @@ Both root-caused in under a second. Red error → exact cause → one-line fix s
 
 **Narration:** "Here's the thing — this entire tool was built inside Codex."
 
-**Action:** Switch screen recording to the Codex desktop window. Show a session where you ask the doctor to diagnose itself, or where a recent commit's diff is visible. Then show the SessionStart hook firing.
+**Action:** Switch screen recording to the Codex desktop window.
 
-**Narration:** "Two thousand eight hundred lines of doctor logic, two hundred eighty-five tests, every security analyzer, every example, this demo script — written, debugged, and hardened through Codex with GPT-5.6. The doctor speaks the same MCP protocol Codex speaks, so the test suite exercises the exact handshake paths Codex uses in production. And every session started the same way: the doctor's own SessionStart hook ran first — dogfooding its own diagnosis on itself."
+**Narration:** "Two thousand eight hundred lines. Two hundred eighty-five tests. Every security analyzer."
+
+**Narration:** "Written, debugged, and hardened through Codex with GPT-5.6."
+
+**Action:** Press Enter on a pre-typed prompt that asks the doctor to diagnose its own repo. Keep a `git log --oneline -10` terminal panel visible for commit-history context. Do NOT show anything with real secrets.
+
+**Narration:** "The doctor speaks the same MCP protocol Codex speaks. So the test suite hits the exact handshake paths Codex uses."
 
 **Action:** Switch screen recording back to Terminal.
 

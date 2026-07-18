@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.9] - 2026-07-19
+
+### Changed
+
+- **Scene 2.5 voiceover rewritten for recordability.** The original Scene 2.5 narration was a single 60+ word compound sentence crammed into 12 seconds, guaranteeing a stumble on take. Split into three short sentences (6/8/13 words) with distinct breath points. Replaced the vague "show a Codex session" action with a concrete prep checklist: second Codex window, pre-typed prompt, git log panel, secrets-redaction warning. The SessionStart-hook narration beat was dropped (redundant with the How We Built It section). Total Scene 2.5 runtime unchanged at 25 seconds.
+
+- **demo-recording-checklist.md gained a Scene 2.5 Prep section.** The checklist previously said "close everything except Terminal" which directly conflicted with Scene 2.5's requirement to show the Codex desktop window. The Environment line now names the Codex window as an exception, and a new "Scene 2.5 Prep (the one that will bite you)" section walks the recorder through the six setup steps (second window, pre-typed prompt, git log panel, secrets redaction, window-switch rehearsal, cmd-Tab positioning) that must happen BEFORE hitting record.
+
+- **docs/devpost-submission.md Scene 2.5 description block synced** with the restructured voiceover narration and actions.
+
+- **docs/devpost-form-guide.md checklist updated** from stale "GitHub Release v1.6.0" to current "v1.6.8".
+
+- **doctor.py --version 1.6.8 -> 1.6.9.**
+
+
 ## [1.6.8] - 2026-07-19
 
 ### Changed

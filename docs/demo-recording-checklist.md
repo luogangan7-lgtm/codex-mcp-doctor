@@ -5,8 +5,9 @@ saves a re-record.
 
 ## Environment
 
-- [ ] **Close everything except Terminal and this checklist.** Slack,
-      browser, editor — all closed. Notifications will ruin a take.
+- [ ] **Close everything except Terminal, the Codex desktop window, and this
+      checklist.** Slack, browser, editor — all closed. Notifications will
+      ruin a take. The Codex desktop window is needed for Scene 2.5 (see below).
 - [ ] **Do Not Disturb on.** System Settings → Notifications → Focus →
       Do Not Disturb. Or Control Center → toggle.
 - [ ] **Desktop wallpaper clean.** Solid dark color preferred — judges
@@ -49,6 +50,35 @@ which python3 && python3 --version
 
 If any of the four fails, **stop and fix before recording.** A take that
 crashes halfway is worse than no take.
+
+## Scene 2.5 Prep (the one that will bite you)
+
+Scene 2.5 (0:50-1:15) switches the screen recording from Terminal to the
+Codex desktop window for 25 seconds. This is the easiest scene to ruin
+because the recorder has to manage two windows under time pressure. Set
+it up BEFORE hitting record:
+
+- [ ] **Open a second Codex desktop window** with this repo loaded as the
+      working directory. It should be open to a session where the repo
+      context is visible.
+- [ ] **Pre-type but do NOT send** the prompt: `diagnose this repo's own
+      MCP setup`. Leave it in the input box, cursor at end, ready to
+      press Enter at the 1:06 mark.
+- [ ] **Open a terminal panel** (Codex's built-in or a split) running
+      `git log --oneline -10` so the commit history is visible as
+      secondary context. This shows the judges the depth of the project
+      without you having to narrate it.
+- [ ] **Redact or close anything with real secrets.** No real API keys,
+      no tokens, no production config. If your Codex config has real
+      credentials, use a throwaway config for the recording.
+- [ ] **Practice the window switch.** Screen-record Terminal for Scenes
+      1-2, switch to Codex desktop at 0:50, switch back at 1:13. The
+      switch itself takes ~1s — account for it in your timing.
+- [ ] **Position the two windows** so you can cmd-Tab between them
+      cleanly. Don't rely on Mission Control mid-take.
+
+If you forget any of the above, you will see it in playback and have to
+re-record. This scene is required by Devpost rules — it cannot be cut.
 
 ## Audio
 

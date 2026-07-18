@@ -52,11 +52,15 @@ breakdown in `docs/devpost-submission.md`.
 
 `[0:51]` `[VO]` Here's the thing — this entire tool was built inside Codex.
 
-`[0:55]` `[CLICK]` Show a Codex session where you ask the doctor to diagnose itself, or where a recent commit's diff is visible.
+`[0:55]` `[CLICK]` **Prep BEFORE recording:** open a second Codex desktop window with this repo loaded, and a terminal panel showing `git log --oneline -10` (so the commit history is visible). Have one prompt typed but not sent: `diagnose this repo's own MCP setup`. Do NOT show anything with real secrets.
 
-`[0:56]` `[VO]` Two thousand eight hundred lines of doctor logic, two hundred eighty-five tests, every security analyzer, every example, this demo script — written, debugged, and hardened through Codex with GPT-5.6. The doctor speaks the same MCP protocol Codex speaks, so the test suite exercises the exact handshake paths Codex uses in production.
+`[0:56]` `[VO]` Two thousand eight hundred lines. Two hundred eighty-five tests. Every security analyzer.
 
-`[1:08]` `[VO]` And every session started the same way: the doctor's own SessionStart hook ran first — dogfooding its own diagnosis on itself.
+`[1:02]` `[VO]` Written, debugged, and hardened through Codex with GPT-5.6.
+
+`[1:06]` `[CLICK]` Press Enter on the pre-typed prompt so the doctor runs on its own repo. Keep the commit-history terminal visible as secondary context.
+
+`[1:07]` `[VO]` The doctor speaks the same MCP protocol Codex speaks. So the test suite hits the exact handshake paths Codex uses.
 
 `[1:13]` `[CLICK]` Switch screen recording back to Terminal for the security demo.
 

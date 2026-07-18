@@ -204,7 +204,7 @@ All four must pass before submitting. If any fails, stop and fix.
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
 - [x] Zero external dependencies (AST-verified)
 - [x] Plugin manifest passes Codex validator
-- [x] GitHub Release v1.6.0 published
+- [x] GitHub Release v1.6.8 published (latest: https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/tag/v1.6.8)
 - [x] Cover image: `docs/devpost-cover.png`
 - [x] W022 visualization: `docs/w022-homoglyph.png`
 - [x] Screenshots: `docs/screenshot-real-report.png`, `docs/screenshot-rugpull-detection.png`
