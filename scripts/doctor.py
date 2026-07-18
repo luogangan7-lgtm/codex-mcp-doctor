@@ -2144,7 +2144,18 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
     """
     target = path or BASELINE_PATH
     if not target.exists():
-        return []
+        # User explicitly asked for --check-baseline but no baseline exists.
+        # Don't silently skip - tell them to create one first.
+        return [{
+            "tool": "(baseline)",
+            "severity": "info",
+            "code": "E003",
+            "label": "baseline-missing",
+            "message": f"No baseline file found at {target}. Rug-pull detection cannot run "
+                       f"until you save one.",
+            "evidence": "file does not exist",
+            "fix": f"Run with --save-baseline to create {target}, then re-run with --check-baseline.",
+        }]
     try:
         stored = json.loads(target.read_text())
     except (json.JSONDecodeError, OSError) as e:
@@ -2306,18 +2317,20 @@ def main() -> int:
             if target:
                 target.security_issues.append(issue)
                 target.health_score = compute_health_score(target)
-            if target:
-                target.security_issues.append(issue)
-                target.health_score = compute_health_score(target)
             elif not sname:
-                # Baseline-level issue (corrupted/invalid file) has no server target.
-                # Surface it as a config-level error so the user sees it.
+                # Baseline-level issue (missing/corrupted/invalid file) has no
+                # server target. Surface it as a config-level message so the user
+                # sees it in the report. Track severity for exit-code decisions.
+                sev = issue.get("severity", "info")
                 report.config_errors.append(
-                    f"[{issue.get('label','baseline')}] {issue.get('message','')}"
+                    f"[{issue.get('label','baseline')}] ({sev}) {issue.get('message','')}"
                 )
-        # re-aggregate warnings count
-        for s in report.servers:
-            pass  # aggregation already happens in diagnose; we just appended
+                # High-severity baseline problems (corrupted/invalid) mean
+                # rug-pull detection silently failed - that deserves a non-zero
+                # exit code so the user notices. Info-level (missing baseline)
+                # is expected on first run, so don't hard-fail.
+                if sev == "high":
+                    report._baseline_failed = True
 
 
     if args.quiet and report.errors == 0 and not report.config_errors:
@@ -2338,6 +2351,11 @@ def main() -> int:
         if tool_count == 0:
             print("WARNING: baseline is empty - no tools were probed.")
             print("         Re-run without --skip-probe and with running servers to capture tool hashes.")
+    # High-severity baseline failure (corrupted/invalid baseline file) means
+    # rug-pull detection silently failed. Treat as a warning-level exit so
+    # scripts/hooks notice something is off, even with healthy servers.
+    if getattr(report, "_baseline_failed", False) and report.errors == 0:
+        return 2
     if not report.servers:
         return 3
     if report.errors > 0:

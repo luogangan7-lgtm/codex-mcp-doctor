@@ -1560,10 +1560,12 @@ class TestRugPullBaseline(unittest.TestCase):
         self.assertTrue(any(i["label"] == "tool-removed-since-baseline" for i in issues))
         self.assertTrue(any(i["severity"] == "low" for i in issues))
 
-    def test_missing_baseline_returns_empty(self):
+    def test_missing_baseline_informs_user(self):
+        """Missing baseline file should inform the user, not silently return []."""
         report = self._make_report({"srv": [{"name": "foo", "description": "safe"}]})
         issues = doctor.check_baseline(report, doctor.Path("/nonexistent/path.json"))
-        self.assertEqual(issues, [])
+        self.assertTrue(any(i["label"] == "baseline-missing" for i in issues))
+        self.assertTrue(any(i["severity"] == "info" for i in issues))
 
     def test_baseline_skips_empty_servers(self):
         report = self._make_report({"srv": [], "empty": []})
@@ -1593,6 +1595,18 @@ class TestRugPullBaseline(unittest.TestCase):
         report = self._make_report({"srv": [{"name": "foo", "description": "safe"}]})
         issues = doctor.check_baseline(report, self.path)
         self.assertTrue(any(i["label"] == "baseline-invalid-structure" for i in issues))
+
+    def test_server_level_issue_not_duplicated(self):
+        """Each changed-tool issue should appear exactly once per server,
+        not twice (regression guard for duplicate-append bug)."""
+        doctor.save_baseline(self._make_report(
+            {"srv": [{"name": "foo", "description": "original"}]}), self.path)
+        report = self._make_report(
+            {"srv": [{"name": "foo", "description": "CHANGED"}]})
+        issues = doctor.check_baseline(report, self.path)
+        changed = [i for i in issues if i["label"] == "tool-description-changed"]
+        self.assertEqual(len(changed), 1,
+                         f"expected 1 changed-tool issue, got {len(changed)}")
 
 
 class TestHealthScoreV14(unittest.TestCase):
