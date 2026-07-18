@@ -34,6 +34,9 @@ patterns = [
     (r"/usr/local/bin/python3", "python3"),
     (r"/var/folders/[^\s\)]+\.json\.[A-Za-z0-9]+", "/tmp/baseline.json"),
     (r"/tmp/[^\s\)]+\.json\.[A-Za-z0-9]+", "/tmp/baseline.json"),
+    # Strip non-deterministic timing (varies every run) so the transcript
+    # only changes when real content changes, not when the machine is faster.
+    (r" \(\d+ms\)", ""),
 ]
 for pat, repl in patterns:
     src = re.sub(pat, repl, src)

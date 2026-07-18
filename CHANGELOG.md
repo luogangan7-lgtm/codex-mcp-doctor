@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.7] - 2026-07-19
+
+### Fixed
+
+- **`.codex-plugin/plugin.json` version was 1.6.5 while doctor.py and the release tag were at 1.6.6.** The previous round's manual sed had a pattern-mismatch bug (targeted `1.6.2` but the file was already at `1.6.5`), so plugin.json silently stayed behind. Root cause: version strings lived in two files with no enforcement that they move together.
+
+### Added
+
+- **`scripts/bump-version.py`** — single command (`python3 scripts/bump-version.py 1.6.7`) bumps every version string in lockstep (doctor.py `--version` flag + plugin.json manifest). Idempotent. Refuses non-semver input. Does not touch CHANGELOG (hand-edited per release) and does not git commit (caller's responsibility). Eliminates the drift class of bug that caused this round's plugin.json staleness.
+
+### Changed
+
+- **`scripts/refresh-transcript.sh` now strips non-deterministic timing ms.** Previously `(25ms)`, `(22ms)` etc. leaked into `docs/demo-transcript.txt` and changed on every run, producing noise diffs that obscured real content changes. Verified: two consecutive `refresh-transcript.sh` runs now produce byte-identical output. The transcript only changes when actual diagnostic content changes.
+- **doctor.py --version 1.6.6 -> 1.6.7.**
+
 ## [1.6.6] - 2026-07-19
 
 ### Fixed
