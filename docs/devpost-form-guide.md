@@ -144,16 +144,23 @@ leave blank. The demo video + repo README are the "try it out" surface.
 
 ---
 
-## 11. Custom Questions (if Build Week asks any)
+## 11. Custom Questions (track + Codex usage)
 
-OpenAI Build Week may add custom questions like "Which OpenAI product did
-you use?" or "Which challenge track are you submitting to?" Check the form
-when tracks are announced.
+Build Week tracks are now public (confirmed via /rules, 2026-07-19). There
+are four categories, each with a 1st and 2nd place prize:
 
-**Likely answers:**
-- **OpenAI products used:** Codex (Desktop + CLI), GPT-5.6
-- **Track:** pick the one closest to "Developer Tools" / "Infrastructure"
-  when categories publish
+- **Apps for Your Life**
+- **Work & Productivity**
+- **Developer Tools** -- "Tools for developers, including testing, DevOps,
+  agentic workflows, and security". This is codex-mcp-doctor's natural
+  track: an MCP diagnostic + security audit tool that Codex itself runs.
+- **Education**
+
+Each project is eligible for one prize only, in its selected category.
+
+**Answers to fill in:**
+- **Category:** Developer Tools (recommended).
+- **OpenAI products used:** Codex (Desktop + CLI), GPT-5.6.
 - **How does your project use Codex?** Paste the **entire "How We Built It"**
   section from `docs/devpost-submission.md`. Lead with the dogfooding framing:
   "Built entirely inside Codex desktop with GPT-5.6 as the development
@@ -204,7 +211,7 @@ All four must pass before submitting. If any fails, stop and fix.
 - [x] Guided demo script: `./scripts/demo.sh`
 - [ ] **Demo video recorded** (run `./scripts/demo.sh` + screen record + voiceover)
 - [ ] **Devpost project page filled** (use this guide)
-- [ ] **Challenge category selected** (after announcement)
+- [ ] **Challenge category selected** (Developer Tools -- recommended)
 - [ ] **Submitted before July 21, 5PM PT**
 
 The four unchecked items are user actions. Everything else is done.

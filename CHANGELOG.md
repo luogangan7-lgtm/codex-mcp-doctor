@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-07-19
+
+### Changed
+
+- **README: "Try it in 5 seconds" block** - a one-line `git clone && cd && python3 scripts/doctor.py` command lands a judge on a real broken-MCP diagnosis (red error, root cause, one-line fix) in under a second, with no `pip install` and no virtualenv. Placed directly after the dogfooding callout so the very first scroll-down takes a judge from "what is this" to "oh, it actually works." Strongest possible conversion hook for the Devpost gallery thumbnail click-through.
+- **Devpost tracks confirmed** - `docs/devpost-form-guide.md` section 11 previously said "tracks TBA 7/13". The four real Build Week categories are now documented (sourced from /rules): Apps for Your Life, Work & Productivity, Developer Tools, Education. Developer Tools is recommended as the natural track - an MCP diagnostic + security audit tool that Codex itself runs. The one-prize-per-project rule is noted.
+- **doctor.py --version bump 1.6.0 -> 1.6.3** - the version string had not been touched since v1.6.0; v1.6.1 and v1.6.2 only shipped image/docs changes so the string drifted. Now consistent with the release tag.
+
 ## [1.6.2] - 2026-07-19
 
 ### Changed

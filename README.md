@@ -14,6 +14,21 @@
 
 > **Dogfooded end-to-end.** The entire codebase — doctor logic, 285 tests, hooks, CI, security analyzers, demo, and this README — was written, debugged, and hardened inside **Codex desktop with GPT-5.6**, using Codex's own MCP tooling to build tooling *for* Codex. A shared memory canvas carried state across sessions; every commit had to pass a 285-test gate before advancing. The zero-dependency constraint is part of the same story: a broken-MCP diagnostic that needs `pip install` would defeat its own purpose.
 
+## Try it in 5 seconds
+
+```bash
+git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git && \
+  cd codex-mcp-doctor && \
+  python3 scripts/doctor.py --config examples/broken-stdio/config.toml
+```
+
+No `pip install`. No virtualenv. Python 3.11+ only. You'll see a broken MCP server diagnosed in under a second — red error, root cause, one-line fix. Then try:
+
+```bash
+python3 scripts/doctor.py --config examples/security-issues/config.toml   # supply chain + plaintext secrets
+python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml  # Cyrillic W022 attack
+```
+
 **The W022 Cyrillic homoglyph attack - unique to codex-mcp-doctor:**
 
 ![W022 homoglyph attack](docs/w022-homoglyph.png)
