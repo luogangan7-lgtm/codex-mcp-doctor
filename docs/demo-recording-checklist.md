@@ -29,7 +29,7 @@ saves a re-record.
 ## Sanity Checks (run all four before recording)
 
 ```bash
-cd /Volumes/data/codex-mcp-doctor
+cd codex-mcp-doctor
 
 # 1. Tests pass
 python3 tests/test_doctor.py | tail -3

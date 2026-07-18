@@ -166,7 +166,7 @@ Devpost scores on four equally weighted criteria. Here is where each one is evid
 
 ### Setup
 - Terminal: macOS, dark theme, 16pt font
-- Working directory: `/Volumes/data/codex-mcp-doctor`
+- Working directory: the cloned repo root (wherever you put `codex-mcp-doctor/`)
 - Python: `/opt/homebrew/bin/python3`
 
 ### Scene 1: The Silent Failure (0:00 - 0:20)

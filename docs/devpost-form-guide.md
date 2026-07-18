@@ -211,7 +211,7 @@ story. Without it, the Technological Implementation score is at risk.
 Run this checklist before clicking "Submit":
 
 ```bash
-cd /Volumes/data/codex-mcp-doctor
+cd codex-mcp-doctor
 
 # 1. Tests green (287 tests)
 /opt/homebrew/bin/python3 tests/test_doctor.py
