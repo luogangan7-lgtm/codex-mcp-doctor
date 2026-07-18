@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.14] - 2026-07-19
+
+### Fixed
+
+- **form-guide Source Code pin was stale (v1.6.0).** The form-guide told the submitter to pin the repo URL to the v1.6.0 release tag for judge reproducibility. That tag is 13 versions behind. Changed to point at /releases/latest with a note to verify the tag at submission time.
+
+- **form-guide Try It Out field said leave blank.** Now that each release ships a standalone zip, the Try It Out field is a second conversion point, not a dead field. Updated guidance to paste the latest release URL so judges who click get a one-download try.
+
+- **Both checklists (form-guide + submission.md) updated.** form-guide release ref changed from v1.6.8 to /releases/latest. submission.md checklist gained Plugin manifest line, Cover/W022 image line, and Standalone zip line that were missing.
+
+- **doctor.py --version 1.6.13 -> 1.6.14.**
+
+
 ## [1.6.13] - 2026-07-19
 
 ### Fixed

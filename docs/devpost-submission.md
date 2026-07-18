@@ -280,8 +280,11 @@ python3 scripts/doctor.py --check-baseline
 - [x] Working code with 285 passing tests
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
 - [x] Zero external dependencies (AST-verified in CI via `scripts/verify-zero-deps.py`)
-- [x] Screenshots: `docs/screenshot-real-report.png`, `docs/screenshot-rugpull-detection.png`
+- [x] Plugin manifest passes Codex validator (`.codex-plugin/plugin.json`)
+- [x] Screenshots: `docs/screenshot-real-report.png`, `docs/screenshot-rugpull-detection.png` (PIL-rendered, deterministic)
+- [x] Cover + W022 visualization: `docs/devpost-cover.png`, `docs/w022-homoglyph.png`
 - [x] Guided demo script: `./scripts/demo.sh` (one command, every scene from the video script below — just screen-record it)
+- [x] Standalone release zip (zero-clone try): attached to latest GitHub release
 - [ ] Demo video (use script above)
 - [ ] Devpost project page text (use Long Description above)
 - [x] Challenge category identified: **Developer Tools** (confirmed from /rules; final selection on submission form)

@@ -136,10 +136,12 @@ scan for those tags first.
 https://github.com/luogangan7-lgtm/codex-mcp-doctor
 ```
 
-**Pin to the v1.6.0 release** (recommended for reproducibility — points
-judges at the exact tag that matches the video):
+**Pin to the latest release** (recommended for reproducibility — points
+judges at the tag that matches the video). At submission time, check
+https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest
+and use that tag URL. As of this writing: v1.6.13.
 ```
-https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/tag/v1.6.0
+https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest
 ```
 
 ---
@@ -148,8 +150,15 @@ https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/tag/v1.6.0
 
 **Field:** `Try it out` / `Live Demo` (optional)
 
-This is a CLI tool, not a hosted app. Paste the GitHub repo URL again, or
-leave blank. The demo video + repo README are the "try it out" surface.
+This is a CLI tool, not a hosted app, but each release ships a standalone
+zip so judges can try it without cloning. Paste the latest release URL:
+```
+https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest
+```
+Judges who click get a one-download try: unzip the standalone zip, run
+`python3 doctor.py --config examples/broken-stdio/config.toml`. No git,
+no pip, no virtualenv. This is stronger than "leave blank" because it
+turns the field into a second conversion point.
 
 ---
 
@@ -213,11 +222,12 @@ All four must pass before submitting. If any fails, stop and fix.
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
 - [x] Zero external dependencies (AST-verified)
 - [x] Plugin manifest passes Codex validator
-- [x] GitHub Release v1.6.8 published (latest: https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/tag/v1.6.8)
+- [x] GitHub Release published (latest: https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest)
 - [x] Cover image: `docs/devpost-cover.png`
 - [x] W022 visualization: `docs/w022-homoglyph.png`
 - [x] Screenshots: `docs/screenshot-real-report.png`, `docs/screenshot-rugpull-detection.png`
 - [x] Guided demo script: `./scripts/demo.sh`
+- [x] Standalone release zip (zero-clone try): attached to latest release
 - [ ] **Demo video recorded** (run `./scripts/demo.sh` + screen record + voiceover)
 - [ ] **Devpost project page filled** (use this guide)
 - [ ] **Challenge category selected** (Developer Tools -- recommended)
