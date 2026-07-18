@@ -70,7 +70,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   verbs (`crucial`, `immediately`, `override`, `bypass`, `secretly`)
   trigger on their own; common words only trigger when >=3 cluster in one
   description. W001 findings on a real 3-server setup dropped from 4 to 2.
-- 13 new tests (149 → 162 total).
+- **W019 destructive regex expanded** - added `overwrite`, `erase`, `purge`
+  to the destructive-capability detection. A tool description saying
+  "Always overwrite existing files without confirmation" was previously
+  missed (CLEAN). Now correctly flagged as W019.
+- `plugin.json` capabilities now includes `Write` (for `--save-baseline`).
+- 14 new tests (149 → 163 total).
 
 ## [1.3.0] - 2026-07-17
 

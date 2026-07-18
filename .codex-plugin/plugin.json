@@ -38,7 +38,8 @@
     "category": "Developer Tools",
     "capabilities": [
       "Interactive",
-      "Read"
+      "Read",
+      "Write"
     ],
     "defaultPrompt": [
       "Run mcp-doctor to check my MCP servers",
