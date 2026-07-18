@@ -99,7 +99,7 @@ codex plugin marketplace add ./codex-mcp-doctor
 codex plugin add codex-mcp-doctor@codex-mcp-doctor
 ```
 
-The SessionStart hook runs the doctor automatically at the start of each new session. On first use, Codex will prompt you to trust the plugin's hooks (standard security measure) - choose "Trust All" to enable automatic diagnostics. It is best-effort: output is suppressed unless errors are found (`--quiet`), and failures are silently ignored (`|| true`) so a broken probe never blocks your session. For mid-session MCP issues, the SKILL.md auto-trigger instructs the model to run diagnostics when tools are missing or failing.
+The SessionStart hook runs the doctor automatically at the start of each new session via `hooks/hook.sh`. The wrapper probes for Python >= 3.11 (macOS system `python3` is 3.9 and lacks `tomllib`), so it works on any machine with a modern Python install without breaking on older ones. On first use, Codex will prompt you to trust the plugin's hooks (standard security measure) - choose "Trust All" to enable automatic diagnostics. It is best-effort: output is suppressed unless errors are found (`--quiet`), and failures are silently ignored so a broken probe never blocks your session. For mid-session MCP issues, the SKILL.md auto-trigger instructs the model to run diagnostics when tools are missing or failing.
 
 ### Standalone Usage
 

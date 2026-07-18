@@ -33,6 +33,10 @@ From the plugin root directory:
 python3 scripts/doctor.py
 ```
 
+> **Requires Python 3.11+** (uses `tomllib` from the stdlib). If `python3` on
+> your system is older, use `python3.11`, `python3.12`, etc. instead. The
+> SessionStart hook automatically probes for a compatible interpreter.
+
 Auto-discovers `~/.codex/config.toml` (or `$CODEX_HOME/config.toml`), parses all `[mcp_servers.*]` entries, validates config, probes each server, checks tool schemas, and reports a health score.
 
 ### Options
