@@ -261,7 +261,14 @@ def validate_codex_config_fields(name: str, cfg: dict) -> list[dict]:
 
     # env: check for $VAR references that don't resolve
     env = cfg.get("env", {})
-    if isinstance(env, dict):
+    if env and not isinstance(env, dict):
+        issues.append({
+            "severity": "error",
+            "code": "invalid_env_type",
+            "message": f"'env' must be a table (key=value pairs), got {type(env).__name__}.",
+            "fix": "env must be a table of key=value pairs.",
+        })
+    elif isinstance(env, dict):
         for env_key, env_val in env.items():
             if isinstance(env_val, str) and env_val.startswith("$"):
                 var_name = env_val[1:]
@@ -275,6 +282,16 @@ def validate_codex_config_fields(name: str, cfg: dict) -> list[dict]:
                         "message": f"env.{env_key}={env_val} but environment variable '{var_name}' is not set in your shell.",
                         "fix": f"Export {var_name} in your shell profile, or replace with the literal value.",
                     })
+
+    # http_headers: must be a table if present
+    http_headers = cfg.get("http_headers")
+    if http_headers is not None and not isinstance(http_headers, dict):
+        issues.append({
+            "severity": "error",
+            "code": "invalid_http_headers_type",
+            "message": f"'http_headers' must be a table (key=value pairs), got {type(http_headers).__name__}.",
+            "fix": "http_headers must be a table of key=value pairs.",
+        })
 
     return issues
 

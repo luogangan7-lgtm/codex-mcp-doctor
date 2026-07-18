@@ -865,6 +865,21 @@ class TestCodexConfigFields(unittest.TestCase):
         })
         self.assertFalse(any(i["code"] == "env_var_not_set" for i in issues))
 
+    def test_env_not_dict_flagged(self):
+        """env must be a table; a string or list is a config error."""
+        for bad in ["notdict", [1, 2]]:
+            issues = doctor.validate_codex_config_fields("test", {"env": bad})
+            self.assertTrue(any(i["code"] == "invalid_env_type" for i in issues),
+                            f"expected invalid_env_type for env={bad!r}")
+
+    def test_http_headers_not_dict_flagged(self):
+        """http_headers must be a table; a string or list is a config error."""
+        for bad in ["notdict", [1, 2]]:
+            issues = doctor.validate_codex_config_fields("test", {"http_headers": bad})
+            self.assertTrue(any(i["code"] == "invalid_http_headers_type" for i in issues),
+                            f"expected invalid_http_headers_type for http_headers={bad!r}")
+
+
 
 class TestAuthHeaderCheck(unittest.TestCase):
     """Test the HTTP auth header heuristic."""
