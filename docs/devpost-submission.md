@@ -57,6 +57,12 @@ The zero-dependency constraint was deliberate: a diagnostic tool that requires `
 ---
 
 ## Demo Video Script (2-3 minutes)
+> **Tip:** `./scripts/demo.sh` walks through every scene below automatically —
+> with titles, narration cues, and real doctor.py output. If you just want to
+> record the video, run that and screen-record. The per-scene breakdown below
+> is for understanding what each scene shows.
+
+
 
 ### Setup
 - Terminal: macOS, dark theme, 16pt font
@@ -201,6 +207,7 @@ python3 scripts/doctor.py --check-baseline
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
 - [x] Zero external dependencies (AST-verified)
 - [x] Screenshots: `docs/screenshot-real-report.png`, `docs/screenshot-rugpull-detection.png`
+- [x] Guided demo script: `./scripts/demo.sh` (one command, every scene from the video script below — just screen-record it)
 - [ ] Demo video (use script above)
 - [ ] Devpost project page text (use Long Description above)
 - [ ] Select challenge category when announced (July 13)

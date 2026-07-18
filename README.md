@@ -310,6 +310,11 @@ can tell which primitive was poisoned.
 git clone https://github.com/luogangan7-lgtm/codex-mcp-doctor.git
 cd codex-mcp-doctor
 
+# 0. ONE COMMAND — run the guided demo (every feature, scene by scene).
+#    This is the easiest way to see the doctor in action. Used for the
+#    Devpost demo video too: just screen-record this.
+./scripts/demo.sh
+
 # 1. Run the test suite (266 tests, ~1 second)
 python3 tests/test_doctor.py
 
