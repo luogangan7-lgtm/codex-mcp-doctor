@@ -314,6 +314,7 @@ cd codex-mcp-doctor
 #    This is the easiest way to see the doctor in action. Used for the
 #    Devpost demo video too: just screen-record this.
 ./scripts/demo.sh
+#    (or read docs/demo-transcript.txt to see the output without running it)
 
 # 1. Run the test suite (266 tests, ~1 second)
 python3 tests/test_doctor.py
