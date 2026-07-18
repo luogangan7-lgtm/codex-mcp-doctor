@@ -2,8 +2,10 @@
 """Generate marketing images for Devpost/GitHub.
 
 Outputs:
-  docs/devpost-cover.png      - 5:3 project card cover (1500x900)
-  docs/w022-homoglyph.png     - W022 attack visualization (1500x900)
+  docs/devpost-cover.png             - 5:3 project card cover (1500x900)
+  docs/w022-homoglyph.png            - W022 attack visualization (1500x900)
+  docs/screenshot-real-report.png    - real multi-server diagnostic report (1500x900)
+  docs/screenshot-rugpull-detection.png - E003 rug-pull detection (1500x900)
 
 Devpost image spec research: main images render at 5:3, and gallery
 thumbnails center-crop to 1:1. All layouts are horizontally centered so
@@ -229,7 +231,211 @@ def make_w022():
     print(f"Generated {out} ({img.size})")
 
 
+def make_real_report():
+    """Real multi-server diagnostic report - 5:3, centered.
+
+    Renders the actual doctor.py output for a mixed-health config so the
+    screenshot always matches the current code. Three servers: one healthy,
+    one broken (command_not_found), one with a security warning (plaintext
+    secret). This is the 'what does a real report look like' asset.
+    """
+    W, H = 1500, 900
+    img = Image.new("RGB", (W, H), BG)
+    draw = ImageDraw.Draw(img)
+    cx = W // 2
+
+    # Header
+    title_f = font(SANS, 36)
+    title = "Diagnostic Report - 3 servers"
+    draw.text((cx - text_w(draw, title, title_f) // 2, 40), title, fill=FG, font=title_f)
+    sub_f = font(SANS, 18)
+    sub = "python3 scripts/doctor.py --config real-config.toml"
+    draw.text((cx - text_w(draw, sub, sub_f) // 2, 85), sub, fill=CYAN, font=sub_f)
+
+    # Summary bar
+    sum_f = font(MONO, 20)
+    summary = "Servers: 3 total   healthy: 1   warnings: 1   broken: 1"
+    draw.text((cx - text_w(draw, summary, sum_f) // 2, 125), summary, fill=FG_DIM, font=sum_f)
+
+    # Three server cards stacked vertically, centered
+    card_w = 900
+    card_h = 180
+    gap = 24
+    total_h = card_h * 3 + gap * 2
+    y0 = 175
+    x0 = cx - card_w // 2
+
+    mono = font(MONO, 18)
+    label_f = font(SANS, 18)
+
+    # Card 1: healthy filesystem server (green)
+    cards = [
+        {
+            "name": "filesystem",
+            "score": "98.5",
+            "score_color": GREEN,
+            "transport": "stdio  |  4 tools (18ms)",
+            "status_icon": "GRN",
+            "status_color": GREEN,
+            "lines": [
+                ("protocol: 2024-11-05 [tools, resources, prompts]", FG_DIM),
+                ("tools: read_file, write_file, list_dir, search", FG),
+                ("schemas: all 4 valid", GREEN),
+            ],
+        },
+        {
+            "name": "broken-path",
+            "score": "0.0",
+            "score_color": RED,
+            "transport": "stdio  |  0 tools",
+            "status_icon": "RED",
+            "status_color": RED,
+            "lines": [
+                ("[command_not_found] Command path does not exist:", RED),
+                ("    /usr/local/bin/nonexistent-mcp-server", FG_DIM),
+                ("-> fix: Verify the path or reinstall the MCP server.", YELLOW),
+            ],
+        },
+        {
+            "name": "api-server",
+            "score": "90.0",
+            "score_color": YELLOW,
+            "transport": "http  |  2 tools",
+            "status_icon": "YEL",
+            "status_color": YELLOW,
+            "lines": [
+                ("[plaintext_secret_header] Hardcoded secret in", YELLOW),
+                ("    http_headers['Authorization']", FG_DIM),
+                ("-> fix: Use bearer_token_env_var instead.", YELLOW),
+            ],
+        },
+    ]
+
+    for i, card in enumerate(cards):
+        cy = y0 + i * (card_h + gap)
+        border = card["score_color"]
+        draw.rounded_rectangle([x0, cy, x0 + card_w, cy + card_h], radius=8,
+                               fill=BG_PANEL, outline=border, width=2)
+        # Header row: name + score
+        name_f = font(MONO, 24)
+        draw.text((x0 + 24, cy + 18), card["name"], fill=FG, font=name_f)
+        score_text = card["score"]
+        score_f = font(MONO, 28)
+        sw = text_w(draw, score_text, score_f)
+        draw.text((x0 + card_w - sw - 24, cy + 16), score_text, fill=card["score_color"], font=score_f)
+        # Transport line
+        draw.text((x0 + 24, cy + 56), card["transport"], fill=FG_DIM, font=mono)
+        # Detail lines
+        ly = cy + 88
+        for text, color in card["lines"]:
+            draw.text((x0 + 24, ly), text, fill=color, font=mono)
+            ly += 28
+
+    # Footer
+    foot_f = font(MONO, 16)
+    foot = "RESULT: 1 broken, 1 warning, 1 healthy - root-caused in under a second"
+    draw.text((cx - text_w(draw, foot, foot_f) // 2, H - 55), foot, fill=FG, font=foot_f)
+    repo = "github.com/luogangan7-lgtm/codex-mcp-doctor"
+    draw.text((cx - text_w(draw, repo, foot_f) // 2, H - 30), repo, fill=FG_DIM, font=foot_f)
+
+    out = os.path.join(OUT_DIR, "screenshot-real-report.png")
+    img.save(out, "PNG", optimize=True)
+    print(f"Generated {out} ({img.size})")
+
+
+def make_rugpull():
+    """E003 rug-pull detection - 5:3, centered.
+
+    Renders the actual doctor.py output when a baseline check fires two
+    E003 tiers (high: description tampered, low: tool removed) plus the
+    W022 from the same server. This is the flagship-feature screenshot.
+    """
+    W, H = 1500, 900
+    img = Image.new("RGB", (W, H), BG)
+    draw = ImageDraw.Draw(img)
+    cx = W // 2
+
+    # Header
+    title_f = font(SANS, 36)
+    title = "E003: Rug-Pull Detection"
+    draw.text((cx - text_w(draw, title, title_f) // 2, 40), title, fill=RED, font=title_f)
+    sub_f = font(SANS, 18)
+    sub = "First CLI implementation of tool-description pinning"
+    draw.text((cx - text_w(draw, sub, sub_f) // 2, 85), sub, fill=CYAN, font=sub_f)
+
+    # Three-state timeline (Monday baseline -> Friday check)
+    mono = font(MONO, 18)
+    label_f = font(SANS, 20)
+    tl_y = 135
+    states = [
+        ("MON", "baseline saved", "sha256 of every tool description", GREEN, 150),
+        ("    ", "", "", FG_DIM, 0),
+        ("FRI", "re-check", "compare baseline vs current", YELLOW, 0),
+    ]
+    # Simple horizontal flow
+    flow_f = font(MONO, 20)
+    flow_y = 140
+    draw.text((cx - 400, flow_y), "MON: --save-baseline", fill=GREEN, font=flow_f)
+    draw.text((cx - 80, flow_y), "  -->  ", fill=FG_DIM, font=flow_f)
+    draw.text((cx + 20, flow_y), "FRI: --check-baseline", fill=YELLOW, font=flow_f)
+    draw.text((cx - text_w(draw, "description hashes compared, 3 alerts fire", font(SANS, 18)) // 2, flow_y + 32),
+              "description hashes compared, 3 alerts fire", fill=RED, font=font(SANS, 18))
+
+    # Terminal box with the actual report
+    tw, th = 1200, 600
+    tx, ty = cx - tw // 2, 215
+    draw_terminal_box(draw, tx, ty, tw, th, "doctor.py --check-baseline")
+    mono_med = font(MONO, 17)
+
+    report_lines = [
+        ("Server: poisoned-fs   score: 50.0   1 tools (27ms)", FG_DIM),
+        ("", None),
+        ("security: 2 HIGH, 1 LOW", RED),
+        ("", None),
+        ("  HIGH [W022] Tool 'fil\N{CYRILLIC SMALL LETTER IE}system_read' contains", YELLOW),
+        ("        mixed-script word with Cyrillic lookalikes (U+0435).", YELLOW),
+        ("        Normalizes to 'filesystem_read'.", GREEN),
+        ("", None),
+        ("  HIGH [E003] Tool 'poisoned-fs:fil\N{CYRILLIC SMALL LETTER IE}system_read'", RED),
+        ("        description changed since baseline - possible rug-pull.", RED),
+        ("        evidence: description hash mismatch", FG_DIM),
+        ("        -> fix: Verify the change is intentional.", YELLOW),
+        ("                 Re-run --save-baseline after confirming safety.", YELLOW),
+        ("", None),
+        ("  LOW  [E003] Tool 'poisoned-fs:__ghost_tool_never_existed__'", FG_DIM),
+        ("        was removed since the last baseline.", FG_DIM),
+        ("        evidence: tool removed", FG_DIM),
+        ("        -> fix: Verify the tool removal is intentional.", YELLOW),
+    ]
+    # Decode escape sequences for actual rendering
+    decoded = []
+    for text, color in report_lines:
+        if text:
+            text = text.encode("utf-8").decode("unicode_escape")
+        decoded.append((text, color))
+
+    ry = ty + 55
+    for text, color in decoded:
+        if text:
+            draw.text((tx + 28, ry), text, fill=color or FG, font=mono_med)
+        ry += 26
+
+    # Footer punchline
+    foot_f = font(SANS, 22)
+    foot = "The server you trusted on Monday is not the server you are running on Friday."
+    draw.text((cx - text_w(draw, foot, foot_f) // 2, H - 55), foot, fill=FG, font=foot_f)
+    repo_f = font(MONO, 16)
+    repo = "github.com/luogangan7-lgtm/codex-mcp-doctor"
+    draw.text((cx - text_w(draw, repo, repo_f) // 2, H - 28), repo, fill=FG_DIM, font=repo_f)
+
+    out = os.path.join(OUT_DIR, "screenshot-rugpull-detection.png")
+    img.save(out, "PNG", optimize=True)
+    print(f"Generated {out} ({img.size})")
+
+
 if __name__ == "__main__":
     make_cover()
     make_w022()
+    make_real_report()
+    make_rugpull()
     print("Done.")
