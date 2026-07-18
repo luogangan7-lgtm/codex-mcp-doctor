@@ -112,19 +112,24 @@ cat "$BASELINE_TMP"
 echo
 echo "Step 2 — simulate the attack. The server silently changes its tool's description."
 echo "We corrupt the stored hash to represent a tampered description, then re-check:"
-# Corrupt the baseline hash so check-baseline thinks the live description differs.
+# Mutate the baseline to trigger all three E003 severity tiers at once:
+#   high   = real tool's description hash flipped (tool-description-changed)
+#   medium = real tool removed from baseline so it looks new (new-tool-since-baseline)
+#   low    = ghost tool injected into baseline that live server never exposed
 $PYTHON - "$BASELINE_TMP" <<'PY'
 import json, sys
 p = sys.argv[1]
 with open(p) as f: data = json.load(f)
 for srv in data.values():
-    for name in srv:
-        # flip the last hex digit — any change to the description hash triggers E003
+    for name in list(srv):
+        # high tier: flip the hash so the real tool's description 'changed'
         h = srv[name]
         srv[name] = h[:-1] + ('0' if h[-1] != '0' else '1')
+    # low tier: inject a tool the live server never exposed
+    srv["__ghost_tool_never_existed__"] = "0" * 64
 with open(p, 'w') as f: json.dump(data, f, indent=2)
 PY
-echo "  → baseline hash corrupted (simulating server-side description mutation)"
+echo "  → baseline mutated: real tool hash flipped (high), ghost tool injected (low)"
 echo
 echo "Step 3 — re-check against the baseline. The doctor must flag E003 rug-pull:"
 run "$PYTHON" scripts/doctor.py --config examples/homoglyph-attack/config.toml --check-baseline --baseline-path "$BASELINE_TMP"

@@ -79,7 +79,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[2:20]` `[CLICK]` Run the check-baseline demo step from `demo.sh`
 
-`[2:21]` `[VO]` Here — high severity, a tool description was tampered with. Medium, a new tool appeared that wasn't there yesterday. Low, a tool vanished. First CLI implementation of tool-description pinning.
+`[2:21]` `[VO]` Two severity tiers fire at once: high — a tool description was tampered with; low — a tool that was in your trusted baseline has vanished. The doctor tells you exactly which tool, which change, and what to do. First CLI implementation of tool-description pinning.
 
 `[2:40]` `[VO]` The server you trusted on Monday is not the server you're running on Friday.
 

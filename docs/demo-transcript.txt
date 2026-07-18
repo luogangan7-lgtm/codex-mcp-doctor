@@ -44,7 +44,7 @@ $ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
      ℹ️  [probe_skipped] Skipping connectivity probe due to config errors above.
 
   ❌ broken-env  🔴 0.0
-     transport: stdio  |  0 tools (24ms)
+     transport: stdio  |  0 tools (23ms)
      ❌ [process_crashed] Server process exited with code 1.
         → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
         stderr: python3: No module named my_missing_mcp_server
@@ -95,7 +95,7 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
   Servers: 1 total  ✅ 0 healthy  ⚠️  1 warnings  🟡 avg score 50.0
 
   ⚠️  poisoned-fs  🟡 50.0
-     transport: stdio  |  1 tools (40ms)
+     transport: stdio  |  1 tools (27ms)
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
      tools: filеsystem_read
@@ -126,7 +126,7 @@ Baseline contents:
 }
 Step 2 — simulate the attack. The server silently changes its tool's description.
 We corrupt the stored hash to represent a tampered description, then re-check:
-  → baseline hash corrupted (simulating server-side description mutation)
+  → baseline mutated: real tool hash flipped (high), ghost tool injected (low)
 
 Step 3 — re-check against the baseline. The doctor must flag E003 rug-pull:
 $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --check-baseline --baseline-path /tmp/baseline.json
@@ -142,12 +142,15 @@ $ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml --che
      server: poisoned-fs v0.1.0
      protocol: 2024-11-05 [no capabilities]
      tools: filеsystem_read
-     security: 🔴 2 high
+     security: 🔴 2 high, 🟡 1 low
        🔴 [W022] Tool 'filеsystem_read' contains mixed-script word 'filеsystem_read' with Cyrillic lookalikes (U+0435). Normalizes to 'filesystem_read'.
           evidence: filеsystem_read
           → fix: Replace Cyrillic lookalike characters with their ASCII equivalents in tool names and descriptions.
        🔴 [E003] Tool 'poisoned-fs:filеsystem_read' description changed since the last baseline - possible rug-pull. Re-run with --save-baseline only after verifying the new description is safe.
           evidence: description hash mismatch
+          → fix: Verify the tool description change is intentional. Re-run --save-baseline after confirming safety.
+       🟡 [E003] Tool 'poisoned-fs:__ghost_tool_never_existed__' was removed since the last baseline.
+          evidence: tool removed
           → fix: Verify the tool description change is intentional. Re-run --save-baseline after confirming safety.
 
 ================================================================
@@ -205,7 +208,7 @@ $ python3 scripts/doctor.py --config examples/broken-stdio/config.toml --debug
      ℹ️  [probe_skipped] Skipping connectivity probe due to config errors above.
 
   ❌ broken-env  🔴 0.0
-     transport: stdio  |  0 tools (26ms)
+     transport: stdio  |  0 tools (22ms)
      ❌ [process_crashed] Server process exited with code 1.
         → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
         stderr: python3: No module named my_missing_mcp_server
