@@ -149,6 +149,7 @@ class DiagnosticsReport:
                 "total_issues": self.total_issues,
                 "avg_health_score": avg_score,
             },
+            "health_score": avg_score,
             "config_errors": self.config_errors,
             "servers": [s.to_dict() for s in self.servers],
         }
@@ -219,22 +220,22 @@ def validate_codex_config_fields(name: str, cfg: dict) -> list[dict]:
     if startup_timeout is not None:
         if not isinstance(startup_timeout, (int, float)) or isinstance(startup_timeout, bool):
             issues.append({
-                "level": "warning",
-                "type": "invalid_startup_timeout",
+                "severity": "warning",
+                "code": "invalid_startup_timeout",
                 "message": f"startup_timeout_sec must be a number, got {type(startup_timeout).__name__}.",
                 "fix": "Use: startup_timeout_sec = 10",
             })
         elif startup_timeout < 1:
             issues.append({
-                "level": "warning",
-                "type": "startup_timeout_too_low",
+                "severity": "warning",
+                "code": "startup_timeout_too_low",
                 "message": f"startup_timeout_sec={startup_timeout} is very low; slow servers may not finish initializing.",
                 "fix": "Use at least 5s for servers that fetch remote resources at startup.",
             })
         elif startup_timeout > 120:
             issues.append({
-                "level": "warning",
-                "type": "startup_timeout_very_high",
+                "severity": "warning",
+                "code": "startup_timeout_very_high",
                 "message": f"startup_timeout_sec={startup_timeout} is very high; a stuck server will block Codex startup for {startup_timeout}s.",
                 "fix": "Most servers start in <10s. Investigate why this server needs so long.",
             })
@@ -244,15 +245,15 @@ def validate_codex_config_fields(name: str, cfg: dict) -> list[dict]:
     if tool_timeout is not None:
         if not isinstance(tool_timeout, (int, float)) or isinstance(tool_timeout, bool):
             issues.append({
-                "level": "warning",
-                "type": "invalid_tool_timeout",
+                "severity": "warning",
+                "code": "invalid_tool_timeout",
                 "message": f"tool_timeout_sec must be a number, got {type(tool_timeout).__name__}.",
                 "fix": "Use: tool_timeout_sec = 60",
             })
         elif tool_timeout < 5:
             issues.append({
-                "level": "warning",
-                "type": "tool_timeout_too_low",
+                "severity": "warning",
+                "code": "tool_timeout_too_low",
                 "message": f"tool_timeout_sec={tool_timeout} is very low; tools doing I/O (DB, network, file ops) may get killed mid-execution.",
                 "fix": "Use at least 30s for tools that touch the network or filesystem.",
             })
@@ -268,8 +269,8 @@ def validate_codex_config_fields(name: str, cfg: dict) -> list[dict]:
                     var_name = var_name[1:-1]
                 if var_name and var_name not in os.environ:
                     issues.append({
-                        "level": "warning",
-                        "type": "env_var_not_set",
+                        "severity": "warning",
+                        "code": "env_var_not_set",
                         "message": f"env.{env_key}={env_val} but environment variable '{var_name}' is not set in your shell.",
                         "fix": f"Export {var_name} in your shell profile, or replace with the literal value.",
                     })
@@ -300,8 +301,8 @@ def _check_http_auth_headers(name: str, cfg: dict) -> list[dict]:
         has_bearer = "bearer_token" in cfg or "bearer_token_env_var" in cfg
         if not has_bearer:
             issues.append({
-                "level": "warning",
-                "type": "missing_auth_header",
+                "severity": "warning",
+                "code": "missing_auth_header",
                 "message": f"HTTP server URL looks like an API endpoint but no Authorization header or bearer_token is set.",
                 "fix": "Add [mcp_servers." + name + ".http_headers] with Authorization header, or use bearer_token or bearer_token_env_var.",
             })
@@ -315,8 +316,8 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
 
     if not cmd:
         issues.append({
-            "level": "error",
-            "type": "missing_command",
+            "severity": "error",
+            "code": "missing_command",
             "message": f"No 'command' field - stdio server needs an executable path.",
             "fix": f"Add: command = \"/path/to/your/mcp-server\" under [mcp_servers.{name}]",
         })
@@ -325,15 +326,15 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
     if os.path.isabs(cmd):
         if not os.path.exists(cmd):
             issues.append({
-                "level": "error",
-                "type": "command_not_found",
+                "severity": "error",
+                "code": "command_not_found",
                 "message": f"Command path does not exist: {cmd}",
                 "fix": f"Verify the path or reinstall the MCP server. Check if the binary moved.",
             })
         elif not os.access(cmd, os.X_OK):
             issues.append({
-                "level": "error",
-                "type": "command_not_executable",
+                "severity": "error",
+                "code": "command_not_executable",
                 "message": f"Command exists but is not executable: {cmd}",
                 "fix": f"Run: chmod +x \"{cmd}\"",
             })
@@ -341,8 +342,8 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
         resolved = shutil.which(cmd)
         if not resolved:
             issues.append({
-                "level": "error",
-                "type": "command_not_on_path",
+                "severity": "error",
+                "code": "command_not_on_path",
                 "message": f"Command '{cmd}' not found on PATH.",
                 "fix": f"Install the package, or use an absolute path. Current PATH dirs checked.",
             })
@@ -350,8 +351,8 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
     args = cfg.get("args")
     if args is not None and not isinstance(args, list):
         issues.append({
-            "level": "error",
-            "type": "invalid_args",
+            "severity": "error",
+            "code": "invalid_args",
             "message": f"'args' must be a list of strings, got {type(args).__name__}.",
             "fix": f"Use: args = [\"--flag\", \"value\"]",
         })
@@ -359,8 +360,8 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
     cwd = cfg.get("cwd")
     if cwd and not os.path.exists(os.path.expanduser(cwd)):
         issues.append({
-            "level": "warning",
-            "type": "cwd_missing",
+            "severity": "warning",
+            "code": "cwd_missing",
             "message": f"'cwd' directory does not exist: {cwd}",
             "fix": f"Create the directory or remove the cwd field.",
         })
@@ -380,8 +381,8 @@ def validate_http_config(name: str, cfg: dict) -> list[dict]:
 
     if not url:
         issues.append({
-            "level": "error",
-            "type": "missing_url",
+            "severity": "error",
+            "code": "missing_url",
             "message": f"No 'url' field - HTTP server needs an endpoint URL.",
             "fix": f"Add: url = \"https://your-server.com/mcp\" under [mcp_servers.{name}]",
         })
@@ -390,15 +391,15 @@ def validate_http_config(name: str, cfg: dict) -> list[dict]:
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         issues.append({
-            "level": "error",
-            "type": "invalid_scheme",
+            "severity": "error",
+            "code": "invalid_scheme",
             "message": f"URL scheme '{parsed.scheme}' is not http/https.",
             "fix": f"Use: url = \"https://...\" or \"http://...\"",
         })
     if not parsed.netloc:
         issues.append({
-            "level": "error",
-            "type": "invalid_url",
+            "severity": "error",
+            "code": "invalid_url",
             "message": f"URL has no host: {url}",
             "fix": "Provide a valid URL with host and path.",
         })
@@ -468,8 +469,8 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
         if not probe.tools and proc.returncode != 0:
             stderr_text = stderr_data.decode(errors="replace").strip()
             issues.append({
-                "level": "error",
-                "type": "process_crashed",
+                "severity": "error",
+                "code": "process_crashed",
                 "message": f"Server process exited with code {proc.returncode}.",
                 "stderr": stderr_text[:500],
                 "fix": _guess_fix_from_stderr(stderr_text),
@@ -477,8 +478,8 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
         elif not probe.tools:
             stderr_text = stderr_data.decode(errors="replace").strip()
             issues.append({
-                "level": "warning",
-                "type": "no_tools_returned",
+                "severity": "warning",
+                "code": "no_tools_returned",
                 "message": "Server responded but returned 0 tools.",
                 "stderr": stderr_text[:300],
                 "fix": "The server may be misconfigured internally. Check its logs.",
@@ -491,8 +492,8 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
             proc.kill()
             proc.communicate()
         issues.append({
-            "level": "error",
-            "type": "timeout",
+            "severity": "error",
+            "code": "timeout",
             "message": f"Server did not respond within {timeout}s.",
             "fix": "Check if the server is waiting on a resource (DB, network, auth) or increase startup_timeout_sec.",
         })
@@ -500,8 +501,8 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
 
     except FileNotFoundError:
         issues.append({
-            "level": "error",
-            "type": "command_not_found",
+            "severity": "error",
+            "code": "command_not_found",
             "message": f"Cannot execute: {cmd}",
             "fix": "Verify the command path or install the MCP server.",
         })
@@ -509,8 +510,8 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
 
     except Exception as e:
         issues.append({
-            "level": "error",
-            "type": "probe_failed",
+            "severity": "error",
+            "code": "probe_failed",
             "message": f"Unexpected error during probe: {type(e).__name__}: {e}",
             "fix": "Check server compatibility with MCP protocol.",
         })
@@ -530,6 +531,17 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
     headers.update(http_headers)
     headers.setdefault("User-Agent", "codex-mcp-doctor/1.1")
 
+    # Codex supports bearer_token / bearer_token_env_var as shorthand for
+    # http_headers.Authorization. Resolve them so the probe authenticates.
+    if "Authorization" not in headers:
+        bearer = cfg.get("bearer_token")
+        if bearer is None and cfg.get("bearer_token_env_var"):
+            bearer = os.environ.get(cfg["bearer_token_env_var"])
+            if bearer is None:
+                bearer = os.environ.get(cfg["bearer_token_env_var"].lstrip("$"))
+        if bearer:
+            headers["Authorization"] = f"Bearer {bearer}"
+
     parsed = urlparse(url)
     hostname = parsed.hostname or ""
     if hostname:
@@ -537,8 +549,8 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
             socket.getaddrinfo(hostname, None)
         except socket.gaierror:
             issues.append({
-                "level": "error",
-                "type": "dns_failure",
+                "severity": "error",
+                "code": "dns_failure",
                 "message": f"DNS resolution failed for {hostname}.",
                 "fix": "Check the URL hostname for typos, or your DNS/network.",
             })
@@ -547,13 +559,17 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
     try:
         t0 = time.monotonic()
 
+        def remaining() -> float:
+            """Remaining time budget so sequential RPCs share one timeout."""
+            return max(1.0, timeout - (time.monotonic() - t0))
+
         init_resp = _http_rpc(url, "initialize", {
             "protocolVersion": "2025-11-25",
             "capabilities": {},
             "clientInfo": {"name": "mcp-doctor", "version": "1.1.0"},
-        }, headers, timeout)
+        }, headers, remaining())
 
-        _http_notify(url, "notifications/initialized", {}, headers, timeout)
+        _http_notify(url, "notifications/initialized", {}, headers, remaining())
 
         probe = ProbeResult()
         init_result = init_resp.get("result", {})
@@ -562,12 +578,12 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
         probe.capabilities = init_result.get("capabilities", {}) if isinstance(init_result.get("capabilities"), dict) else {}
 
         # tools/list
-        tools_resp = _http_rpc(url, "tools/list", {}, headers, timeout)
+        tools_resp = _http_rpc(url, "tools/list", {}, headers, remaining())
         probe.tools = _extract_items_from_rpc(tools_resp, "tools")
 
         # resources/list (best-effort - not all servers support it)
         try:
-            res_resp = _http_rpc(url, "resources/list", {}, headers, timeout)
+            res_resp = _http_rpc(url, "resources/list", {}, headers, remaining())
             probe.resources = _extract_items_from_rpc(res_resp, "resources")
         except urllib.error.HTTPError as e:
             if e.code not in (400, 404, 405, 501):
@@ -577,7 +593,7 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
 
         # prompts/list (best-effort)
         try:
-            pr_resp = _http_rpc(url, "prompts/list", {}, headers, timeout)
+            pr_resp = _http_rpc(url, "prompts/list", {}, headers, remaining())
             probe.prompts = _extract_items_from_rpc(pr_resp, "prompts")
         except urllib.error.HTTPError as e:
             if e.code not in (400, 404, 405, 501):
@@ -589,8 +605,8 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
 
         if not probe.tools:
             issues.append({
-                "level": "warning",
-                "type": "no_tools_returned",
+                "severity": "warning",
+                "code": "no_tools_returned",
                 "message": "Server connected but returned 0 tools.",
                 "fix": "The server may be starting up or misconfigured. Retry or check server logs.",
             })
@@ -606,16 +622,16 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
             pass
         if e.code in (401, 403):
             issues.append({
-                "level": "error",
-                "type": "auth_failed",
+                "severity": "error",
+                "code": "auth_failed",
                 "message": f"Authentication failed: HTTP {e.code}.",
                 "body": body,
                 "fix": f"Check http_headers - your API key or Bearer token may be invalid or expired.",
             })
         else:
             issues.append({
-                "level": "error",
-                "type": "http_error",
+                "severity": "error",
+                "code": "http_error",
                 "message": f"HTTP {e.code}: {e.reason}",
                 "body": body,
                 "fix": f"The server is reachable but returned an error. Check the URL and server health.",
@@ -629,36 +645,36 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
             host = parsed.hostname
             port = parsed.port or (443 if parsed.scheme == "https" else 80)
             issues.append({
-                "level": "error",
-                "type": "connection_refused",
+                "severity": "error",
+                "code": "connection_refused",
                 "message": f"Connection refused to {host}:{port}.",
                 "fix": f"The server is not running or not listening on that port. Verify the URL or start the server.",
             })
         elif isinstance(reason, socket.timeout):
             issues.append({
-                "level": "error",
-                "type": "timeout",
+                "severity": "error",
+                "code": "timeout",
                 "message": f"Connection timed out after {timeout}s.",
                 "fix": "The server is unreachable or too slow. Check network/firewall/VPN.",
             })
         elif "Name or service not known" in str(reason) or "nodename nor servname" in str(reason):
             issues.append({
-                "level": "error",
-                "type": "dns_failure",
+                "severity": "error",
+                "code": "dns_failure",
                 "message": f"DNS resolution failed for {parsed.hostname}.",
                 "fix": "Check the URL hostname for typos, or your DNS/network.",
             })
         elif isinstance(reason, ssl.SSLError) or "SSL" in str(reason):
             issues.append({
-                "level": "error",
-                "type": "ssl_error",
+                "severity": "error",
+                "code": "ssl_error",
                 "message": f"SSL/TLS error: {reason}",
                 "fix": "The server may not support HTTPS, has an invalid certificate, or is not actually an HTTPS endpoint. Try http:// if appropriate, or check the certificate.",
             })
         else:
             issues.append({
-                "level": "error",
-                "type": "connection_error",
+                "severity": "error",
+                "code": "connection_error",
                 "message": f"Connection error: {reason}",
                 "fix": "Check network connectivity, URL, and server status.",
             })
@@ -666,8 +682,8 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
 
     except Exception as e:
         issues.append({
-            "level": "error",
-            "type": "probe_failed",
+            "severity": "error",
+            "code": "probe_failed",
             "message": f"Unexpected error: {type(e).__name__}: {e}",
             "fix": "Check server compatibility or report a bug.",
         })
@@ -924,6 +940,7 @@ def schema_issues_to_dicts(issues: list[ToolSchemaIssue]) -> list[dict]:
             "tool": i.tool,
             "severity": i.severity,
             "kind": i.kind,
+            "code": i.kind,
             "message": i.message,
             "fix": i.fix,
         }
@@ -1230,9 +1247,9 @@ def compute_health_score(server: ServerResult) -> float:
         # deduct per error/warning so the score is meaningful, not a misleading 0.
         score = 100.0
         for i in server.issues:
-            if i.get("level") == "error":
+            if i.get("severity") == "error":
                 score -= 25.0
-            elif i.get("level") == "warning":
+            elif i.get("severity") == "warning":
                 score -= 10.0
         # Security findings on unprobed servers come from config-layer checks
         # (e.g. plaintext secrets). Apply the same caps as probed servers.
@@ -1355,14 +1372,14 @@ def diagnose(
             issues.extend(validate_http_config(name, cfg))
         else:
             issues.append({
-                "level": "error",
-                "type": "unknown_transport",
+                "severity": "error",
+                "code": "unknown_transport",
                 "message": "Cannot determine transport: neither 'command' nor 'url' is set.",
                 "fix": f"Add either command=\"...\" (stdio) or url=\"...\" (http) under [mcp_servers.{name}]",
             })
 
         # L1: connectivity probe
-        has_config_error = any(i["level"] == "error" for i in issues)
+        has_config_error = any(i["severity"] == "error" for i in issues)
         probe = ProbeResult()
         latency: float | None = None
         run_probe = (
@@ -1381,8 +1398,8 @@ def diagnose(
             issues.extend(probe_issues)
         elif has_config_error:
             issues.append({
-                "level": "info",
-                "type": "probe_skipped",
+                "severity": "info",
+                "code": "probe_skipped",
                 "message": "Skipping connectivity probe due to config errors above.",
             })
 
@@ -1400,8 +1417,8 @@ def diagnose(
                 tool_security_issues.extend(validate_tool_security(tool))
 
         # Determine overall status
-        error_count = sum(1 for i in issues if i["level"] == "error")
-        warning_count = sum(1 for i in issues if i["level"] == "warning")
+        error_count = sum(1 for i in issues if i["severity"] == "error")
+        warning_count = sum(1 for i in issues if i["severity"] == "warning")
         schema_error_count = sum(1 for i in schema_issues_raw if i.severity == "error")
         schema_warning_count = sum(1 for i in schema_issues_raw if i.severity == "warning")
 
@@ -1500,8 +1517,8 @@ def diagnose(
 
     # Aggregate
     for s in report.servers:
-        error_count = sum(1 for i in s.issues if i["level"] == "error")
-        warning_count = sum(1 for i in s.issues if i["level"] == "warning")
+        error_count = sum(1 for i in s.issues if i["severity"] == "error")
+        warning_count = sum(1 for i in s.issues if i["severity"] == "warning")
         sec_crit = sum(1 for i in s.security_issues if i.get("severity") == "critical")
         sec_high = sum(1 for i in s.security_issues if i.get("severity") == "high")
         sec_med = sum(1 for i in s.security_issues if i.get("severity") == "medium")
@@ -1685,8 +1702,8 @@ def format_report_human(report: DiagnosticsReport) -> str:
                 lines.append(f"       ... +{len(s.security_issues) - 8} more security issues")
 
         for issue in s.issues:
-            level = issue["level"]
-            itype = issue["type"]
+            level = issue["severity"]
+            itype = issue["code"]
             msg = issue["message"]
             fix = issue.get("fix", "")
             level_icon = {"error": "❌", "warning": "⚠️ ", "info": "ℹ️ "}.get(level, "•")
@@ -1807,8 +1824,8 @@ def check_supply_chain(name: str, cfg: dict) -> list[dict]:
         if ":" in pkg and not pkg.endswith(":latest"):
             return issues  # has a concrete tag
         issues.append({
-            "level": "warning",
-            "type": "unpinned_docker_image",
+            "severity": "warning",
+            "code": "unpinned_docker_image",
             "message": f"Server '{name}' runs docker image '{pkg}' without a digest pin (@sha256:...).",
             "fix": f"Pin with a digest: {pkg}@sha256:<digest>, or at minimum a specific :tag (not :latest).",
         })
@@ -1817,8 +1834,8 @@ def check_supply_chain(name: str, cfg: dict) -> list[dict]:
     # npm-ish: flag if no @version, or @latest/@next/@*
     if _UNPINNED_TAG_RE.search(pkg):
         issues.append({
-            "level": "warning",
-            "type": "unpinned_package",
+            "severity": "warning",
+            "code": "unpinned_package",
             "message": f"Server '{name}' uses '{pkg}' - rolling tag, not pinned to a version.",
             "fix": f"Pin to a concrete version, e.g. {pkg.split('@')[0]}@1.2.3.",
         })
@@ -1826,8 +1843,8 @@ def check_supply_chain(name: str, cfg: dict) -> list[dict]:
         # bare package name, no version at all
         bare = pkg.lstrip("@")
         issues.append({
-            "level": "warning",
-            "type": "unpinned_package",
+            "severity": "warning",
+            "code": "unpinned_package",
             "message": f"Server '{name}' uses '{pkg}' without a version pin.",
             "fix": f"Pin to a concrete version, e.g. {bare}@1.2.3, so a republished "
                    f"package can't silently change behavior.",
@@ -1882,8 +1899,8 @@ def check_config_secrets(name: str, cfg: dict) -> list[dict]:
         for k, v in env.items():
             if _looks_like_secret(str(v)):
                 issues.append({
-                    "level": "warning",
-                    "type": "plaintext_secret_env",
+                    "severity": "warning",
+                    "code": "plaintext_secret_env",
                     "message": f"Server '{name}' has a hardcoded secret in env['{k}'].",
                     "fix": f"Move it to an environment variable: reference $YOUR_SECRET_VAR from config and export YOUR_SECRET_VAR in your shell."
                 })
@@ -1894,20 +1911,19 @@ def check_config_secrets(name: str, cfg: dict) -> list[dict]:
         for hk, hv in headers.items():
             if _looks_like_secret(str(hv)):
                 issues.append({
-                    "level": "warning",
-                    "type": "plaintext_secret_header",
+                    "severity": "warning",
+                    "code": "plaintext_secret_header",
                     "message": f"Server '{name}' has a hardcoded secret in http_headers['{hk}'].",
-                    "fix": f"Codex doesn't resolve $VAR in http_headers; either keep the token in a "
-                           f"secrets manager, or accept the risk. At minimum, ensure config.toml is "
-                           f"not committed to version control.",
+                    "fix": "Prefer bearer_token_env_var (Codex resolves $VAR at launch) over a literal "
+                           "token in http_headers; if you must inline, ensure config.toml is gitignored.",
                 })
 
     # URL with embedded credentials
     url = str(cfg.get("url", ""))
     if url and _EMBEDDED_CREDS_RE.search(url):
         issues.append({
-            "level": "warning",
-            "type": "embedded_url_credentials",
+            "severity": "warning",
+            "code": "embedded_url_credentials",
             "message": f"Server '{name}' URL contains embedded credentials (user:pass@host).",
             "fix": "Remove credentials from the URL; pass them via http_headers instead.",
         })
@@ -1926,16 +1942,16 @@ def latency_issue(latency_ms: float | None) -> dict | None:
         return None
     if latency_ms >= LATENCY_ERROR_MS:
         return {
-            "level": "warning",  # keep as warning so it doesn't hard-fail the server
-            "type": "high_latency",
+            "severity": "warning",  # keep as warning so it doesn't hard-fail the server
+            "code": "high_latency",
             "message": f"Probe latency {latency_ms:.0f}ms is very high (>{LATENCY_ERROR_MS:.0f}ms).",
             "fix": "Check network path, server load, or whether the server does heavy work "
                    "(e.g. embedding) during listing.",
         }
     if latency_ms >= LATENCY_WARN_MS:
         return {
-            "level": "info",
-            "type": "elevated_latency",
+            "severity": "info",
+            "code": "elevated_latency",
             "message": f"Probe latency {latency_ms:.0f}ms is elevated (>{LATENCY_WARN_MS:.0f}ms).",
             "fix": "Usually harmless for servers that compute embeddings on first call.",
         }

@@ -85,15 +85,15 @@ class TestConfigValidation(unittest.TestCase):
 
     def test_missing_command(self):
         issues = doctor.validate_stdio_config("test", {})
-        self.assertTrue(any(i["type"] == "missing_command" for i in issues))
+        self.assertTrue(any(i["code"] == "missing_command" for i in issues))
 
     def test_command_not_found_abs(self):
         issues = doctor.validate_stdio_config("test", {"command": "/nonexistent/path"})
-        self.assertTrue(any(i["type"] == "command_not_found" for i in issues))
+        self.assertTrue(any(i["code"] == "command_not_found" for i in issues))
 
     def test_command_not_on_path(self):
         issues = doctor.validate_stdio_config("test", {"command": "this-does-not-exist-xyz"})
-        self.assertTrue(any(i["type"] == "command_not_on_path" for i in issues))
+        self.assertTrue(any(i["code"] == "command_not_on_path" for i in issues))
 
     def test_command_on_path(self):
         issues = doctor.validate_stdio_config("test", {"command": "echo"})
@@ -101,15 +101,15 @@ class TestConfigValidation(unittest.TestCase):
 
     def test_invalid_args_type(self):
         issues = doctor.validate_stdio_config("test", {"command": "echo", "args": "notalist"})
-        self.assertTrue(any(i["type"] == "invalid_args" for i in issues))
+        self.assertTrue(any(i["code"] == "invalid_args" for i in issues))
 
     def test_missing_url(self):
         issues = doctor.validate_http_config("test", {})
-        self.assertTrue(any(i["type"] == "missing_url" for i in issues))
+        self.assertTrue(any(i["code"] == "missing_url" for i in issues))
 
     def test_invalid_scheme(self):
         issues = doctor.validate_http_config("test", {"url": "ftp://example.com"})
-        self.assertTrue(any(i["type"] == "invalid_scheme" for i in issues))
+        self.assertTrue(any(i["code"] == "invalid_scheme" for i in issues))
 
     def test_valid_url(self):
         issues = doctor.validate_http_config("test", {
@@ -224,13 +224,13 @@ class TestHealthScoring(unittest.TestCase):
     def test_no_tools_with_warning_scores_90(self):
         """Unprobed server with one config warning loses 10 points."""
         s = self._make_server(doctor.WARNING, tools=[])
-        s.issues = [{"level": "warning", "type": "x", "message": "m"}]
+        s.issues = [{"severity": "warning", "code": "x", "message": "m"}]
         self.assertEqual(doctor.compute_health_score(s), 90.0)
 
     def test_no_tools_with_error_scores_75(self):
         """Unprobed server with one config error loses 25 points."""
         s = self._make_server(doctor.WARNING, tools=[])
-        s.issues = [{"level": "error", "type": "x", "message": "m"}]
+        s.issues = [{"severity": "error", "code": "x", "message": "m"}]
         self.assertEqual(doctor.compute_health_score(s), 75.0)
 
     def test_error_scores_0(self):
@@ -358,7 +358,7 @@ class TestStdioProbeIntegration(unittest.TestCase):
     def test_probe_nonexistent_command(self):
         cfg = {"command": "/nonexistent/binary"}
         probe, issues, latency = doctor.probe_stdio(cfg, timeout=5.0)
-        self.assertTrue(any(i["type"] == "command_not_found" for i in issues))
+        self.assertTrue(any(i["code"] == "command_not_found" for i in issues))
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -422,6 +422,7 @@ class TestHttpProbeIntegration(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.server.shutdown()
+        cls.server.server_close()
 
     def test_probe_mock_http(self):
         cfg = {"url": f"http://127.0.0.1:{self.port}/mcp"}
@@ -440,7 +441,61 @@ class TestHttpProbeIntegration(unittest.TestCase):
         s.close()
         cfg = {"url": f"http://127.0.0.1:{closed_port}/mcp"}
         probe, issues, latency = doctor.probe_http(cfg, timeout=3.0)
-        self.assertTrue(any(i["type"] in ("connection_refused", "connection_error") for i in issues))
+        self.assertTrue(any(i["code"] in ("connection_refused", "connection_error") for i in issues))
+
+
+class TestBearerTokenResolution(unittest.TestCase):
+    """bearer_token / bearer_token_env_var should authenticate the HTTP probe."""
+
+    def test_bearer_token_sets_authorization_header(self):
+        """probe_http should resolve bearer_token into an Authorization: Bearer header."""
+        # Use the mock HTTP server from TestHttpProbeIntegration via a capture handler
+        captured = {}
+
+        class CaptureHandler(MockMcpHttpHandler):
+            def do_POST(self):
+                captured['auth'] = self.headers.get('Authorization')
+                super().do_POST()
+
+        server = HTTPServer(("127.0.0.1", 0), CaptureHandler)
+        port = server.server_address[1]
+        t = threading.Thread(target=server.serve_forever, daemon=True)
+        t.start()
+        time.sleep(0.1)
+        try:
+            cfg = {"url": f"http://127.0.0.1:{port}/mcp", "bearer_token": "sk-test-123"}
+            probe, issues, latency = doctor.probe_http(cfg, timeout=5.0)
+            self.assertEqual(captured.get('auth'), 'Bearer sk-test-123')
+            self.assertEqual(len(issues), 0)
+        finally:
+            server.shutdown()
+            server.server_close()
+
+    def test_bearer_token_env_var_resolves(self):
+        """bearer_token_env_var should read from environment."""
+        import os
+        os.environ['DOCTOR_TEST_TOKEN'] = 'tok_from_env'
+        try:
+            captured = {}
+
+            class CaptureHandler(MockMcpHttpHandler):
+                def do_POST(self):
+                    captured['auth'] = self.headers.get('Authorization')
+                    super().do_POST()
+
+            server = HTTPServer(("127.0.0.1", 0), CaptureHandler)
+            port = server.server_address[1]
+            t = threading.Thread(target=server.serve_forever, daemon=True)
+            t.start()
+            time.sleep(0.1)
+            try:
+                cfg = {"url": f"http://127.0.0.1:{port}/mcp", "bearer_token_env_var": "DOCTOR_TEST_TOKEN"}
+                probe, issues, latency = doctor.probe_http(cfg, timeout=5.0)
+                self.assertEqual(captured.get('auth'), 'Bearer tok_from_env')
+            finally:
+                server.shutdown()
+        finally:
+            del os.environ['DOCTOR_TEST_TOKEN']
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -655,30 +710,30 @@ class TestCodexConfigFields(unittest.TestCase):
 
     def test_startup_timeout_too_low(self):
         issues = doctor.validate_codex_config_fields("test", {"startup_timeout_sec": 0.5})
-        self.assertTrue(any(i["type"] == "startup_timeout_too_low" for i in issues))
+        self.assertTrue(any(i["code"] == "startup_timeout_too_low" for i in issues))
 
     def test_startup_timeout_very_high(self):
         issues = doctor.validate_codex_config_fields("test", {"startup_timeout_sec": 300})
-        self.assertTrue(any(i["type"] == "startup_timeout_very_high" for i in issues))
+        self.assertTrue(any(i["code"] == "startup_timeout_very_high" for i in issues))
 
     def test_startup_timeout_valid(self):
         issues = doctor.validate_codex_config_fields("test", {"startup_timeout_sec": 15})
-        self.assertFalse(any("startup_timeout" in i["type"] for i in issues))
+        self.assertFalse(any("startup_timeout" in i["code"] for i in issues))
 
     def test_startup_timeout_invalid_type(self):
         issues = doctor.validate_codex_config_fields("test", {"startup_timeout_sec": "fast"})
-        self.assertTrue(any(i["type"] == "invalid_startup_timeout" for i in issues))
+        self.assertTrue(any(i["code"] == "invalid_startup_timeout" for i in issues))
 
     def test_tool_timeout_too_low(self):
         issues = doctor.validate_codex_config_fields("test", {"tool_timeout_sec": 2})
-        self.assertTrue(any(i["type"] == "tool_timeout_too_low" for i in issues))
+        self.assertTrue(any(i["code"] == "tool_timeout_too_low" for i in issues))
 
     def test_env_var_not_set(self):
         """env.FOO=$NONEXISTENT_VAR should warn."""
         issues = doctor.validate_codex_config_fields("test", {
             "env": {"API_KEY": "$THIS_VAR_DEFINITELY_DOES_NOT_EXIST_12345"}
         })
-        self.assertTrue(any(i["type"] == "env_var_not_set" for i in issues))
+        self.assertTrue(any(i["code"] == "env_var_not_set" for i in issues))
 
     def test_env_var_set(self):
         """env referencing a real env var should not warn."""
@@ -687,7 +742,7 @@ class TestCodexConfigFields(unittest.TestCase):
             issues = doctor.validate_codex_config_fields("test", {
                 "env": {"TOKEN": "$MCP_TEST_REAL_VAR"}
             })
-            self.assertFalse(any(i["type"] == "env_var_not_set" for i in issues))
+            self.assertFalse(any(i["code"] == "env_var_not_set" for i in issues))
         finally:
             del os.environ["MCP_TEST_REAL_VAR"]
 
@@ -696,7 +751,7 @@ class TestCodexConfigFields(unittest.TestCase):
         issues = doctor.validate_codex_config_fields("test", {
             "env": {"DEBUG": "true", "PORT": "8080"}
         })
-        self.assertFalse(any(i["type"] == "env_var_not_set" for i in issues))
+        self.assertFalse(any(i["code"] == "env_var_not_set" for i in issues))
 
 
 class TestAuthHeaderCheck(unittest.TestCase):
@@ -706,33 +761,33 @@ class TestAuthHeaderCheck(unittest.TestCase):
         issues = doctor._check_http_auth_headers("test", {
             "url": "https://api.example.com/v1/mcp",
         })
-        self.assertTrue(any(i["type"] == "missing_auth_header" for i in issues))
+        self.assertTrue(any(i["code"] == "missing_auth_header" for i in issues))
 
     def test_https_api_with_auth_header_ok(self):
         issues = doctor._check_http_auth_headers("test", {
             "url": "https://api.example.com/v1/mcp",
             "http_headers": {"Authorization": "Bearer tok_123"},
         })
-        self.assertFalse(any(i["type"] == "missing_auth_header" for i in issues))
+        self.assertFalse(any(i["code"] == "missing_auth_header" for i in issues))
 
     def test_https_api_with_bearer_token_ok(self):
         issues = doctor._check_http_auth_headers("test", {
             "url": "https://api.example.com/mcp",
             "bearer_token": "tok_123",
         })
-        self.assertFalse(any(i["type"] == "missing_auth_header" for i in issues))
+        self.assertFalse(any(i["code"] == "missing_auth_header" for i in issues))
 
     def test_plain_http_no_warning(self):
         issues = doctor._check_http_auth_headers("test", {
             "url": "http://localhost:3000",
         })
-        self.assertFalse(any(i["type"] == "missing_auth_header" for i in issues))
+        self.assertFalse(any(i["code"] == "missing_auth_header" for i in issues))
 
     def test_non_api_https_no_warning(self):
         issues = doctor._check_http_auth_headers("test", {
             "url": "https://example.com/",
         })
-        self.assertFalse(any(i["type"] == "missing_auth_header" for i in issues))
+        self.assertFalse(any(i["code"] == "missing_auth_header" for i in issues))
 
 
 class TestCapabilitiesDisplay(unittest.TestCase):
@@ -1129,12 +1184,12 @@ class TestSupplyChainNpx(unittest.TestCase):
     def test_unpinned_npx_no_version(self):
         cfg = {"command": "npx", "args": ["-y", "some-mcp-server"]}
         issues = doctor.check_supply_chain("srv", cfg)
-        self.assertTrue(any(i["type"] == "unpinned_package" for i in issues))
+        self.assertTrue(any(i["code"] == "unpinned_package" for i in issues))
 
     def test_unpinned_npx_latest_tag(self):
         cfg = {"command": "npx", "args": ["-y", "pkg@latest"]}
         issues = doctor.check_supply_chain("srv", cfg)
-        self.assertTrue(any(i["type"] == "unpinned_package" for i in issues))
+        self.assertTrue(any(i["code"] == "unpinned_package" for i in issues))
 
     def test_pinned_npx_version_ok(self):
         cfg = {"command": "npx", "args": ["-y", "pkg@1.2.3"]}
@@ -1149,7 +1204,7 @@ class TestSupplyChainNpx(unittest.TestCase):
     def test_scoped_pkg_unpinned_flagged(self):
         cfg = {"command": "npx", "args": ["-y", "@scope/pkg"]}
         issues = doctor.check_supply_chain("srv", cfg)
-        self.assertTrue(any(i["type"] == "unpinned_package" for i in issues))
+        self.assertTrue(any(i["code"] == "unpinned_package" for i in issues))
 
     def test_non_registry_binary_not_flagged(self):
         cfg = {"command": "/usr/bin/python3", "args": ["server.py"]}
@@ -1159,20 +1214,20 @@ class TestSupplyChainNpx(unittest.TestCase):
     def test_uvx_unpinned_flagged(self):
         cfg = {"command": "uvx", "args": ["mcp-server"]}
         issues = doctor.check_supply_chain("srv", cfg)
-        self.assertTrue(any(i["type"] == "unpinned_package" for i in issues))
+        self.assertTrue(any(i["code"] == "unpinned_package" for i in issues))
 
 
 class TestSupplyChainDocker(unittest.TestCase):
     def test_docker_latest_flagged(self):
         cfg = {"command": "docker", "args": ["run", "-i", "img:latest"]}
         issues = doctor.check_supply_chain("srv", cfg)
-        self.assertTrue(any(i["type"] == "unpinned_docker_image" for i in issues))
+        self.assertTrue(any(i["code"] == "unpinned_docker_image" for i in issues))
         self.assertIn("img:latest", issues[0]["message"])
 
     def test_docker_no_tag_flagged(self):
         cfg = {"command": "docker", "args": ["run", "img"]}
         issues = doctor.check_supply_chain("srv", cfg)
-        self.assertTrue(any(i["type"] == "unpinned_docker_image" for i in issues))
+        self.assertTrue(any(i["code"] == "unpinned_docker_image" for i in issues))
 
     def test_docker_sha256_digest_ok(self):
         cfg = {"command": "docker", "args": ["run", "img@sha256:abc123def"]}
@@ -1196,7 +1251,7 @@ class TestConfigSecrets(unittest.TestCase):
     def test_openai_key_in_env_flagged(self):
         cfg = {"env": {"API_KEY": "sk-1234567890abcdefghijklmnop"}}
         issues = doctor.check_config_secrets("srv", cfg)
-        self.assertTrue(any(i["type"] == "plaintext_secret_env" for i in issues))
+        self.assertTrue(any(i["code"] == "plaintext_secret_env" for i in issues))
 
     def test_env_var_reference_not_flagged(self):
         cfg = {"env": {"API_KEY": "$OPENAI_API_KEY"}}
@@ -1211,17 +1266,17 @@ class TestConfigSecrets(unittest.TestCase):
     def test_bearer_in_header_flagged(self):
         cfg = {"http_headers": {"Authorization": "Bearer mos_abcdef0123456789abcdefghij0123456789"}}
         issues = doctor.check_config_secrets("srv", cfg)
-        self.assertTrue(any(i["type"] == "plaintext_secret_header" for i in issues))
+        self.assertTrue(any(i["code"] == "plaintext_secret_header" for i in issues))
 
     def test_aws_key_in_env_flagged(self):
         cfg = {"env": {"AWS": "AKIAIOSFODNN7EXAMPLE"}}
         issues = doctor.check_config_secrets("srv", cfg)
-        self.assertTrue(any(i["type"] == "plaintext_secret_env" for i in issues))
+        self.assertTrue(any(i["code"] == "plaintext_secret_env" for i in issues))
 
     def test_github_token_flagged(self):
         cfg = {"env": {"GH": "ghp_1234567890abcdefghijklmnopqrstuvwxyz"}}
         issues = doctor.check_config_secrets("srv", cfg)
-        self.assertTrue(any(i["type"] == "plaintext_secret_env" for i in issues))
+        self.assertTrue(any(i["code"] == "plaintext_secret_env" for i in issues))
 
     def test_short_value_not_flagged(self):
         cfg = {"env": {"PORT": "8080"}}
@@ -1231,7 +1286,7 @@ class TestConfigSecrets(unittest.TestCase):
     def test_url_embedded_creds_flagged(self):
         cfg = {"url": "https://user:secretpass@host.com/api"}
         issues = doctor.check_config_secrets("srv", cfg)
-        self.assertTrue(any(i["type"] == "embedded_url_credentials" for i in issues))
+        self.assertTrue(any(i["code"] == "embedded_url_credentials" for i in issues))
 
     def test_clean_config_no_secrets(self):
         cfg = {"url": "https://host.com/api", "http_headers": {"X-Custom": "value"}}
@@ -1246,14 +1301,14 @@ class TestLatencyThresholds(unittest.TestCase):
     def test_elevated_latency_info(self):
         i = doctor.latency_issue(6000.0)
         self.assertIsNotNone(i)
-        self.assertEqual(i["level"], "info")
-        self.assertEqual(i["type"], "elevated_latency")
+        self.assertEqual(i["severity"], "info")
+        self.assertEqual(i["code"], "elevated_latency")
 
     def test_high_latency_warning(self):
         i = doctor.latency_issue(20000.0)
         self.assertIsNotNone(i)
-        self.assertEqual(i["level"], "warning")
-        self.assertEqual(i["type"], "high_latency")
+        self.assertEqual(i["severity"], "warning")
+        self.assertEqual(i["code"], "high_latency")
 
     def test_none_latency_no_issue(self):
         self.assertIsNone(doctor.latency_issue(None))
@@ -1261,12 +1316,12 @@ class TestLatencyThresholds(unittest.TestCase):
     def test_boundary_5s_is_info(self):
         i = doctor.latency_issue(5000.0)
         self.assertIsNotNone(i)
-        self.assertEqual(i["level"], "info")
+        self.assertEqual(i["severity"], "info")
 
     def test_boundary_15s_is_warning(self):
         i = doctor.latency_issue(15000.0)
         self.assertIsNotNone(i)
-        self.assertEqual(i["level"], "warning")
+        self.assertEqual(i["severity"], "warning")
 
 
 class TestResourcePromptSecurity(unittest.TestCase):
