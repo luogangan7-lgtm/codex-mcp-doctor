@@ -139,7 +139,7 @@ https://github.com/luogangan7-lgtm/codex-mcp-doctor
 **Pin to the latest release** (recommended for reproducibility — points
 judges at the tag that matches the video). At submission time, check
 https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest
-and use that tag URL. As of this writing: v1.6.19 (will be v1.6.20 if the image-ratio fix gets a tag).
+and use that tag URL. At submission time, the latest release tag will be whichever v1.6.x is current on the releases page.
 ```
 https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest
 ```
@@ -217,7 +217,7 @@ cd codex-mcp-doctor
 /opt/homebrew/bin/python3 tests/test_doctor.py
 
 # 2. Plugin manifest valid
-/opt/homebrew/bin/python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+/opt/homebrew/bin/python3 scripts/validate-plugin.py   # repo's own validator, same one CI runs
 
 # 3. Demo script runs end-to-end
 ./scripts/demo.sh --no-pause

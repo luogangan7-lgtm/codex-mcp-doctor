@@ -36,7 +36,7 @@ python3 tests/test_doctor.py | tail -3
 # Expect: "Ran 287 tests ... OK"
 
 # 2. Plugin manifest valid
-python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+python3 scripts/validate-plugin.py   # repo's own validator
 # Expect: "Plugin validation passed"
 
 # 3. Demo runs end-to-end without prompts

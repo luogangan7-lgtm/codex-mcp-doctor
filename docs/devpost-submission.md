@@ -68,7 +68,7 @@ This project is **100% new work created within the Submission Period** (July 13-
 - **First commit:** 2026-07-18 (48f751c) - initial v1.4.0 release
 - **Total commits during window:** 100+
 - **Commits before July 13:** 0
-- **Evidence:** the full dated commit history at https://github.com/luogangan7-lgtm/codex-mcp-doctor/commits/main shows continuous agent-driven development from initial scaffold through v1.6.18, each commit advancing only after a green test gate.
+- **Evidence:** the full dated commit history at https://github.com/luogangan7-lgtm/codex-mcp-doctor/commits/main shows continuous agent-driven development from initial scaffold through v1.6.21, each commit advancing only after a green test gate.
 
 The dogfooding story is verifiable in the commit log itself: the project uses Codex's own MCP tooling (a shared memory canvas carried state across sessions), and the zero-dependency constraint was enforced via an AST gate that runs on every push.
 ### Design Philosophy
@@ -117,7 +117,7 @@ ready to be called from anywhere MCP is called.
 
 ### What's Next
 
-**Shipped now (v1.6.14):** 8 security check classes (injection, shadowing, rug-pull E003, Cyrillic homoglyph W022, Unicode, supply-chain pinning, plaintext secrets, capability scan), connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
+**Shipped now (v1.6.21):** 7 security check classes (prompt injection E001, tool shadowing E002, hidden Unicode W021, Cyrillic homoglyph W022, rug-pull baseline drift E003, supply-chain pinning, plaintext secrets), connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
 
 **Next 30 days:**
 - **Semantic poisoning detection** — the current regex/pattern layer catches known attack shapes (Cyrillic lookalikes, literal injection phrases). The next layer uses embeddings to catch paraphrased injection and subtly manipulative language that passes lexical matching. This is the difference between catching "ignore previous instructions" and catching a description that is 94% normal and 6% adversarial.
