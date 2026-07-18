@@ -576,6 +576,62 @@ class TestHttpProbeIntegration(unittest.TestCase):
             srv.shutdown(); srv.server_close()
 
 
+
+    def test_probe_sse_transport(self):
+        """HTTP server returning SSE (text/event-stream) frames should be
+        parsed correctly, including notification-before-result ordering."""
+        class SseHandler(MockMcpHttpHandler):
+            def _send_sse(self, frames):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/event-stream")
+                self.end_headers()
+                for frame in frames:
+                    self.wfile.write(f"data: {json.dumps(frame)}\n\n".encode())
+            def do_POST(self):
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length).decode()
+                msg = json.loads(body)
+                method = msg.get("method", "")
+                mid = msg.get("id")
+                if method == "initialize":
+                    # Send a notification BEFORE the result
+                    self._send_sse([
+                        {"jsonrpc": "2.0", "method": "notifications/initialized"},
+                        {"jsonrpc": "2.0", "id": mid, "result": {
+                            "protocolVersion": "2025-03-26",
+                            "serverInfo": {"name": "mock-sse", "version": "2.0"},
+                            "capabilities": {"tools": {}},
+                        }},
+                    ])
+                elif method == "tools/list":
+                    self._send_sse([
+                        {"jsonrpc": "2.0", "id": mid, "result": {"tools": [
+                            {"name": "sse_tool", "description": "SSE test",
+                             "inputSchema": {"type": "object", "properties": {}}},
+                        ]}},
+                    ])
+                elif method == "resources/list":
+                    self._send_sse([{"jsonrpc": "2.0", "id": mid, "result": {"resources": []}}])
+                elif method == "prompts/list":
+                    self._send_sse([{"jsonrpc": "2.0", "id": mid, "result": {"prompts": []}}])
+                else:
+                    self._send_sse([{"jsonrpc": "2.0", "id": mid, "result": {}}])
+        srv = HTTPServer(("127.0.0.1", 0), SseHandler)
+        port = srv.server_address[1]
+        t = threading.Thread(target=srv.serve_forever, daemon=True)
+        t.start()
+        time.sleep(0.1)
+        try:
+            cfg = {"url": f"http://127.0.0.1:{port}/mcp"}
+            probe, issues, latency = doctor.probe_http(cfg, timeout=5.0)
+            self.assertEqual(len(issues), 0, f"Unexpected issues: {issues}")
+            self.assertEqual(len(probe.tools), 1)
+            self.assertEqual(probe.tools[0]["name"], "sse_tool")
+            self.assertEqual(probe.server_info["name"], "mock-sse")
+        finally:
+            srv.shutdown()
+            srv.server_close()
+
 class TestGuessFixFromStderr(unittest.TestCase):
     """_guess_fix_from_stderr should map common patterns to actionable hints."""
 
