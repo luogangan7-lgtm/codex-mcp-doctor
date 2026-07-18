@@ -27,9 +27,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Replaced with low-entropy `TESTFAKE`-marked values that still match
   the doctor's own detection regex.
 
+### Fixed
+
+- **Non-string `cwd` crashes** - `cwd = 42` (int) or `cwd = ["/tmp"]` (list)
+  crashed `os.path.expanduser()` with `TypeError` in both config validation
+  and the stdio probe path. Now returns `invalid_cwd_type` error.
+- **Non-string `env` values** - `env.KEY = 42` (int) warns; `env.KEY = ["a"]`
+  (list) or `env.KEY = {nested = true}` (dict) errors. MCP servers expect
+  string env values; non-string values cause `Popen` env failures.
+- **Non-string `http_headers` values** - `X-Key = 42` (int/list) warns.
+  HTTP headers are always strings.
+
 ### Changed
 
-- 234 tests (was 221).
+- 242 tests (was 234).
 
 ## [1.4.2] - 2026-07-18
 

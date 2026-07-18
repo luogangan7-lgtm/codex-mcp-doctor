@@ -168,6 +168,47 @@ class TestConfigValidation(unittest.TestCase):
         issues = doctor.validate_http_config("x", {"url": True})
         self.assertTrue(any(i["code"] == "invalid_url_type" for i in issues))
 
+    def test_cwd_as_int_rejected(self):
+        """An int-typed cwd must not crash os.path.expanduser."""
+        issues = doctor.validate_stdio_config("x", {"command": "echo", "cwd": 42})
+        self.assertTrue(any(i["code"] == "invalid_cwd_type" for i in issues))
+
+    def test_cwd_as_list_rejected(self):
+        """A list-typed cwd must not crash os.path.expanduser."""
+        issues = doctor.validate_stdio_config("x", {"command": "echo", "cwd": ["/tmp"]})
+        self.assertTrue(any(i["code"] == "invalid_cwd_type" for i in issues))
+
+    def test_env_value_int_warns(self):
+        """An int env value should warn (MCP servers expect strings)."""
+        issues = doctor.validate_codex_config_fields("x", {"env": {"PORT": 8080}})
+        self.assertTrue(any(i["code"] == "env_value_not_string" for i in issues))
+
+    def test_env_value_list_errors(self):
+        """A list env value is clearly invalid and should error."""
+        issues = doctor.validate_codex_config_fields("x", {"env": {"KEY": ["a"]}})
+        self.assertTrue(any(i["code"] == "env_value_not_string" for i in issues))
+        self.assertTrue(any(i["severity"] == "error" for i in issues if i["code"] == "env_value_not_string"))
+
+    def test_env_value_dict_errors(self):
+        """A dict env value is clearly invalid and should error."""
+        issues = doctor.validate_codex_config_fields("x", {"env": {"KEY": {"nested": True}}})
+        self.assertTrue(any(i["code"] == "env_value_not_string" for i in issues))
+
+    def test_header_value_int_warns(self):
+        """An int header value should warn (HTTP headers are strings)."""
+        issues = doctor.validate_codex_config_fields("x", {"http_headers": {"X-Key": 42}})
+        self.assertTrue(any(i["code"] == "header_value_not_string" for i in issues))
+
+    def test_header_value_list_warns(self):
+        """A list header value should warn."""
+        issues = doctor.validate_codex_config_fields("x", {"http_headers": {"X-Key": ["a"]}})
+        self.assertTrue(any(i["code"] == "header_value_not_string" for i in issues))
+
+    def test_env_string_values_not_flagged(self):
+        """Normal string env values should not trigger type warnings."""
+        issues = doctor.validate_codex_config_fields("x", {"env": {"PATH": "/usr/bin", "DEBUG": "true"}})
+        self.assertFalse(any(i["code"] == "env_value_not_string" for i in issues))
+
 
 class TestSchemaValidation(unittest.TestCase):
 

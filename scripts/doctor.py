@@ -270,6 +270,24 @@ def validate_codex_config_fields(name: str, cfg: dict) -> list[dict]:
         })
     elif isinstance(env, dict):
         for env_key, env_val in env.items():
+            # Env values must be strings (MCP servers read them as strings).
+            # Non-string values (int, list, dict) will cause Popen env to fail.
+            if not isinstance(env_val, str) and not isinstance(env_val, bool):
+                if isinstance(env_val, (int, float)):
+                    issues.append({
+                        "severity": "warning",
+                        "code": "env_value_not_string",
+                        "message": f"env.{env_key}={env_val!r} is a {type(env_val).__name__}; MCP servers expect string values.",
+                        "fix": f"Quote the value: {env_key} = \"{env_val}\".",
+                    })
+                else:
+                    issues.append({
+                        "severity": "error",
+                        "code": "env_value_not_string",
+                        "message": f"env.{env_key} is a {type(env_val).__name__}; env values must be strings.",
+                        "fix": f"Use a string value for {env_key}.",
+                    })
+                continue
             if isinstance(env_val, str) and env_val.startswith("$"):
                 var_name = env_val[1:]
                 # Also handle ${VAR} form
@@ -292,6 +310,16 @@ def validate_codex_config_fields(name: str, cfg: dict) -> list[dict]:
             "message": f"'http_headers' must be a table (key=value pairs), got {type(http_headers).__name__}.",
             "fix": "http_headers must be a table of key=value pairs.",
         })
+    elif isinstance(http_headers, dict):
+        # Header values must be strings (HTTP headers are always strings).
+        for hdr_key, hdr_val in http_headers.items():
+            if not isinstance(hdr_val, str):
+                issues.append({
+                    "severity": "warning",
+                    "code": "header_value_not_string",
+                    "message": f"http_headers.{hdr_key} is a {type(hdr_val).__name__}; header values must be strings.",
+                    "fix": f"Quote the value: {hdr_key} = \"{hdr_val}\".",
+                })
 
     return issues
 
@@ -387,7 +415,14 @@ def validate_stdio_config(name: str, cfg: dict) -> list[dict]:
         })
 
     cwd = cfg.get("cwd")
-    if cwd and not os.path.exists(os.path.expanduser(cwd)):
+    if cwd is not None and not isinstance(cwd, str):
+        issues.append({
+            "severity": "error",
+            "code": "invalid_cwd_type",
+            "message": f"'cwd' must be a string, got {type(cwd).__name__}: {repr(cwd)[:60]}",
+            "fix": "Set cwd to a string path, e.g. cwd = \"/path/to/dir\".",
+        })
+    elif cwd and not os.path.exists(os.path.expanduser(cwd)):
         issues.append({
             "severity": "warning",
             "code": "cwd_missing",
@@ -468,8 +503,10 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
         args = [args]
     env = {**os.environ, **cfg.get("env", {})}
     cwd = cfg.get("cwd")
-    if cwd:
+    if cwd and isinstance(cwd, str):
         cwd = os.path.expanduser(cwd)
+    elif cwd and not isinstance(cwd, str):
+        cwd = None  # non-string cwd already flagged in validation
 
     full_cmd = [cmd] + [str(a) for a in args]
     proc = None
