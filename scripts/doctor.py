@@ -1003,6 +1003,20 @@ _UNTRUSTED_CONTENT_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Remediation suggestions keyed by security issue code. Each security issue
+# carries a `fix` string so both JSON consumers and the human report can show
+# actionable guidance - matching the `fix` field already present on regular issues.
+_SEC_FIXES: dict[str, str] = {
+    "E001": "Remove the injection pattern from the tool description, or audit the tool source for malicious intent.",
+    "E002": "Review whether this server should reference another server's tool name. Rename or isolate if unintended.",
+    "E003": "Verify the tool description change is intentional. Re-run --save-baseline after confirming safety.",
+    "W001": "Rewrite the tool description to remove urgency/manipulation language. Tool descriptions should be neutral.",
+    "W015": "Ensure external content fetched by this tool is treated as untrusted input and sandboxed appropriately.",
+    "W017": "Review whether this tool needs access to sensitive data. Restrict permissions if possible.",
+    "W019": "Review destructive operations. Consider adding confirmation prompts or access controls.",
+    "W021": "Remove hidden Unicode characters from the tool description. These may hide malicious instructions.",
+}
+
 
 def _decode_tag_sequence(text: str) -> str | None:
     """Decode Unicode Tag characters (U+E0000-U+E007F) into readable ASCII.
@@ -1049,6 +1063,7 @@ def validate_tool_security(tool: dict) -> list[dict]:
                 "label": label,
                 "message": f"Prompt injection pattern '{label}' in tool '{name}'.",
                 "evidence": match.group()[:120],
+                "fix": _SEC_FIXES["E001"],
             })
 
     # --- W001: Suspicious words ---
@@ -1066,6 +1081,7 @@ def validate_tool_security(tool: dict) -> list[dict]:
             "label": "suspicious-words",
             "message": f"Tool '{name}' uses manipulative language: {', '.join(sorted(set(word_hits)))}.",
             "evidence": ", ".join(sorted(set(word_hits))),
+            "fix": _SEC_FIXES["W001"],
         })
 
     # --- W021: Hidden Unicode characters ---
@@ -1094,6 +1110,7 @@ def validate_tool_security(tool: dict) -> list[dict]:
             "label": "hidden-unicode",
             "message": f"Tool '{name}' contains hidden Unicode: {detail}.",
             "evidence": repr("".join(hidden_chars[:10])),
+            "fix": _SEC_FIXES["W021"],
         })
 
     return issues
@@ -1142,6 +1159,7 @@ def validate_server_security(
                         "label": "cross-server-shadow",
                         "message": f"Server '{server_name}' references tool '{otname}' from server '{other_server}' - potential tool shadowing.",
                         "evidence": otname,
+                        "fix": _SEC_FIXES["E002"],
                     })
 
     # --- W017/W018: Sensitive data exposure ---
@@ -1156,6 +1174,7 @@ def validate_server_security(
             "label": "sensitive-data-exposure",
             "message": f"Server '{server_name}' tools may access sensitive data (credentials, messages, financial info).",
             "evidence": _SENSITIVE_DATA_RE.search(all_text).group()[:80],
+            "fix": _SEC_FIXES["W017"],
         })
 
     # --- W019/W020: Destructive capabilities ---
@@ -1169,6 +1188,7 @@ def validate_server_security(
             "label": "destructive-capability",
             "message": f"Server '{server_name}' has tools with destructive capabilities: {', '.join(sorted(set(h.lower() for h in destructive_hits))[:5])}.",
             "evidence": ", ".join(sorted(set(h.lower() for h in destructive_hits))[:5]),
+            "fix": _SEC_FIXES["W019"],
         })
 
     # --- W015/W016: Untrusted content exposure ---
@@ -1180,6 +1200,7 @@ def validate_server_security(
             "label": "untrusted-content",
             "message": f"Server '{server_name}' fetches/processes external web content - combined with other tools this creates prompt-injection risk.",
             "evidence": _UNTRUSTED_CONTENT_RE.search(all_text).group()[:80],
+            "fix": _SEC_FIXES["W015"],
         })
 
     return issues
@@ -1641,6 +1662,8 @@ def format_report_human(report: DiagnosticsReport) -> str:
                 lines.append(f"       {icon} [{code}] {si.get('message', '')}")
                 if si.get("evidence"):
                     lines.append(f"          evidence: {str(si['evidence'])[:100]}")
+                if si.get("fix"):
+                    lines.append(f"          → fix: {si['fix']}")
             if len(s.security_issues) > 8:
                 lines.append(f"       ... +{len(s.security_issues) - 8} more security issues")
 
@@ -2007,6 +2030,7 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
                     "message": f"Tool '{s.name}:{tname}' appeared since the last baseline. "
                                f"Verify it's legitimate before trusting it.",
                     "evidence": "new tool",
+                    "fix": _SEC_FIXES["E003"],
                 })
             elif known[tname] != thash:
                 issues.append({
@@ -2018,6 +2042,7 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
                                f"baseline - possible rug-pull. Re-run with --save-baseline "
                                f"only after verifying the new description is safe.",
                     "evidence": "description hash mismatch",
+                    "fix": _SEC_FIXES["E003"],
                 })
         for tname in known:
             if tname not in current:
@@ -2028,6 +2053,7 @@ def check_baseline(report: "DiagnosticsReport", path: Path | None = None) -> lis
                     "label": "tool-removed-since-baseline",
                     "message": f"Tool '{s.name}:{tname}' was removed since the last baseline.",
                     "evidence": "tool removed",
+                    "fix": _SEC_FIXES["E003"],
                 })
     return issues
 
