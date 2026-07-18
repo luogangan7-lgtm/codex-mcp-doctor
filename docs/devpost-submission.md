@@ -124,7 +124,7 @@ ready to be called from anywhere MCP is called.
 - Working directory: `/Volumes/data/codex-mcp-doctor`
 - Python: `/opt/homebrew/bin/python3`
 
-### Scene 1: The Silent Failure (0:00 - 0:30)
+### Scene 1: The Silent Failure (0:00 - 0:20)
 
 **Narration:** "MCP servers fail silently. Here's what that looks like."
 
@@ -147,7 +147,7 @@ command = "/usr/local/bin/nonexistent-mcp-server"
 → Codex starts, no error, but `tools/list` returns nothing. The user sees a working chat with zero MCP tools loaded. No log line tells them why.
 
 
-### Scene 2: The Doctor Diagnoses (0:30 - 1:00)
+### Scene 2: The Doctor Diagnoses (0:20 - 0:50)
 
 **Narration:** "Run the doctor. One command, zero dependencies."
 
@@ -174,7 +174,20 @@ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
 Both root-caused in under a second. Red error → exact cause → one-line fix suggestion.
 
 
-### Scene 3: Security Layer (1:00 - 1:30)
+### Scene 2.5: Built with Codex (0:50 - 1:15) — *required by Devpost rules*
+
+> Devpost rules state the video "must include a clear demo with audio that covers what you built **AND how you used Codex and GPT-5.6**." Scenes 1-2 show what was built; this scene shows how. Without it the video fails a hard submission requirement.
+
+**Narration:** "Here's the thing — this entire tool was built inside Codex."
+
+**Action:** Switch screen recording to the Codex desktop window. Show a session where you ask the doctor to diagnose itself, or where a recent commit's diff is visible. Then show the SessionStart hook firing.
+
+**Narration:** "Two thousand eight hundred lines of doctor logic, two hundred eighty-five tests, every security analyzer, every example, this demo script — written, debugged, and hardened through Codex with GPT-5.6. The doctor speaks the same MCP protocol Codex speaks, so the test suite exercises the exact handshake paths Codex uses in production. And every session started the same way: the doctor's own SessionStart hook ran first — dogfooding its own diagnosis on itself."
+
+**Action:** Switch screen recording back to Terminal.
+
+
+### Scene 3: Security Layer (1:15 - 1:40)
 
 **Narration:** "But finding broken servers is the easy part. What about servers that are silently hostile?"
 
@@ -199,7 +212,7 @@ python3 scripts/doctor.py --config examples/security-issues/config.toml --check 
 ```
 
 
-### Scene 3b: Cyrillic Homoglyph Attack (1:30 - 2:00)
+### Scene 3b: Cyrillic Homoglyph Attack (1:40 - 2:05)
 
 **Narration:** "Here's a subtle attack: a tool named `fil\u0435system_read` — looks like `filesystem_read`, but the 'e' is Cyrillic."
 
@@ -224,7 +237,7 @@ python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml
 The normalized form `'filesystem_read'` is the punchline — the viewer instantly sees what the attacker was impersonating.
 
 
-### Scene 4: Rug-Pull Detection (2:00 - 2:45)
+### Scene 4: Rug-Pull Detection (2:05 - 2:45)
 
 **Narration:** "The most dangerous attack: a tool description that changes silently."
 
@@ -249,7 +262,7 @@ python3 scripts/doctor.py --check-baseline
 
 **Narration:** "The SessionStart hook fires on every Codex session — silent when healthy, loud when broken. `--watch` extends that into continuous runtime monitoring, only printing when server state actually changes. Boot-time hook, runtime watch, same engine."
 
-**Narration:** "285 tests, zero dependencies, pure Python stdlib."
+**Narration:** "285 tests, zero dependencies. Built entirely inside Codex with GPT-5.6."
 
 **End card:** GitHub URL + "codex-mcp-doctor — npm doctor for MCP"
 

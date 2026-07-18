@@ -23,67 +23,82 @@ breakdown in `docs/devpost-submission.md`.
 
 ---
 
-## Scene 1 — The Silent Failure (0:00 – 0:30)
+## Scene 1 — The Silent Failure (0:00 – 0:20)
 
 `[0:00]` `[VO]` MCP servers fail silently. You add one to your config, restart Codex, and — nothing. No tools. No error. No log. You're left guessing what broke.
 
-`[0:12]` `[VO]` Worse, a server can be silently hostile. A tool description can inject system prompts. A Cyrillic lookalike can shadow a real tool. And nobody checks — because nothing does.
-
-`[0:24]` `[VO]` codex-mcp-doctor fixes that. Let me show you.
+`[0:12]` `[VO]` codex-mcp-doctor fixes that. Let me show you.
 
 ---
 
-## Scene 2 — The Doctor Diagnoses (0:30 – 1:00)
+## Scene 2 — The Doctor Diagnoses (0:20 – 0:50)
 
-`[0:30]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/broken-stdio/config.toml`
+`[0:20]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/broken-stdio/config.toml`
 
-`[0:31]` `[VO]` One command. Zero dependencies — pure Python stdlib.
+`[0:21]` `[VO]` One command. Zero dependencies — pure Python stdlib.
 
-`[0:35]` `[PAUSE 3s]` — let the report render
+`[0:25]` `[VO]` It tells you exactly what's wrong. The binary path doesn't exist. The second server crashes because a Python module is missing. Both root-caused in under a second — red error, exact cause, one-line fix.
 
-`[0:38]` `[VO]` It tells you exactly what's wrong. The binary path doesn't exist. The second server crashes because a Python module is missing. Both root-caused in under a second — red error, exact cause, one-line fix.
+`[0:42]` `[VO]` That's the easy part.
 
-`[0:55]` `[VO]` That's the easy part.
+## Scene 2.5 — Built with Codex (0:50 – 1:15)  *required by Devpost rules*
+
+> **Why this scene exists:** Devpost rules state the video "must include a
+> clear demo with audio that covers what you built **AND how you used Codex
+> and GPT-5.6**." Scenes 1-2 show what was built; this scene shows how. Do
+> not cut it — without it the video fails a hard submission requirement.
+
+`[0:50]` `[CLICK]` Switch screen recording to the Codex desktop window.
+
+`[0:51]` `[VO]` Here's the thing — this entire tool was built inside Codex.
+
+`[0:55]` `[CLICK]` Show a Codex session where you ask the doctor to diagnose itself, or where a recent commit's diff is visible.
+
+`[0:56]` `[VO]` Two thousand eight hundred lines of doctor logic, two hundred eighty-five tests, every security analyzer, every example, this demo script — written, debugged, and hardened through Codex with GPT-5.6. The doctor speaks the same MCP protocol Codex speaks, so the test suite exercises the exact handshake paths Codex uses in production.
+
+`[1:08]` `[VO]` And every session started the same way: the doctor's own SessionStart hook ran first — dogfooding its own diagnosis on itself.
+
+`[1:13]` `[CLICK]` Switch screen recording back to Terminal for the security demo.
 
 ---
 
-## Scene 3 — Security Layer (1:00 – 1:30)
+## Scene 3 — Security Layer (1:15 – 1:40)
 
-`[1:00]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/security-issues/config.toml`
+`[1:15]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/security-issues/config.toml`
 
-`[1:01]` `[VO]` What about servers that are silently hostile? The security layer catches seven classes of attack — prompt injection, tool shadowing, rug-pulls, manipulative language, hidden Unicode.
+`[1:16]` `[VO]` What about servers that are silently hostile? The security layer catches seven classes of attack — prompt injection, tool shadowing, rug-pulls, manipulative language, hidden Unicode.
 
-`[1:15]` `[VO]` Here — a plaintext API key in an environment variable. A bearer token in a header. Both flagged, both with severity, both with a fix.
+`[1:28]` `[VO]` Here — a plaintext API key in an environment variable. A bearer token in a header. Both flagged, both with severity, both with a fix.
 
-`[1:25]` `[VO]` Every error pairs with the one action that resolves it.
+`[1:35]` `[VO]` Every error pairs with the one action that resolves it.
 
 ---
 
 > **Recording note — Scenes 3b and 4 share one terminal segment.** The `homoglyph-attack` example exposes a Cyrillic tool name *and* is the baseline for the rug-pull demo, so demo.sh runs it once and both W022 and E003 light up together. For the video, keep one continuous screen capture for 3b+4 (1:30–2:45) and just shift your narration emphasis; do not re-run the command twice.
 
-## Scene 3b — Cyrillic Homoglyph Attack (1:30 – 2:00)
+## Scene 3b — Cyrillic Homoglyph Attack (1:40 – 2:05)
 
-`[1:30]` `[VO]` Here's one no other MCP scanner catches.
+`[1:40]` `[VO]` Here's one no other MCP scanner catches.
 
-`[1:33]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml`
+`[1:42]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/homoglyph-attack/config.toml`
 
-`[1:34]` `[VO]` This server exposes a tool called `filеsystem_read` — but the `е` is Cyrillic, not Latin. It looks identical, it shadows the real filesystem tool, and it would exfiltrate your data.
+`[1:43]` `[VO]` This server exposes a tool called `filеsystem_read` — but the `е` is Cyrillic, not Latin. It looks identical, it shadows the real filesystem tool, and it would exfiltrate your data.
 
-`[1:50]` `[VO]` The doctor normalizes it — "Normalizes to filesystem_read" — so you see the attack intent, not just the cosmetic difference. Eighteen Cyrillic-to-Latin confusables mapped.
+`[1:58]` `[VO]` The doctor normalizes it — "Normalizes to filesystem_read" — so you see the attack intent, not just the cosmetic difference. Eighteen Cyrillic-to-Latin confusables mapped.
 
 ---
 
-## Scene 4 — Rug-Pull Detection (2:00 – 2:45)
+## Scene 4 — Rug-Pull Detection (2:05 – 2:45)
 
-`[2:00]` `[VO]` The flagship feature: rug-pull detection.
+`[2:05]` `[VO]` The flagship feature: rug-pull detection.
 
-`[2:03]` `[VO]` First run, the doctor saves a baseline hash of every tool description. Next run, it compares. If anything changed — a description rewritten, a tool added, a tool removed — you get a three-level alert.
+`[2:08]` `[VO]` First run, the doctor saves a baseline hash of every tool description. Next run, it compares. If anything changed — a description rewritten, a tool added, a tool removed — you get a three-level alert.
 
-`[2:20]` `[CLICK]` Run the check-baseline demo step from `demo.sh`
+`[2:22]` `[CLICK]` Run the check-baseline demo step from `demo.sh`
 
-`[2:21]` `[VO]` The rug-pull check fires two E003 tiers at once: high — a tool description was tampered with since you trusted it; low — a tool that was in your baseline has vanished entirely. The W022 homoglyph from the last scene lights up here too, because this same server is the baseline. The doctor tells you exactly which tool, which change, and what to do. First CLI implementation of tool-description pinning.
+`[2:23]` `[VO]` The rug-pull check fires two E003 tiers at once: high — a tool description was tampered with since you trusted it; low — a tool that was in your baseline has vanished entirely. The W022 homoglyph from the last scene lights up here too, because this same server is the baseline. The doctor tells you exactly which tool, which change, and what to do. First CLI implementation of tool-description pinning.
 
-`[2:40]` `[VO]` The server you trusted on Monday is not the server you're running on Friday.
+`[2:42]` `[VO]` The server you trusted on Monday is not the server you're running on Friday.
 
 ---
 
@@ -95,7 +110,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[2:50]` `[VO]` The SessionStart hook fires every session — silent when healthy, loud when broken. Watch mode extends that into continuous runtime monitoring.
 
-`[2:56]` `[VO]` Two eighty-five tests. Zero dependencies. The MCP doctor Codex should ship with.
+`[2:55]` `[VO]` Two eighty-five tests. Zero dependencies. Built entirely inside Codex with GPT-5.6 — the MCP doctor Codex should ship with.
 
 `[3:00]` `[END CARD]` GitHub URL on screen for 2s. Stop recording.
 

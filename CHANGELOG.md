@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.8] - 2026-07-19
+
+### Changed
+
+- **Demo video voiceover restructured to satisfy Devpost hard requirement.** Devpost rules state the video must include a clear demo covering what you built AND how you used Codex and GPT-5.6. The previous voiceover was 100 percent terminal output with zero Codex UI exposure, which would fail this hard submission requirement. Added Scene 2.5 (0:50-1:15) showing the Codex desktop window, dogfooding the doctor diagnosing itself, and the SessionStart hook firing. Scene 1 compressed (0:00-0:30 to 0:00-0:20, dropped the silently-hostile beat), Scene 2 compressed (PAUSE 3s removed), Scenes 3/3b/4 renumbered to the new timeline. Total runtime still 3:00. Final narration now reads Built entirely inside Codex with GPT-5.6.
+
+- **docs/devpost-submission.md scene timeline synced** with the restructured voiceover (Scene 2.5 description block inserted, all scene timestamps renumbered, Scene 5 final narration line updated).
+
+- **doctor.py --version 1.6.7 -> 1.6.8.**
+
+
 ## [1.6.7] - 2026-07-19
 
 ### Fixed
