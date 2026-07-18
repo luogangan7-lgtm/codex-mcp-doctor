@@ -28,7 +28,7 @@ codex-mcp-doctor — `npm doctor` for MCP
 
 If the field is the Short Description (Devpost card, ~280 char limit):
 ```
-MCP servers fail silently. codex-mcp-doctor is the diagnostic CLI Codex should ship with — one zero-dependency command catches broken servers, prompt injection, Cyrillic homoglyph attacks, and silent rug-pulls that no other MCP scanner detects. Built in Codex with GPT-5.6.
+MCP servers fail silently. codex-mcp-doctor is the diagnostic CLI Codex should ship with — one zero-dependency command catches broken servers, prompt injection, silent rug-pulls, and Cyrillic homoglyph attacks that no other MCP scanner detects. Built in Codex with GPT-5.6.
 ```
 (273 chars — problem-first hook + differentiation + dogfooding. The previous version was 303 chars and over the limit.)
 
@@ -139,7 +139,7 @@ https://github.com/luogangan7-lgtm/codex-mcp-doctor
 **Pin to the latest release** (recommended for reproducibility — points
 judges at the tag that matches the video). At submission time, check
 https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest
-and use that tag URL. As of this writing: v1.6.13.
+and use that tag URL. As of this writing: v1.6.19 (will be v1.6.20 if the image-ratio fix gets a tag).
 ```
 https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases/latest
 ```

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.20] - 2026-07-19
+
+### Fixed
+
+- **Devpost gallery thumbnail image ratio: 5:3 -> 3:2.** All four PIL-rendered images (devpost-cover, w022-homoglyph, screenshot-real-report, screenshot-rugpull-detection) were 1500x900 (5:3), based on a wrong assumption that Devpost gallery thumbnails center-crop to 1:1. Devpost help.devpost.com/article/126 states Project Gallery thumbnails should use a 3:2 ratio. Re-rendered all four at 1500x1000 (3:2). Layout kept horizontally centered (thumbnail crop only affects x-axis); all top-level y anchors shifted +50px to re-center content vertically in the taller canvas. 17/17 signature colors verified present.
+
+- **Voiceover script factual drift (3 errors).** Scene 5 closing line said "Two eighty-five tests" (actual: 287). Scene 3 listed "seven classes" but named only 5, with names that did not match README canonical wording. Scene 3 secret demo described a "plaintext API key in an environment variable" but the actual security-issues example output is an unpinned npx package + hardcoded bearer token in http_headers. All three corrected to match actual code output.
+
+- **Submission text factual claims (3 errors).** Tagline attributed "no other scanner detects" to rug-pulls (Invariant Labs MCP-Scan has web-only rug-pull detection); the unique claim belongs to Cyrillic homoglyphs. Scene 3 description said "API key" instead of "bearer token". Key Metrics table said 8 security check types; README canonical list is 7. All three aligned with README wording so README, voiceover, and submission now agree.
+
+- **Form-guide stale version reference** (v1.6.13 -> v1.6.19/1.6.20).
+
+- **doctor.py --version 1.6.19 -> 1.6.20.
+
+
 ## [1.6.19] - 2026-07-19
 
 ### Added
