@@ -483,6 +483,30 @@ class TestHttpProbeIntegration(unittest.TestCase):
             srv.shutdown(); srv.server_close()
 
 
+class TestGuessFixFromStderr(unittest.TestCase):
+    """_guess_fix_from_stderr should map common patterns to actionable hints."""
+
+    def test_python_module_not_found(self):
+        fix = doctor._guess_fix_from_stderr("ModuleNotFoundError: No module named 'fastmcp'")
+        self.assertIn("Python", fix)
+
+    def test_node_module_not_found(self):
+        fix = doctor._guess_fix_from_stderr("node:internal/modules/cjs/loader: Error: Cannot find module '@modelcontextprotocol/sdk'")
+        self.assertIn("Node.js", fix)
+
+    def test_connection_refused(self):
+        fix = doctor._guess_fix_from_stderr("psycopg2.OperationalError: connection refused")
+        self.assertIn("downstream", fix.lower())
+
+    def test_permission_denied(self):
+        fix = doctor._guess_fix_from_stderr("Permission denied: /root/.config")
+        self.assertIn("Permission", fix)
+
+    def test_generic_fallback(self):
+        fix = doctor._guess_fix_from_stderr("something unusual happened")
+        self.assertTrue(len(fix) > 10)
+
+
 class TestBearerTokenResolution(unittest.TestCase):
     """bearer_token / bearer_token_env_var should authenticate the HTTP probe."""
 

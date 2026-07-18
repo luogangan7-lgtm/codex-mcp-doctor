@@ -848,6 +848,10 @@ def _guess_fix_from_stderr(stderr: str) -> str:
         return "A downstream service (DB, Redis, etc.) is not running. Check if required services are up."
     if "no module named" in s or "modulenotfound" in s:
         return "A Python dependency is missing. Reinstall the MCP server in its virtualenv."
+    if "cannot find module" in s or "err_module_not_found" in s or ("require" in s and "is not defined" in s):
+        return "A Node.js dependency is missing. Run 'npm install' in the server directory or reinstall the package."
+    if "syntaxerror" in s and ".ts" in stderr.lower():
+        return "TypeScript compilation error. Check for syntax issues or run 'npm run build'."
     if "no such file or directory" in s:
         return "A required file or binary is missing. Check paths in the server config."
     if "permission denied" in s:
