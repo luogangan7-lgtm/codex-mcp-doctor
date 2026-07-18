@@ -1,6 +1,6 @@
 {
   "name": "codex-mcp-doctor",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "Diagnose MCP server connectivity, configuration correctness, runtime health, tool schema quality, security risks (prompt injection, tool shadowing, hidden Unicode), supply-chain version pinning, plaintext secrets, latency thresholds, and rug-pull detection (tool-description baseline). Zero external dependencies - pure Python 3.11+ stdlib.",
   "author": {
     "name": "Luolimo",
@@ -43,24 +43,13 @@
     ],
     "defaultPrompt": [
       "Run mcp-doctor to check my MCP servers",
-      "My MCP tools are missing, diagnose why",
-      "Check if all my MCP servers are healthy",
-      "Validate my MCP tool schemas",
-      "Scan my MCP servers for security risks",
-      "Check for prompt injection in my MCP tools",
-      "Check if my MCP tools changed since last baseline (rug-pull)",
-      "Scan my config for plaintext secrets and unpinned packages"
+      "My MCP tools are missing \u2014 diagnose why",
+      "Scan my MCP servers for security risks (injection, rug-pull, secrets)"
     ],
     "brandColor": "#10B981",
     "screenshots": [
-      {
-        "url": "https://raw.githubusercontent.com/luogangan7-lgtm/codex-mcp-doctor/main/docs/screenshot-real-report.png",
-        "caption": "Real diagnostics on a 3-server Codex setup: health scores, schema issues, prompt-injection (W001), destructive-capability (W019), sensitive-data (W017), plaintext-secret detection"
-      },
-      {
-        "url": "https://raw.githubusercontent.com/luogangan7-lgtm/codex-mcp-doctor/main/docs/screenshot-rugpull-detection.png",
-        "caption": "E003 Rug-Pull Detection: high-severity tool-description change, medium new-tool-since-baseline, low tool-removed-since-baseline"
-      }
+      "./assets/screenshot-real-report.png",
+      "./assets/screenshot-rugpull-detection.png"
     ]
   }
 }

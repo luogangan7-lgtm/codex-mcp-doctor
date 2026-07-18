@@ -8,6 +8,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [1.5.0] - 2026-07-19
+
+
+### Added
+
+- **Guided demo script (`scripts/demo.sh`)** - one command walks through every
+  demo scene (broken servers, security/secrets, Cyrillic homoglyph, rug-pull,
+  auto-triggering hook) with section titles, narration cues, and real
+  `doctor.py` output. Used to record the Devpost demo video and as a CI
+  end-to-end smoke test (`--no-pause` mode). Scene 4 genuinely triggers E003
+  rug-pull by pinning a real sha256 baseline, corrupting one byte to simulate
+  description mutation, and re-checking.
+- **CI end-to-end demo step** - GitHub Actions now runs `scripts/demo.sh
+  --no-pause` on every push, exercising every example plus the save/check
+  baseline flow on Python 3.11-3.14.
+
+### Changed
+
+- **README Quick Start** - promote `./scripts/demo.sh` to the first item
+  (above the test suite) as the fastest way for reviewers to see the doctor
+  in action.
+- **README "W022 in action"** - added a rendered terminal block showing the
+  actual homoglyph-attack output, including the "Normalizes to
+  'filesystem_read'" punchline, so GitHub visitors can see the attack
+  without cloning.
+- **README Differentiation** - added vs Snyk agent-scan (zero-dep +
+  zero-signup vs `pip install` + account) and explicit "homoglyph detection
+  is unique to codex-mcp-doctor" claim cross-referenced against MCP-Scan,
+  Snyk, destilabs, and Promptfoo.
+- **Devpost submission materials** - removed a duplicate Scene 3b block,
+  fixed overlapping scene timestamps, added "Expected on-screen" blocks to
+  scenes 1/2/3/3b, and updated LOC metrics to actual (2,725 / 2,371).
+
+### Fixed
+
+- **`plugin.json` screenshots schema** - screenshots were GitHub raw URLs
+  (object form); the Codex plugin validator requires relative-path strings
+  pointing to PNG files under `./assets/`. Added `assets/` directory with
+  both screenshots and switched to `./assets/...` paths.
+- **`plugin.json` `defaultPrompt` overflow** - the interface spec keeps only
+  the first 3 entries; we had 8. Trimmed to the 3 highest-signal starter
+  prompts (all under 128 chars).
+- **`scripts/demo.sh` non-TTY stdin hang** - screen recorders and other
+  environments without interactive stdin blocked indefinitely at `read -p`.
+  `do_pause` now checks `[ -t 0 ]` before prompting.
+
 ### Added
 
 - **Cyrillic homoglyph detection (W022)** - detects mixed-script words

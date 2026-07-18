@@ -2253,7 +2253,10 @@ class TestQuietFlag(unittest.TestCase):
             capture_output=True, text=True, timeout=5,
         )
         self.assertEqual(r.returncode, 0)
-        self.assertIn('1.4', r.stdout)
+        # Match "mcp-doctor X.Y.Z" — don't hard-code the version, or every
+        # release will silently break this test.
+        import re
+        self.assertRegex(r.stdout, r'mcp-doctor \d+\.\d+\.\d+')
 
     def test_quiet_flag_exists(self):
         import subprocess
