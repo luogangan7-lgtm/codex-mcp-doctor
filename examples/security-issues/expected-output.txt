@@ -15,15 +15,8 @@ $ python3 scripts/doctor.py --config examples/security-issues/config.toml --chec
   ⚠️  plaintext-secret  🟢 90.0
      transport: http  |  0 tools
      ⚠️  [plaintext_secret_header] Server 'plaintext-secret' has a hardcoded secret in http_headers['Authorization'].
-        → fix: Codex doesn't resolve $VAR in http_headers; either keep the token in a secrets manager, or accept the risk. At minimum, ensure config.toml is not committed to version control.
+        → fix: Prefer bearer_token_env_var (Codex resolves $VAR at launch) over a literal token in http_headers; if you must inline, ensure config.toml is gitignored.
 
 ================================================================
   RESULT: 2 warning(s) - servers running but check the warnings.
 ================================================================
-
-This example uses --skip-probe so no servers are actually contacted.
-The security checks (supply-chain pinning + plaintext secrets) run
-purely against the config file, making this demo fully portable.
-
-Note: scores reflect config-layer findings only (no probe = no connectivity
-deduction). Each warning costs 10 points from a 100 baseline.

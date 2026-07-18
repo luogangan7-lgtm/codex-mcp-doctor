@@ -5,25 +5,33 @@ $ python3 scripts/doctor.py --config examples/broken-http/config.toml
 ================================================================
   Config: examples/broken-http/config.toml
 
-  Servers: 2 total  ✅ 0 healthy  ❌ 2 errors  🔴 avg score 0.0
+  Servers: 3 total  ✅ 0 healthy  ❌ 3 errors  🔴 avg score 0.0
 
   ❌ wrong-port  🔴 0.0
      transport: http  |  0 tools
      ❌ [connection_refused] Connection refused to 127.0.0.1:1.
         → fix: The server is not running or not listening on that port. Verify the URL or start the server.
 
-  ❌ ssl-mismatch  🔴 0.0
+  ❌ https-dead-port  🔴 0.0
      transport: http  |  0 tools
-     ⚠️  [missing_auth_header] HTTP server URL looks like an API endpoint but no Authorization header or bearer_token is set.
-        → fix: Add [mcp_servers.ssl-mismatch.http_headers] with Authorization header, or use bearer_token or bearer_token_env_var.
      ❌ [connection_refused] Connection refused to 127.0.0.1:1.
         → fix: The server is not running or not listening on that port. Verify the URL or start the server.
 
+  ❌ api-no-auth  🔴 0.0
+     transport: http  |  0 tools
+     ⚠️  [missing_auth_header] HTTP server URL looks like an API endpoint but no Authorization header or bearer_token is set.
+        → fix: Add [mcp_servers.api-no-auth.http_headers] with Authorization header, or use bearer_token or bearer_token_env_var.
+     ❌ [http_error] HTTP 404: Not Found
+        → fix: The server is reachable but returned an error. Check the URL and server health.
+
 ================================================================
-  RESULT: 2 error(s), 1 warning(s) - issues found.
+  RESULT: 3 error(s), 1 warning(s) - issues found.
   Fix the errors above, then re-run: python3 scripts/doctor.py
 ================================================================
 
-Note: latency values (shown in parentheses) vary by run and are omitted
-here. The connection_refused error is the stable, portable signal -
-127.0.0.1:1 is guaranteed to refuse connections on any OS.
+Note: the api-no-auth server probes api.openai.com over the real
+network, so its exact error (http_error 404, connection_refused,
+or ssl_error) depends on your environment. The first two servers
+(wrong-port, https-dead-port) hit 127.0.0.1:1 which is guaranteed
+to refuse connections on any OS. Latency values (shown in
+parentheses) vary by run and are stripped here.

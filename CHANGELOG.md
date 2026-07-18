@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.6] - 2026-07-19
+
+### Fixed
+
+- **All four `examples/*/expected-output.txt` regenerated to match current doctor output.** Every expected-output file was stale: they recorded old fix text, old score values, missing the `🔧 config-ok` status indicator, and in one case (broken-http) even referenced a server name (`ssl-mismatch`) that no longer exists in the config (it is now `https-dead-port`). A judge running an example command and diffing against expected-output would have seen substantive differences in every case. All four now match byte-for-byte (after stripping non-deterministic timing ms); broken-http includes a note that its third server probes the real network so the exact error may vary by environment.
+
+- **`.codex-plugin/plugin.json` version 1.6.2 -> 1.6.6.** The manifest version had not been touched since v1.6.2; v1.6.3-v1.6.5 only shipped README/docs/flag fixes so it drifted. Now consistent with the release tag.
+
+- **GitHub repo About description updated**: was "149 tests" (from v1.4.0 era), now "285 tests" with the full feature list. This is the first line a judge sees in search results and the gallery.
+
+- **GitHub repo topics added**: codex, developer-tools, diagnostics, mcp, mcp-server, model-context-protocol, prompt-injection, security. The repo previously had zero topics, making it undiscoverable by tag search.
+
+- **doctor.py --version 1.6.5 -> 1.6.6.**
+
 ## [1.6.5] - 2026-07-19
 
 ### Fixed
