@@ -24,5 +24,8 @@ jobs:
           python3 tests/test_doctor.py
       - name: Run doctor on examples
         run: |
-          python3 scripts/doctor.py --config examples/broken-stdio/config.toml --json || true
-          python3 scripts/doctor.py --config examples/broken-http/config.toml --json || true
+          # broken-stdio and broken-http are expected to report errors (exit 1)
+          # but must not crash. security-issues is --skip-probe (exit 0).
+          python3 scripts/doctor.py --config examples/broken-stdio/config.toml --json || [ $? -eq 1 ]
+          python3 scripts/doctor.py --config examples/broken-http/config.toml --json || [ $? -eq 1 ]
+          python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe --json

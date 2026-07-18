@@ -1,6 +1,6 @@
 ---
 name: mcp-doctor
-description: Diagnose MCP server connectivity, configuration, runtime health, and tool schema quality. Zero dependencies, pure stdlib. Run when MCP tools are missing, broken, behaving unexpectedly, or returning errors.
+description: Diagnose MCP server health - connectivity, configuration correctness, schema quality, and security (prompt injection, tool poisoning, hidden Unicode, tool shadowing, supply-chain pinning, plaintext secrets, rug-pull baseline). Zero dependencies, pure stdlib. Run when MCP tools are missing, broken, behaving unexpectedly, returning errors, when a new MCP server or plugin is installed, or to check for security risks in tool descriptions.
 ---
 
 # MCP Doctor
