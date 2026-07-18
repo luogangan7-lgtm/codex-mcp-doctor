@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${PLUGIN_ROOT}/scripts/doctor.py\" --quiet --timeout 8 2>/dev/null || true",
+            "command": "sh \"${PLUGIN_ROOT}/hooks/hook.sh\" 2>/dev/null || true",
             "timeout": 10
           }
         ]
