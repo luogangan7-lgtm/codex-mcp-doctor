@@ -80,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `elevated_latency` info issue alongside the `timeout` error. The latency
   note is now suppressed when a timeout issue is already present; high
   latency is implied by the timeout itself.
-- 14 new tests (149 → 166 total).
+- 14 new tests (149 → 170 total).
 - **Credential-file-access detection (E001)** - tool descriptions referencing
   SSH private keys (`~/.ssh/id_rsa`, `id_ed25519`, `authorized_keys`, `config`),
   AWS credentials (`~/.aws/credentials`), GPG keys (`~/.gnupg/`), and `.env`

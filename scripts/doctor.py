@@ -697,6 +697,15 @@ def probe_http(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dict
             })
         return ProbeResult(), issues, latency
 
+    except json.JSONDecodeError as e:
+        latency = (time.monotonic() - t0) * 1000 if 't0' in locals() else 0
+        issues.append({
+            "severity": "error",
+            "code": "invalid_response",
+            "message": f"Server returned a non-JSON response (not an MCP server). Parse error at pos {e.pos}.",
+            "fix": "The URL may not point to an MCP server endpoint. Verify it serves JSON-RPC over HTTP.",
+        })
+        return ProbeResult(), issues, round(latency, 1) if latency else 0
     except Exception as e:
         issues.append({
             "severity": "error",

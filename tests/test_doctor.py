@@ -461,6 +461,27 @@ class TestHttpProbeIntegration(unittest.TestCase):
         probe, issues, latency = doctor.probe_http(cfg, timeout=3.0)
         self.assertTrue(any(i["code"] in ("connection_refused", "connection_error") for i in issues))
 
+    def test_probe_non_json_response(self):
+        """A URL returning HTML (not MCP) should report invalid_response, not crash."""
+        class HtmlHandler(MockMcpHttpHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers.get('Content-Length',0)))
+                self.send_response(200)
+                self.send_header('Content-Type','text/html')
+                self.end_headers()
+                self.wfile.write(b'<html><body>Not an MCP server</body></html>')
+        srv = HTTPServer(('127.0.0.1',0), HtmlHandler)
+        port = srv.server_address[1]
+        t = threading.Thread(target=srv.serve_forever, daemon=True); t.start()
+        time.sleep(0.1)
+        try:
+            cfg = {"url": f"http://127.0.0.1:{port}/mcp"}
+            probe, issues, latency = doctor.probe_http(cfg, timeout=5.0)
+            self.assertTrue(any(i['code'] == 'invalid_response' for i in issues),
+                            f"Expected invalid_response, got: {[(i['code'],i.get('message','')[:50]) for i in issues]}")
+        finally:
+            srv.shutdown(); srv.server_close()
+
 
 class TestBearerTokenResolution(unittest.TestCase):
     """bearer_token / bearer_token_env_var should authenticate the HTTP probe."""
@@ -1602,3 +1623,4 @@ class TestResourcesOnlyServer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
