@@ -8,7 +8,7 @@
 [![Tests](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml/badge.svg)](https://github.com/luogangan7-lgtm/codex-mcp-doctor/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built with Codex + GPT-5.6](https://img.shields.io/badge/Built_with-Codex_+_GPT--5.6-8A2BE2)](https://openai.com/codex)
-[![OpenAI Build Week](https://img.shields.io/badge/OpenAI-Build_Week-6A5ACD)](https://openai.com/build-week)
+[![OpenAI Build Week](https://img.shields.io/badge/OpenAI-Build_Week-6A5ACD)](https://openai.devpost.com/)
 
 ![codex-mcp-doctor cover](docs/devpost-cover.png)
 
@@ -231,11 +231,6 @@ This project was built entirely inside Codex desktop with GPT-5.6 across multipl
 **How GPT-5.6 contributed:**
 - Long-context review sessions where the entire codebase (2,800+ lines) was loaded and audited for consistency, drift, and missing edge cases - the test-count drift fix (v1.6.18) was found this way
 - Cross-session state continuity via the memory canvas, enabling incremental hardening rather than restart-from-scratch each session
-
-## Requirements
-
-- Python 3.11+ (for `tomllib` - bundled in standard library since 3.11)
-- No pip packages, no virtualenv, no compilation
 
 ## Differentiation
 
