@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.38] - 2026-07-19
+
+### Fixed
+
+- **README "What It Does" sample output: added "Sample output" caption and corrected an internal arithmetic error in the avg-score.** The code block showed a hand-written report that looked like a real run (specific config path `/Users/you/.codex/config.toml`, specific `humaux-memory v2.0.0`, `4519ms` latency, `avg score 96.2`) but carried no caption marking it as illustrative, so a reader could mistake it for a verbatim run. Worse, the `avg score 96.2` was arithmetically wrong: the two non-disabled servers in the sample score `100.0` (node_repl) and `97.4` (humaux-memory), and `doctor.py` computes avg as `sum / count` over servers with a non-None `health_score` (disabled servers contribute `None` and are excluded), so the correct value is `(100.0 + 97.4) / 2 = 98.7`. A judge with a calculator would catch the mismatch. Added an italic caption "*Sample output (actual scores, tool counts, and warnings depend on your config):*" above the code block and lifted `96.2 -> 98.7`.
+- **Three more cross-document version references lifted to v1.6.37.** The v1.6.37 cross-reference audit re-run (this time after the README edit, as a final pre-release pass) found three more active-doc references still at v1.6.36 while the release tag had moved to v1.6.37: `docs/devpost-submission.md` Project Provenance line ("through v1.6.36") and What's Next line ("Shipped now (v1.6.36)"), and `docs/demo-recording-checklist.md` cheat-sheet ("Version: v1.6.36"). All three lifted to v1.6.37. Historical version references (CHANGELOG entries, recording notes versioned to the release they describe, README "test-count drift fix (v1.6.18) was found this way", the sample output's `rmcp v1.5.0`, the "initial v1.4.0" first-commit line, CONTRIBUTING's `1.6.15 -> 1.6.16` semver example, and the `@1.2.3` package-version examples) are intentionally left as-is — they record version-history facts, not the current release.
+
+### Audited (no change needed)
+
+- **SKILL.md "E003 - Rug-Pull Detection" section vs `doctor.py` `check_baseline()`.** Read SKILL.md's severity table (`tool-description-changed` = high, `new-tool-since-baseline` = medium, `tool-removed-since-baseline` = low) and the "v1.4 additions to the score" line ("Rug-pull (E003 high) caps the score at 50, like other high-severity findings") against the actual `check_baseline()` return values and the `_compute_health_score` cap logic. All three severity labels match, the score-cap logic (`e003_high = sum(1 for i in ... if code == 'E003' and severity == 'high')` then `score = min(score, 50.0)` if any and no critical) correctly excludes the `info` (baseline-missing), `medium` (new-tool), and `low` (removed-tool) variants from the cap, and the SKILL.md table's three rows correspond exactly to the three E003 labels the code emits. Supply-chain description ("flags npx/uvx/docker run ... :latest, caret/tilde count as pinned") also matches `check_supply_chain()` behavior. No drift.
+
 ## [1.6.37] - 2026-07-19
 
 ### Fixed

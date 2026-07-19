@@ -58,6 +58,8 @@ MCP servers fail silently. You configure a server in `config.toml`, restart Code
 
 ## What It Does
 
+*Sample output (actual scores, tool counts, and warnings depend on your config):*
+
 ```
 $ python3 scripts/doctor.py
 
@@ -66,7 +68,7 @@ $ python3 scripts/doctor.py
 ================================================================
   Config: /Users/you/.codex/config.toml
 
-  Servers: 3 total  ✅ 0 healthy  ⚠️  2 warnings  ⏸️  1 disabled  🟢 avg score 96.2
+  Servers: 3 total  ✅ 0 healthy  ⚠️  2 warnings  ⏸️  1 disabled  🟢 avg score 98.7
 
   ⚠️  node_repl  🟢 100.0
      transport: stdio  |  3 tools (104ms)
