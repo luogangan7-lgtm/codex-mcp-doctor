@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.35] - 2026-07-19
+## [1.6.36] - 2026-07-19
+
+### Added
+
+- **Screen vs VO cheat sheet appended to `docs/demo-recording-checklist.md`.** A compact per-scene table (command to type / lines that MUST appear on screen / VO keywords that must match) plus a scene-by-scene gotchas list and a "numbers that must match across all surfaces" block (test count, LOC, commits, version, attack-vector classes, E003 tiers, Cyrillic confusables). Designed to be printed or put on a second screen during recording so the recorder can catch screen-vs-VO mismatches at each scene boundary instead of in playback. This is the artifact the v1.6.29 and v1.6.35 voiceover fixes pointed at — without it, the recorder still had to hold the whole cross-reference in their head.
+
+### Fixed
+
+- **Cheat sheet Scene 2 timing claim corrected before release.** First draft said `broken-env` "takes ~2s to crash because Python imports fail slowly" — actual measured time is sub-200ms total for the whole `broken-stdio` run. A recorder reading the old claim would wait for a crash-delay that never comes and stumble over the VO. Corrected to "both servers fail in under a second, the report appears instantly."
+
+
 
 ### Fixed
 
