@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.34] - 2026-07-19
+## [1.6.35] - 2026-07-19
+
+### Fixed
+
+- **README "Selective checks" feature bullet no longer renders as a broken H1 heading + orphan code line.** A v1.4-era edit (commit 2bff714) truncated the single-line list item mid-backtick and pushed the remainder onto two裸 lines, the second of which began with `#` — so GitHub rendered it as an H1 ("Security analysis only (injection, shadowing, hidden Unicode)") sitting in the middle of the Features list, with a half-closed inline-code span and a dangling `python3 ...` line below it. A judge opening the repo's README saw the Features list visibly break at item 7. Rewritten as a proper list item plus a fenced `bash` block showing all three real `--check` modes (connectivity/schema/security), matching the actual `{all,connectivity,schema,security,supply-chain,secrets}` choices the CLI accepts.
+- **Voiceover Scene 3 CLICK command now matches every other doc.** The v1.6.29 narration rewrite corrected the VO wording ("seven classes of attack. Two of them fire here") but left the `[1:15]` `[CLICK]` command as the bare `python3 scripts/doctor.py --config examples/security-issues/config.toml` — missing the `--check secrets --skip-probe` flags every other surface (README, submission Scene 3, demo.sh, demo-transcript.txt, examples/README.md, expected-output.txt) uses. A recorder following the script verbatim would run a live probe against fake hostnames (`api.example.com`) and a nonexistent npm package, so both servers crash (npx 404 + SSL error) and the screen fills with red crash errors that bury the two config-layer findings (`unpinned_package`, `plaintext_secret_header`) the scene is about. The CLICK line now reads `--check secrets --skip-probe`, which surfaces exactly the two warnings the VO names, both servers at 90.0. Added a recording note explaining why the flags are load-bearing so a future edit doesn't strip them.
+
+
 
 ### Fixed
 

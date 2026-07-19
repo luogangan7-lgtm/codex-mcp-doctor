@@ -104,10 +104,19 @@ $ python3 scripts/doctor.py
   - **L3 Root cause**: stderr/HTTP error analysis with concrete fix suggestions + health score.
 - **Automatic triggering** - SKILL.md instructs the model to run diagnostics when MCP tools are missing or failing.
 - **Exit codes that force model response** - exit 1 means issues found, the model must report them.
-- **Selective checks** - `--check connectivity` or `--check schema
+- **Selective checks** - run only the layer you need:
 
-# Security analysis only (injection, shadowing, hidden Unicode)
-python3 scripts/doctor.py --check security` to run only what you need.
+```bash
+# Connectivity + config (L1 + L2) only, no live probes
+python3 scripts/doctor.py --check connectivity --skip-probe
+
+# Schema quality (L2.5) only
+python3 scripts/doctor.py --check schema
+
+# Security analysis only (injection, shadowing, hidden Unicode, homoglyphs, supply-chain, secrets)
+python3 scripts/doctor.py --check security
+```
+
 - **JSON output** for programmatic use.
 
 ## Installation

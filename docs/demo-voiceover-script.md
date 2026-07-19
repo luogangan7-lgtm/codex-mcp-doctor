@@ -68,7 +68,9 @@ breakdown in `docs/devpost-submission.md`.
 
 ## Scene 3 — Security Layer (1:15 – 1:40)
 
-`[1:15]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/security-issues/config.toml`
+`[1:15]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/security-issues/config.toml --check secrets --skip-probe`
+
+> **Why `--check secrets --skip-probe` (not the bare config):** the example servers use fake hostnames (`api.example.com`) and a nonexistent npm package, so a live probe crashes both (npx 404 + SSL error) and the screen fills with red crash errors that bury the two config-layer findings the scene is about. `--check secrets --skip-probe` runs only the static config scan, which is where `unpinned_package` and `plaintext_secret_header` live — both servers score 90.0 with exactly the two warnings the VO names. This matches every other doc (README, submission, demo.sh, demo-transcript.txt, examples/README.md) — the bare `--config` form in the v1.6.29 narration rewrite was a typo that would have broken the recording.
 
 `[1:16]` `[VO]` What about servers that are silently hostile? The security layer catches seven classes of attack. Two of them fire here —
 
