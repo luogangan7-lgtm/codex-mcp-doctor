@@ -887,6 +887,7 @@ class TestBearerTokenResolution(unittest.TestCase):
                 self.assertEqual(captured.get('auth'), 'Bearer tok_from_env')
             finally:
                 server.shutdown()
+                server.server_close()
         finally:
             del os.environ['DOCTOR_TEST_TOKEN']
 
@@ -2671,4 +2672,3 @@ class TestWatchArgparse(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-
