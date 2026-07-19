@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.32] - 2026-07-19
+
+### Fixed
+
+- **CI workflow now uses the same test invocation every doc uses.** `.github/workflows/test.yml` ran the suite via `python3 tests/test_doctor.py` (direct file execution), while every piece of documentation — README, CONTRIBUTING, form-guide, recording-checklist — had been corrected in v1.6.25/v1.6.28/v1.6.31 to use `python3 -m unittest tests.test_doctor`. The direct invocation only works because `tests/test_doctor.py` happens to have an `if __name__ == "__main__": unittest.main()` block; if that block were ever refactored away, CI would silently break while every doc still claimed the module form was the right way to run tests. CI now uses `python3 -m unittest tests.test_doctor`, matching the docs and removing the fragile dependency on the `__main__` block. Verified locally: same 294 tests pass, same exit code 0.
 ## [1.6.31] - 2026-07-19
 
 ### Fixed
