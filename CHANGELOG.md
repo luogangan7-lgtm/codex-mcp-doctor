@@ -7,7 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.36] - 2026-07-19
+## [1.6.37] - 2026-07-19
+
+### Fixed
+
+- **Cross-document version references brought current to v1.6.36.** A repo-wide cross-reference audit (every `.md` scanned for version / test-count / LOC / commit-count / detection-class claims, then compared across files) found three active documents still pointing at older versions while the release had moved to v1.6.36: `docs/devpost-submission.md` said "through v1.6.33" (Project Provenance) and "Shipped now (v1.6.33)" (What's Next) — both lifted in v1.6.34 but not re-lifted after v1.6.35/v1.6.36 shipped; `docs/demo-recording-checklist.md` cheat-sheet said "Version: v1.6.35". A judge reading the submission then clicking through to the releases page would see v1.6.36 at the top and three releases the submission does not acknowledge. All three lifted to v1.6.36. (Historical version references inside CHANGELOG entries are unaffected — those record the state at the time of each release.)
+- **`hooks/hook.sh` duplicate contradictory comment removed.** The file had two near-identical comment blocks describing the `PLUGIN_ROOT` fallback, but they disagreed: the first said it falls back to "the directory containing this script" (i.e. `hooks/` itself), the second said "the plugin root (one level above this script)". The code (`SCRIPT_DIR=$(cd "$(dirname "$0")/.." && pwd)`) goes one level up from `hooks/`, so the second comment was correct and the first was a stale leftover from before v1.6.30's partial fix. A contributor reading the comment block would see two contradictory descriptions of the same fallback. Collapsed to a single correct comment: "fall back to the plugin root (one level above hooks/)".
+
+### Audited (no change needed)
+
+- **examples/ four-way expected-output verification.** Ran each example's documented command and diffed the output (after latency normalization) against its `expected-output.txt`. All four match. `broken-http` carries a trailing explanatory Note about `api-no-auth` probing the real network; this is intentional documentation, not drift.
+- **plugin.json + marketplace.json metadata.** Manifest validates (`scripts/validate-plugin.py` passes). All referenced paths exist: `./skills/` contains `mcp-doctor/SKILL.md`, `./assets/` contains both screenshot PNGs (also mirrored in `docs/` for release uploads). Version `1.6.36` matches `doctor.py --version`.
+- **hooks/hook.sh behavior verified.** With a broken config in `CODEX_HOME`, hook.sh prints the full diagnostic report (loud) and exits 0 (does not block session start). With a healthy config, `--quiet` suppresses output entirely. Matches every doc claim ("silent when healthy, loud when broken").
+
+
 
 ### Added
 

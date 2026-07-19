@@ -172,7 +172,7 @@ any one of them drifts, a cross-reading judge will catch it:
 - **Test count:** 294 (VO says "Two hundred ninety-four")
 - **LOC:** 2,888 doctor + 2,674 tests
 - **Commits in submission window:** 128 (since 2026-07-13)
-- **Version:** v1.6.35 (or whatever the latest release tag is at record time)
+- **Version:** v1.6.36 (or whatever the latest release tag is at record time)
 - **Attack-vector classes:** 7 (E001/E002/W021/W022/E003/supply-chain/secrets)
 - **E003 severity tiers:** 3 (high=changed, medium=new, low=removed)
 - **Cyrillic confusables mapped:** 18

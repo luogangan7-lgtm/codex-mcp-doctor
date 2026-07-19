@@ -5,9 +5,7 @@
 # so the hook never silently fails on an older system Python.
 #
 # Codex injects PLUGIN_ROOT when the plugin is installed. If it's missing
-# (e.g. manual test), fall back to the directory containing this script.
-# Codex injects PLUGIN_ROOT when the plugin is installed. If it's missing
-# (e.g. manual test), fall back to the plugin root (one level above this script).
+# (e.g. manual test), fall back to the plugin root (one level above hooks/).
 
 SCRIPT_DIR=$(cd "$(dirname "$0")/.." && pwd) || exit 0
 ROOT="${PLUGIN_ROOT:-$SCRIPT_DIR}"
