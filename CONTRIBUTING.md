@@ -40,7 +40,7 @@ Convention:
   warning without a fix is a complaint, not a diagnosis.
 - **Test** — add at least one positive and one negative case to
   `tests/test_doctor.py`. The suite is plain `unittest`, no pytest, no
-  fixtures framework. Run with `python3 tests/test_doctor.py`.
+  fixtures framework. Run with `python3 -m unittest tests.test_doctor`.
 - **Example** — if the class is user-visible, add an example config under
   `examples/` with an `expected-output.txt` so CI can regression-check
   the rendered report.
@@ -61,7 +61,7 @@ pattern.
 ## CI gates (all must pass)
 
 ```
-python3 tests/test_doctor.py              # full suite, currently 285 tests
+python3 -m unittest tests.test_doctor   # full suite, currently 294 tests
 python3 scripts/verify-zero-deps.py       # AST scan — no non-stdlib imports
 python3 scripts/doctor.py --config ...    # all 4 examples run without crashing
 bash scripts/demo.sh --no-pause           # end-to-end demo smoke

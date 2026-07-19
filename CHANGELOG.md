@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.31] - 2026-07-19
+
+### Fixed
+
+- **CONTRIBUTING.md no longer instructs the wrong test invocation or a stale count.** Two places in CONTRIBUTING.md still said `python3 tests/test_doctor.py` (the same direct-file invocation root cause fixed in v1.6.25 and v1.6.28) and the CI-gates block claimed "currently 285 tests" (actual: 294). A contributor or curious judge copy-pasting from CONTRIBUTING would hit the same trap. Both corrected to `python3 -m unittest tests.test_doctor` and "currently 294 tests". This is the last file in the repo that still carried the wrong invocation — the codebase is now internally consistent.
+
+### Audited (no change needed)
+
+- **SECURITY.md** — threat model, scope, disclosure policy all accurate; no hardcoded numeric claims to drift.
+- **scripts/refresh-transcript.sh** — path normalization and latency stripping are correct and consistent with demo-transcript.txt's role as a portable preview.
 ## [1.6.30] - 2026-07-19
 
 ### Fixed
