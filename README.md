@@ -12,7 +12,7 @@
 
 ![codex-mcp-doctor cover](docs/devpost-cover.png)
 
-> **Dogfooded end-to-end.** The entire codebase — doctor logic, ~290 tests, hooks, CI, security analyzers, demo, and this README — was written, debugged, and hardened inside **Codex desktop with GPT-5.6**, using Codex's own MCP tooling to build tooling *for* Codex. A shared memory canvas carried state across sessions; every commit had to pass a ~290-test gate before advancing. The zero-dependency constraint is part of the same story: a broken-MCP diagnostic that needs `pip install` would defeat its own purpose.
+> **Dogfooded end-to-end.** The entire codebase — doctor logic, 294 tests, hooks, CI, security analyzers, demo, and this README — was written, debugged, and hardened inside **Codex desktop with GPT-5.6**, using Codex's own MCP tooling to build tooling *for* Codex. A shared memory canvas carried state across sessions; every commit had to pass a 294-test gate before advancing. The zero-dependency constraint is part of the same story: a broken-MCP diagnostic that needs `pip install` would defeat its own purpose.
 
 ## Try it in 5 seconds
 
@@ -211,7 +211,7 @@ For each tool returned, validates:
 ```
 python3 -m unittest tests.test_doctor
 
-~290 tests covering config parsing, config validation, schema validation, health scoring (including unprobed-server scoring), JSON-RPC parsing, SSE parsing, security analysis (prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain, secrets, baseline drift), stdio probe integration (mock server), HTTP probe integration (mock server), and the full diagnose flow.
+294 tests covering config parsing, config validation, schema validation, health scoring (including unprobed-server scoring), JSON-RPC parsing, SSE parsing, security analysis (prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain, secrets, baseline drift), stdio probe integration (mock server), HTTP probe integration (mock server), and the full diagnose flow.
 
 ## How Codex Contributed
 
@@ -367,7 +367,7 @@ cd codex-mcp-doctor
 ./scripts/demo.sh
 #    (or read docs/demo-transcript.txt to see the output without running it)
 
-# 1. Run the test suite (~290 tests, ~1 second)
+# 1. Run the test suite (294 tests, ~1 second)
 python3 -m unittest tests.test_doctor
 
 # 2. Run against the example broken configs

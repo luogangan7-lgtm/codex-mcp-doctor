@@ -102,6 +102,8 @@ breakdown in `docs/devpost-submission.md`.
 
 `[2:23]` `[VO]` Three E003 tiers fire at once: high for a tampered description, medium for a tool that appeared since baseline, low for one that vanished. The doctor names the exact tool, the exact change, and what to do. First CLI implementation of tool-description pinning.
 
+> **Recording note (v1.6.34) — screen shows four findings, not three.** The W022 homoglyph warning from Scene 3b still fires because the config is unchanged, so judges see one W022 high row above the three E003 rows. The VO wording is already correct ("three E003 tiers", not "three findings") so the on-screen W022 is covered — but be ready to improvise "the homoglyph from the last scene still lights up at the top" if you need a beat while the report renders.
+
 `[2:42]` `[VO]` The server you trusted on Monday is not the server you're running on Friday.
 
 ---

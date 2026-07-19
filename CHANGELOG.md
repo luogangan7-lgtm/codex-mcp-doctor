@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.33] - 2026-07-19
+## [1.6.34] - 2026-07-19
+
+### Fixed
+
+- **Submission and README test counts no longer say "~290" while the judging-criteria block says 294.** Four places in `docs/devpost-submission.md` and four in `README.md` still used the `~290` approximation after the suite grew to 294. A judge reading top-to-bottom would see "294 tests" in the metrics block and "~290 tests" three paragraphs earlier and wonder which was right. All eight unified to the exact `294` (matching what `python3 -m unittest tests.test_doctor` prints). LOC claims in the same paragraph were also upgraded from `~2,900 / ~2,600` approximations to the exact `2,888 / 2,674` reported by `wc -l`.
+- **Submission version anchors updated past v1.6.23.** The Project Provenance paragraph and the "Shipped now" line in What's Next still cited v1.6.23 (the last release before the v1.6.24–v1.6.33 audit round), so a judge clicking through to the release page would land on v1.6.33 and see ten releases the submission does not acknowledge. Both lifted to v1.6.33.
+- **Submission commit count corrected from 118 to 128.** The provenance block claimed "Total commits during window: 118"; `git rev-list --count --since=2026-07-13 HEAD` now returns 128. Ten commits of audit fixes had landed without the count being bumped.
+- **Voiceover Scene 4 recording note now warns that the screen shows four findings, not three.** The VO correctly says "three E003 tiers" (which is accurate — there are three E003 rows), but a recorder eyeballing the screen during the rug-pull demo sees four rows total because the W022 homoglyph warning from Scene 3b still fires on the same config. The old note did not mention this; a recorder could panic and think the demo was broken, or ad-lib "three findings" and create a screen-vs-VO mismatch. New note explains the fourth row, confirms the VO wording is already correct, and offers a ready-to-use improv line ("the homoglyph from the last scene still lights up at the top") for the report-render beat.
+
+
 
 ### Fixed
 
