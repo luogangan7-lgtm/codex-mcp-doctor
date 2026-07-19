@@ -3,8 +3,8 @@
 
 Produces codex-mcp-doctor-<version>-standalone.zip containing:
   doctor.py               - the single-file diagnostic tool
-  examples/               - 4 example configs (broken-stdio, security-issues,
-                            homoglyph-attack, healthy-server)
+  examples/               - 4 example configs (broken-stdio, broken-http,
+                            security-issues, homoglyph-attack)
   QUICKSTART.md           - one-page getting-started
 
 Judges can download this zip, unzip, and run:

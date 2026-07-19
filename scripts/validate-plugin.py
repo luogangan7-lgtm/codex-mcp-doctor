@@ -4,7 +4,7 @@
 CI gate for the plugin manifest. Runs on every push alongside the
 zero-dependency AST scan. Fails CI if:
   - plugin.json is missing or not valid JSON
-  - required keys are absent (id, name, version, description)
+  - required keys are absent (name, version, description)
   - version is not a semver string
 
 This catches a broken manifest before it reaches a judge who tries to

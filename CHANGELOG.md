@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.33] - 2026-07-19
+
+### Fixed
+
+- **validate-plugin.py docstring no longer claims `id` is a required key.** The docstring said the validator fails when "required keys are absent (id, name, version, description)", but the actual `REQUIRED_KEYS = [name, version, description]` does not include `id` — and the inline comment explicitly documents that Codex plugins do NOT require an id field (verified against the official notion/github/latex/sites plugins in v1.6.21). This is a v1.6.21-era docstring that was missed when the id requirement was correctly dropped. A reader auditing the CI gate would conclude the validator checks something it does not.
+- **build-release-zip.py docstring listed the wrong example folders.** Claimed the zip contains "4 example configs (broken-stdio, security-issues, homoglyph-attack, healthy-server)" but `healthy-server` does not exist and `broken-http` (which does) was omitted. The actual four are `broken-stdio`, `broken-http`, `security-issues`, `homoglyph-attack`. The packaging code was correct; only the docstring was stale. A contributor reading the docstring before checking the directory would be confused.
 ## [1.6.32] - 2026-07-19
 
 ### Fixed
