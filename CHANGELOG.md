@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.30] - 2026-07-19
+
+### Fixed
+
+- **Example expected-output files now match what the doctor actually prints.** Running each example command and diffing against its `expected-output.txt` surfaced three classes of drift that a judge running the README's "Try it in 5 seconds" hook would catch immediately:
+  - **Latency values were stripped instead of placeheld.** `broken-http/expected-output.txt` stripped all `(Xms)` latency values entirely, while the real output shows them. `broken-stdio` and `homoglyph-attack` simply omitted the latency on lines where the real run includes one. Per the convention documented in `examples/README.md` ("Values marked `<latency>` vary by machine"), all latency-bearing tool-count lines now read `0 tools (<latency>)` / `2 tools (<latency>)`, so a judge can match the structure without being fooled by a non-deterministic number.
+  - **homoglyph-attack expected-output had the wrong indentation throughout.** Every line under the server header was indented 2 spaces, but the doctor prints them at 5-space (server-block) indentation. A character-level diff failed on every line. Regenerated from a real run.
+  - **broken-http trailing note rewritten.** The old note said latency values are "stripped here"; the new note explains they are shown as `(<latency>)` placeholders because they vary by run and machine.
+- **hook.sh comment corrected.** The comment said PLUGIN_ROOT "falls back to the directory containing this script"; it actually falls back to the plugin root (one level above the script, via the `cd $(dirname $0)/..` in SCRIPT_DIR). One-line comment fix, no behavior change.
 ## [1.6.29] - 2026-07-19
 
 ### Fixed

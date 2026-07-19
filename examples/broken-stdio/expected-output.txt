@@ -14,7 +14,7 @@ $ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
      ℹ️  [probe_skipped] Skipping connectivity probe due to config errors above.
 
   ❌ broken-env  🔴 0.0
-     transport: stdio  |  0 tools
+     transport: stdio  |  0 tools (<latency>)
      ❌ [process_crashed] Server process exited with code 1.
         → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
         stderr: python3: No module named my_missing_mcp_server

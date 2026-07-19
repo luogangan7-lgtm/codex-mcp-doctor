@@ -6,6 +6,8 @@
 #
 # Codex injects PLUGIN_ROOT when the plugin is installed. If it's missing
 # (e.g. manual test), fall back to the directory containing this script.
+# Codex injects PLUGIN_ROOT when the plugin is installed. If it's missing
+# (e.g. manual test), fall back to the plugin root (one level above this script).
 
 SCRIPT_DIR=$(cd "$(dirname "$0")/.." && pwd) || exit 0
 ROOT="${PLUGIN_ROOT:-$SCRIPT_DIR}"

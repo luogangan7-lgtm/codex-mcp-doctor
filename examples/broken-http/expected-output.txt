@@ -8,17 +8,17 @@ $ python3 scripts/doctor.py --config examples/broken-http/config.toml
   Servers: 3 total  ✅ 0 healthy  ❌ 3 errors  🔴 avg score 0.0
 
   ❌ wrong-port  🔴 0.0
-     transport: http  |  0 tools
+     transport: http  |  0 tools (<latency>)
      ❌ [connection_refused] Connection refused to 127.0.0.1:1.
         → fix: The server is not running or not listening on that port. Verify the URL or start the server.
 
   ❌ https-dead-port  🔴 0.0
-     transport: http  |  0 tools
+     transport: http  |  0 tools (<latency>)
      ❌ [connection_refused] Connection refused to 127.0.0.1:1.
         → fix: The server is not running or not listening on that port. Verify the URL or start the server.
 
   ❌ api-no-auth  🔴 0.0
-     transport: http  |  0 tools
+     transport: http  |  0 tools (<latency>)
      ⚠️  [missing_auth_header] HTTP server URL looks like an API endpoint but no Authorization header or bearer_token is set.
         → fix: Add [mcp_servers.api-no-auth.http_headers] with Authorization header, or use bearer_token or bearer_token_env_var.
      ❌ [http_error] HTTP 404: Not Found
@@ -33,5 +33,5 @@ Note: the api-no-auth server probes api.openai.com over the real
 network, so its exact error (http_error 404, connection_refused,
 or ssl_error) depends on your environment. The first two servers
 (wrong-port, https-dead-port) hit 127.0.0.1:1 which is guaranteed
-to refuse connections on any OS. Latency values (shown in
-parentheses) vary by run and are stripped here.
+to refuse connections on any OS. Latency values are shown as
+(<latency>) because they vary by run and machine.
