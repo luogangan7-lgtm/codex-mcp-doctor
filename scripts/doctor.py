@@ -560,7 +560,7 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
             })
 
         if not probe.tools and proc.returncode != 0:
-            stderr_text = stderr_data.decode(errors="replace").strip()
+            stderr_text = _normalize_stderr(stderr_data.decode(errors="replace").strip())
             issues.append({
                 "severity": "error",
                 "code": "process_crashed",
@@ -569,7 +569,7 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
                 "fix": _guess_fix_from_stderr(stderr_text),
             })
         elif not probe.tools and not probe.resources and not probe.prompts:
-            stderr_text = stderr_data.decode(errors="replace").strip()
+            stderr_text = _normalize_stderr(stderr_data.decode(errors="replace").strip())
             issues.append({
                 "severity": "warning",
                 "code": "no_content_returned",
@@ -578,7 +578,7 @@ def probe_stdio(cfg: dict, timeout: float = 10.0) -> tuple[ProbeResult, list[dic
                 "fix": "The server may be misconfigured internally. Check its logs.",
             })
         elif not probe.tools:
-            stderr_text = stderr_data.decode(errors="replace").strip()
+            stderr_text = _normalize_stderr(stderr_data.decode(errors="replace").strip())
             issues.append({
                 "severity": "info",
                 "code": "resources_only",
@@ -965,6 +965,26 @@ def _extract_items_from_rpc(resp: dict, key: str) -> list[dict]:
     if not isinstance(items, list):
         return []
     return [i for i in items if isinstance(i, dict)]
+
+
+def _normalize_stderr(stderr: str) -> str:
+    """Strip machine-specific interpreter paths from captured stderr.
+
+    Python writes its absolute interpreter path into ModuleNotFoundError /
+    SyntaxError tracebacks (e.g. '/opt/homebrew/opt/python@3.14/bin/python3.14:
+    No module named X'). That path is noise for the user and makes captured
+    stderr non-deterministic across machines. Collapse any leading
+    '/.../python3.x:' prefix to 'python3:' so the useful part of the message
+    survives and the output is reproducible.
+    """
+    if not stderr:
+        return stderr
+    import re as _re
+    return _re.sub(
+        r"/\S*/python3\.\d+(?:\.\d+)?:",
+        "python3:",
+        stderr,
+    )
 
 
 def _guess_fix_from_stderr(stderr: str) -> str:
@@ -2707,7 +2727,7 @@ def main() -> int:
         prog="mcp-doctor",
         description="Diagnose MCP server health for Codex. Zero dependencies.",
     )
-    parser.add_argument("--version", action="version", version="mcp-doctor 1.6.25")
+    parser.add_argument("--version", action="version", version="mcp-doctor 1.6.26")
     parser.add_argument(
         "--config", type=Path, default=None,
         help="Path to config.toml (default: auto-discover CODEX_HOME or ~/.codex/config.toml)",

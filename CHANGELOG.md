@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.26] - 2026-07-19
+
+### Fixed
+
+- **Captured stderr is now machine-path-normalized.** When a stdio server crashes, Python writes its absolute interpreter path into the traceback (e.g. '/opt/homebrew/opt/python@3.14/bin/python3.14: No module named X'). That path is noise for the user and made captured stderr non-deterministic across machines - the same broken-stdio example produced different output on Apple-Silicon-Homebrew vs Linux vs pyenv. Added `_normalize_stderr()` which collapses any leading '/.../python3.x:' prefix to 'python3:', preserving the useful part of the message (the module name, the error class) while making output reproducible. Applied at all three stderr capture sites in doctor.py.
+- **expected-output.txt and demo-transcript.txt now match real demo output character-for-character on the stderr line.** Previously expected-output.txt hardcoded '/opt/homebrew/opt/python@3.14/bin/python3.14' (a dev-machine path), so any judge comparing their own run to the expected file would see a diff on that line and suspect a bug. Regenerated both files from a fresh demo run with normalization in place.
+- Verified the standalone QUICKSTART.md (the only doc inside the release zip) by extracting the zip to a clean temp dir and running all three commands it teaches - all produce the promised output.
+
 ## [1.6.25] - 2026-07-19
 
 ### Fixed

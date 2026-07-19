@@ -17,7 +17,7 @@ $ python3 scripts/doctor.py --config examples/broken-stdio/config.toml
      transport: stdio  |  0 tools
      ❌ [process_crashed] Server process exited with code 1.
         → fix: A Python dependency is missing. Reinstall the MCP server in its virtualenv.
-        stderr: /opt/homebrew/opt/python@3.14/bin/python3.14: No module named my_missing_mcp_server
+        stderr: python3: No module named my_missing_mcp_server
 
 ================================================================
   RESULT: 2 error(s), 0 warning(s) - issues found.
