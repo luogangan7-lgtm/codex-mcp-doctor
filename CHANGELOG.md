@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.24] - 2026-07-19
+
+### Fixed
+
+- **Submission provenance block updated for accuracy and leak safety.** The "Project Provenance (Submission Period Compliance)" section cited the first commit by its raw hash (48f751c) - the same commit that triggered a GitGuardian secret incident. A judge clicking through could land on the leaked-token diff. Replaced the hash with a date + "Build Week Day 1 of coding" framing. Also bumped three stale facts: "100+ commits" to the actual 118, "through v1.6.21" to v1.6.23, and added /releases as a second evidence link. Separately, "Shipped now (v1.6.21)" in the roadmap section was bumped to v1.6.23. Verified against live Devpost rules: tracks (Developer Tools confirmed), 3-minute video, /feedback Session ID, July 21 5PM PT deadline, and the Dev Tools-specific rule requiring install instructions + supported platforms + judge test path - all already covered in the submission.
+
 ## [1.6.23] - 2026-07-19
 
 ### Fixed
