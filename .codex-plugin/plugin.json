@@ -1,6 +1,6 @@
 {
   "name": "codex-mcp-doctor",
-  "version": "1.6.39",
+  "version": "1.6.40",
   "description": "Diagnose MCP server connectivity, configuration correctness, runtime health, tool schema quality, security risks (prompt injection, tool shadowing, hidden Unicode), supply-chain version pinning, plaintext secrets, latency thresholds, and rug-pull detection (tool-description baseline). Zero external dependencies - pure Python 3.11+ stdlib.",
   "author": {
     "name": "Luolimo",

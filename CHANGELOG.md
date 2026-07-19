@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.40] - 2026-07-19
+
+### Added
+
+- **`scripts/check-metrics.py` - automated hard-metric audit.** Scans every `.md` (excluding CHANGELOG history) for LOC claims (comma-formatted `X,XXX`) and test-count claims (`NNN tests` / `NNN passing`), then compares them against ground truth (`wc -l scripts/doctor.py`, `find tests -name '*.py' | wc -l`, `python3 -m unittest tests.test_doctor | grep Ran`). Conservative-bounded forms like `2,800+ lines` pass as long as ground truth is above the cited floor. Exit 1 on mismatch, exit 0 clean. Reverse-tested by injecting a stale tests-LOC (2674) and a stale test-count (285) and confirming the script catches both. Zero dependencies, pure stdlib.
+- **CI `doc-integrity` job.** `.github/workflows/test.yml` now runs `check-stale-refs.py` + `check-metrics.py` as a separate single-Python-version job on every push/PR. Catches two drift classes in CI that previously required a human to remember: (1) release lifts doctor.py version but docs still point at the previous tag, (2) tests are added but the LOC/test-count claims in submission.md / README stay stale. Both scripts are pure stdlib and work on the same ubuntu-latest runner.
+- **`docs/demo-recording-checklist.md` sanity checks expanded 4 -> 6.** Added check #5 (run `check-metrics.py` - doc LOC/test-count matches ground truth) and check #6 (run `check-stale-refs.py` - doc version refs match current release). A recorder running the pre-flight now catches metric drift before hitting record, not after.
+
+### Fixed
+
+- **Tests LOC claims lifted 2,674 -> 2,776 across four documents.** The hard-metric audit (first run of `check-metrics.py`) caught that `devpost-submission.md` (3 places: Project Provenance, Key Metrics table, Technical Stack) and `demo-recording-checklist.md` cheat-sheet all cited `2,674 lines of tests` while the actual `tests/` directory had grown to `2,776` lines. A judge running `find tests -name '*.py' | xargs wc -l` on the repo would see 2,776, not 2,674. Root cause: the LOC was written during an earlier release and never lifted as tests accumulated. All four lifted to 2,776.
+
+### Audited (no change needed)
+
+- **`doctor.py` LOC 2,888 and test count 294 are accurate** across all active docs. `wc -l scripts/doctor.py` = 2888, `python3 -m unittest tests.test_doctor` = Ran 294 tests. No drift.
+
 ## [1.6.39] - 2026-07-19
 
 ### Added

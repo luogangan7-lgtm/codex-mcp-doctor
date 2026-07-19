@@ -49,9 +49,17 @@ python3 --version
 # Expect: Python 3.11 or higher. If your default `python3` is older
 #         (e.g. macOS system python3 is 3.9), use python3.11 / python3.12
 #         explicitly, or install via homebrew/pyenv.
+
+# 5. Doc metrics match ground truth (LOC, test count)
+python3 scripts/check-metrics.py
+# Expect: "OK: every numeric metric in active docs matches ground truth"
+
+# 6. No stale version refs in docs
+python3 scripts/check-stale-refs.py
+# Expect: "OK: every current-release version ref in active docs == v..."
 ```
 
-If any of the four fails, **stop and fix before recording.** A take that
+If any of the six fails, **stop and fix before recording.** A take that
 crashes halfway is worse than no take.
 
 ## Scene 2.5 Prep (the one that will bite you)
@@ -170,9 +178,9 @@ These appear in the VO, the submission, the README, and the checklist. If
 any one of them drifts, a cross-reading judge will catch it:
 
 - **Test count:** 294 (VO says "Two hundred ninety-four")
-- **LOC:** 2,888 doctor + 2,674 tests
+- **LOC:** 2,888 doctor + 2,776 tests
 - **Commits in submission window:** 128 (since 2026-07-13)
-- **Version:** v1.6.39 (or whatever the latest release tag is at record time)
+- **Version:** v1.6.40 (or whatever the latest release tag is at record time)
 - **Attack-vector classes:** 7 (E001/E002/W021/W022/E003/supply-chain/secrets)
 - **E003 severity tiers:** 3 (high=changed, medium=new, low=removed)
 - **Cyrillic confusables mapped:** 18

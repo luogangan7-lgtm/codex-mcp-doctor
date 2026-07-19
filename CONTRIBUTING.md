@@ -65,6 +65,11 @@ python3 -m unittest tests.test_doctor   # full suite, currently 294 tests
 python3 scripts/verify-zero-deps.py       # AST scan — no non-stdlib imports
 python3 scripts/doctor.py --config ...    # all 4 examples run without crashing
 bash scripts/demo.sh --no-pause           # end-to-end demo smoke
+
+# Doc integrity (run before tagging; these catch the drift classes that
+# hand-edits historically missed):
+python3 scripts/check-stale-refs.py       # version refs match current release
+python3 scripts/check-metrics.py          # LOC + test-count claims match wc/unittest
 ```
 
 CI runs these on Python 3.11, 3.12, 3.13, and 3.14. A change that passes

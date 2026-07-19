@@ -49,3 +49,29 @@ jobs:
           # keeps it non-interactive; non-zero exits from broken-server
           # scenes are absorbed by the script so the whole run exits 0.
           bash scripts/demo.sh --no-pause
+
+  doc-integrity:
+    # Single-version job: doc checks don't vary across Python versions,
+    # and check-metrics shells out to unittest so it needs the repo set up.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Verify doc version refs match current release
+        run: |
+          # Flags any "Shipped now (vX.Y.Z)" / "through vX.Y.Z" / "Version:
+          # vX.Y.Z" in active docs that disagrees with doctor.py's baked-in
+          # version. Catches the drift class where a release lifts doctor.py
+          # and plugin.json but the human-written docs still point at the
+          # previous tag.
+          python3 scripts/check-stale-refs.py
+      - name: Verify doc metrics (LOC, test count) match ground truth
+        run: |
+          # Flags any "X,YYY lines" / "NNN tests" claim in active docs
+          # that disagrees with `wc -l` and `python3 -m unittest`. Catches
+          # the drift class where tests are added but the LOC/count in
+          # submission.md / README stays stale.
+          python3 scripts/check-metrics.py

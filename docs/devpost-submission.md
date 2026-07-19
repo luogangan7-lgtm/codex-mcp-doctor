@@ -48,7 +48,7 @@ Worse, MCP servers can be **silently hostile**: a tool description containing `<
 
 ### How We Built It
 
-Built entirely inside **Codex desktop with GPT-5.6** as the development environment — not just "used Codex to write some code," but dogfooded Codex end-to-end to build tooling *for* Codex. The entire codebase (2,888 lines of doctor logic, 2,674 lines of tests, hooks, CI, examples, docs) was written, debugged, and hardened through **agent-driven iterative development**: each session picked up state from a shared memory canvas, ran a verification gate (294 tests + plugin validator + demo smoke), and only advanced when green.
+Built entirely inside **Codex desktop with GPT-5.6** as the development environment — not just "used Codex to write some code," but dogfooded Codex end-to-end to build tooling *for* Codex. The entire codebase (2,888 lines of doctor logic, 2,776 lines of tests, hooks, CI, examples, docs) was written, debugged, and hardened through **agent-driven iterative development**: each session picked up state from a shared memory canvas, ran a verification gate (294 tests + plugin validator + demo smoke), and only advanced when green.
 
 The development loop itself uses Codex's native affordances as load-bearing infrastructure, not decoration:
 
@@ -68,7 +68,7 @@ This project is **100% new work created within the Submission Period** (July 13-
 - **First commit:** 2026-07-18 (Build Week Day 1 of coding) - initial v1.4.0
 - **Total commits during window:** 128
 - **Commits before July 13:** 0
-- **Evidence:** the full dated commit history at https://github.com/luogangan7-lgtm/codex-mcp-doctor/commits/main and the release list at https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases show continuous agent-driven development from initial scaffold through v1.6.39, every commit advancing only after a green 294-test gate.
+- **Evidence:** the full dated commit history at https://github.com/luogangan7-lgtm/codex-mcp-doctor/commits/main and the release list at https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases show continuous agent-driven development from initial scaffold through v1.6.40, every commit advancing only after a green 294-test gate.
 
 The dogfooding story is verifiable in the commit log itself: the project uses Codex's own MCP tooling (a shared memory canvas carried state across sessions), and the zero-dependency constraint was enforced via an AST gate that runs on every push.
 ### Design Philosophy
@@ -117,7 +117,7 @@ ready to be called from anywhere MCP is called.
 
 ### What's Next
 
-**Shipped now (v1.6.39):** 7 attack-vector detection classes covering prompt injection (E001), tool shadowing (E002), hidden Unicode (W021), Cyrillic homoglyph (W022), rug-pull baseline drift (E003), supply-chain pinning, and plaintext secrets, plus capability-risk signals for manipulative language, untrusted content, sensitive-data exposure, and destructive operations (W001/W015/W017/W019); connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
+**Shipped now (v1.6.40):** 7 attack-vector detection classes covering prompt injection (E001), tool shadowing (E002), hidden Unicode (W021), Cyrillic homoglyph (W022), rug-pull baseline drift (E003), supply-chain pinning, and plaintext secrets, plus capability-risk signals for manipulative language, untrusted content, sensitive-data exposure, and destructive operations (W001/W015/W017/W019); connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
 
 **Next 30 days:**
 - **Semantic poisoning detection** — the current regex/pattern layer catches known attack shapes (Cyrillic lookalikes, literal injection phrases). The next layer uses embeddings to catch paraphrased injection and subtly manipulative language that passes lexical matching. This is the difference between catching "ignore previous instructions" and catching a description that is 94% normal and 6% adversarial.
@@ -134,7 +134,7 @@ ready to be called from anywhere MCP is called.
 Devpost scores on four equally weighted criteria. Here is where each one is evidenced in this submission.
 
 **Technological Implementation** - How thoroughly and skillfully does the project use Codex?
-- 2,888 lines of original doctor logic + 2,674 lines of tests (294 tests), zero external dependencies (AST-verified in CI)
+- 2,888 lines of original doctor logic + 2,776 lines of tests (294 tests), zero external dependencies (AST-verified in CI)
 - 10 crash-class bug categories covered, including novel detections: W022 Cyrillic homoglyph attack, E003 supply-chain rug-pull with 3 severity tiers, prompt-injection and tool-shadowing analysis
 - Every commit was authored inside Codex desktop with GPT-5.6; state carried across sessions via a shared MCP-backed memory canvas; each commit had to pass a 294-test gate before advancing
 - The project dogfoods Codex's own MCP protocol: it diagnoses stdio/HTTP/SSE MCP servers, the same protocol Codex uses for its tool integrations
@@ -348,7 +348,7 @@ python3 scripts/doctor.py --check-baseline
 | Metric | Value |
 |--------|-------|
 | Lines of code (doctor.py) | 2,888 |
-| Lines of tests | 2,674 |
+| Lines of tests | 2,776 |
 | Test count | 294 |
 | External dependencies | 0 |
 | Time to full diagnostic | < 1s (config-only), < 5s (with probe) |
