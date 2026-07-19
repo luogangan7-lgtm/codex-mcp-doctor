@@ -70,7 +70,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[1:15]` `[CLICK]` Run: `python3 scripts/doctor.py --config examples/security-issues/config.toml`
 
-`[1:16]` `[VO]` What about servers that are silently hostile? The security layer catches seven classes of attack — prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain tampering, plaintext secrets, baseline drift.
+`[1:16]` `[VO]` What about servers that are silently hostile? The security layer catches seven classes of attack. Two of them fire here —
 
 `[1:28]` `[VO]` Here — an unpinned npx package that could be republished with malware, and a hardcoded bearer token sitting in an HTTP header. Both flagged, both with severity, both with a fix.
 
@@ -78,7 +78,7 @@ breakdown in `docs/devpost-submission.md`.
 
 ---
 
-> **Recording note — Scenes 3b and 4 share one terminal segment.** The `homoglyph-attack` example exposes a Cyrillic tool name *and* is the baseline for the rug-pull demo, so demo.sh runs it once and both W022 and E003 light up together. For the video, keep one continuous screen capture for 3b+4 (1:30–2:45) and just shift your narration emphasis; do not re-run the command twice.
+> **Recording note — Scenes 3b and 4 use the same example config but are separate runs.** Scene 3b runs `homoglyph-attack` once and only W022 (the Cyrillic homoglyph) fires. Scene 4 then reuses that same config to demo rug-pull: demo.sh saves a baseline, mutates it (flip one hash, drop one tool, inject a ghost), and re-checks — that third run is what lights up the three E003 tiers. So you WILL see the `homoglyph-attack` command appear twice on screen (once in 3b, once as step 1 of Scene 4). Keep one continuous screen capture across 3b+4 (1:30–2:45); the visible command re-run is intentional and sets up the rug-pull reveal.
 
 ## Scene 3b — Cyrillic Homoglyph Attack (1:40 – 2:05)
 

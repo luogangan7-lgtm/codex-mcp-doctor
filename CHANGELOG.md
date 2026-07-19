@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.29] - 2026-07-19
+
+### Fixed
+
+- **Voiceover Scene 3 no longer overclaims what the screen shows.** The narration said "the security layer catches seven classes of attack — prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain tampering, plaintext secrets, baseline drift" — but the on-screen command (`--check secrets --skip-probe`) only surfaces two of them (unpinned package + plaintext secret). A judge counting alerts on screen would think five were missing. Trimmed to "catches seven classes of attack. Two of them fire here —", which is exactly what the screen then shows. The seven-class capability claim is preserved elsewhere (README, submission metrics).
+- **Voiceover recording note for Scenes 3b+4 corrected.** The note claimed `homoglyph-attack` "runs once and both W022 and E003 light up together". That is factually wrong: the homoglyph run only fires W022; the three E003 tiers require Scene 4's separate save-baseline → mutate → re-check sequence. A recorder following the old note would wait for E003 in Scene 3b and think the demo was broken. Rewritten to describe the actual three-step Scene 4 flow and explicitly call out that the `homoglyph-attack` command intentionally appears twice (once in 3b, once as Scene 4 step 1).
 ## [1.6.28] - 2026-07-19
 
 ### Fixed
