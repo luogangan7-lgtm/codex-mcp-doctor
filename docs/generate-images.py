@@ -16,10 +16,35 @@ tool for generating static assets, not runtime code. Run:
     python3 docs/generate-images.py
 """
 import os
+import re
+import subprocess
+import sys
 from PIL import Image, ImageDraw, ImageFont
 
 DOCS = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = DOCS
+
+
+def _test_count() -> int:
+    """Return the real test count, failing rather than rendering stale data."""
+    repo_root = os.path.dirname(DOCS)
+    result = subprocess.run(
+        [sys.executable, "-m", "unittest", "tests.test_doctor"],
+        capture_output=True,
+        text=True,
+        cwd=repo_root,
+        timeout=60,
+    )
+    output = result.stderr + result.stdout
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Cannot render an accurate test badge: unittest exited "
+            f"{result.returncode}.\n{output[-2000:]}"
+        )
+    match = re.search(r"Ran (\d+) tests", output)
+    if not match:
+        raise RuntimeError("Cannot render an accurate test badge: test count missing.")
+    return int(match.group(1))
 
 MONO = "/System/Library/Fonts/Menlo.ttc"
 SANS = "/System/Library/Fonts/Helvetica.ttc"
@@ -77,7 +102,7 @@ def make_cover():
     badges = [
         ("Codex Plugin", (16, 185, 129)),
         ("Zero Deps", (74, 222, 128)),
-        ("287 Tests", (96, 165, 250)),
+        (f"{_test_count()} Tests", (96, 165, 250)),
     ]
     widths = [text_w(draw, t, tag_f) + 28 for t, _ in badges]
     total_w = sum(widths) + 24 * (len(badges) - 1)
