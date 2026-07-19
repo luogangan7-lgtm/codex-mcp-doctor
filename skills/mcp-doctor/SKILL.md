@@ -19,6 +19,7 @@ Run this skill **without waiting for the user to ask** when any of these happen:
 - **A tool exists but behaves oddly** - schema issues may be the cause (missing descriptions, broken required fields).
 - **A new MCP server or plugin is installed** - scan for prompt injection and tool shadowing before trusting it.
 - **A tool behaves suspiciously** - it might contain hidden Unicode or injection patterns manipulating the model.
+- **A tool name or description looks normal but the model misreads or mistrusts it** - it may contain Cyrillic homoglyphs (Latin-looking Cyrillic letters) that change how the token is parsed. Run a full security check to catch W022.
 - **A tool's behavior changes subtly** - re-run `--check-baseline`; its description may have been silently mutated (rug-pull).
 - **Config contains tokens or API keys** - run `--check secrets` to flag plaintext secrets that should be in environment variables.
 - **A server uses `npx`/`uvx`/`docker run`** - run `--check supply-chain` to flag unpinned package versions and untagged docker images.
@@ -200,6 +201,7 @@ server's tool description contains hidden instructions that hijack the model.
 | **E002** | high | **Cross-server tool shadowing** - a tool description references a tool name from a *different* server, potentially overriding legitimate tools |
 | **W001** | low/medium | **Manipulative language** - two-tier: high-confidence verbs (crucial, immediately, override, bypass, secretly) trigger on their own; common words (must, always, never, important) only trigger when >=3 appear clustered. Designed to minimize false positives on legitimate technical descriptions. |
 | **W021** | medium/high | **Hidden Unicode** - zero-width spaces (U+200B), bidirectional overrides (U+202E), private-use chars, and Unicode Tag sequences (U+E0000–U+E007F) that encode invisible messages |
+| **W022** | high | **Cyrillic homoglyph** - mixed Latin/Cyrillic script in the same word, where Cyrillic letters are visual confusables of Latin equivalents (e.g. Cyrillic 'e' inside 'filesystem'). Normalizes to the ASCII form and flags the swap. Unique to codex-mcp-doctor - no other MCP scanner detects this attack surface. |
 | **W015** | low | **Untrusted content** - tools that fetch/parse web content (prompt-injection entry point) |
 | **W017** | low/medium | **Sensitive data exposure** - tools accessing credentials, tokens, financial data |
 | **W019** | low/medium | **Destructive capabilities** - tools with delete/exec/destroy/rm operations |

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.23] - 2026-07-19
+
+### Fixed
+
+- **SKILL.md security table now includes W022 (Cyrillic homoglyph).** The table listed E001/E002/W001/W021/W015/W017/W019 but omitted W022, while the frontmatter description, README, Devpost submission, voiceover, and cover image all treat W022 as the headline differentiator. A judge who installed the plugin and read SKILL.md would see seven codes but no W022, then see W022 everywhere else - a documentation-vs-documentation inconsistency in the same family as the v1.6.20 voiceover/output drift. Added the W022 row (high severity, cyrillic-homoglyph label, normalize-to-ASCII fix) to the security table and a dedicated trigger condition to the "When to Run" list.
+
 ## [1.6.22] - 2026-07-19
 
 ### Fixed
