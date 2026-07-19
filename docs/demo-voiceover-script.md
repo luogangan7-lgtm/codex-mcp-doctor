@@ -54,7 +54,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[0:55]` `[CLICK]` **Prep BEFORE recording:** open a second Codex desktop window with this repo loaded, and a terminal panel showing `git log --oneline -10` (so the commit history is visible). Have one prompt typed but not sent: `diagnose this repo's own MCP setup`. Do NOT show anything with real secrets.
 
-`[0:56]` `[VO]` Nearly three thousand lines of logic. Two hundred eighty-seven tests. Every security analyzer.
+`[0:56]` `[VO]` Nearly three thousand lines of logic. Two hundred ninety-four tests. Every security analyzer.
 
 `[1:02]` `[VO]` Written, debugged, and hardened through Codex with GPT-5.6.
 
@@ -114,7 +114,7 @@ breakdown in `docs/devpost-submission.md`.
 
 `[2:50]` `[VO]` The SessionStart hook fires every session — silent when healthy, loud when broken. Watch mode extends that into continuous runtime monitoring.
 
-`[2:55]` `[VO]` Two hundred eighty-seven tests. Zero dependencies. Built entirely inside Codex with GPT-5.6 — the MCP doctor Codex should ship with.
+`[2:55]` `[VO]` Two hundred ninety-four tests. Zero dependencies. Built entirely inside Codex with GPT-5.6 — the MCP doctor Codex should ship with.
 
 `[3:00]` `[END CARD]` GitHub URL on screen for 2s. Stop recording.
 

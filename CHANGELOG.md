@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.27] - 2026-07-19
+
+### Added
+
+- **TestNormalizeStderr: 7 new tests covering _normalize_stderr (introduced in v1.6.26).** The v1.6.26 root-cause fix added _normalize_stderr to collapse machine-specific interpreter paths in captured stderr, but shipped without dedicated tests - the function was only exercised indirectly through the broken-stdio demo. These 7 tests cover the three real-world path shapes (Homebrew Apple-Silicon, Linux /usr/bin, pyenv), the empty-string and None defensive paths, a no-python-path passthrough, and a multiline stderr case to confirm only the interpreter prefix is collapsed. Test count: 287 -> 294.
+
+### Fixed
+
+- **Test-count drift同步: 287 -> 294 across all judge-facing docs.** The v1.6.18 anti-drift convention (use ~290 as an approximation in prose, exact numbers only where a count is the point) held - the ~290 references in README and submission needed no change. But the exact '287' in devpost-submission (5 places: metrics block, dogfooding narrative, checklist, tech-stack table, metrics table), devpost-form-guide (2 places), demo-recording-checklist, and the voiceover script (English words 'Two hundred eighty-seven' in Scene 2.5 and Scene 5) all updated to 294. demo.sh needs no change - it uses dynamic AST count (v1.6.21+ anti-drift mechanism). demo-transcript.txt regenerated from a fresh run, now shows '294 tests'.
+
 ## [1.6.26] - 2026-07-19
 
 ### Fixed

@@ -792,6 +792,51 @@ class TestGuessFixFromStderr(unittest.TestCase):
         self.assertTrue(len(fix) > 10)
 
 
+class TestNormalizeStderr(unittest.TestCase):
+    """_normalize_stderr collapses machine-specific interpreter paths so
+    captured stderr is deterministic across macOS/Linux/pyenv setups."""
+
+    def test_homebrew_apple_silicon_path_collapsed(self):
+        stderr = "/opt/homebrew/opt/python@3.14/bin/python3.14: No module named my_missing_mcp_server"
+        self.assertEqual(
+            doctor._normalize_stderr(stderr),
+            "python3: No module named my_missing_mcp_server",
+        )
+
+    def test_linux_usr_bin_path_collapsed(self):
+        stderr = "/usr/bin/python3.12: No module named fastmcp"
+        self.assertEqual(
+            doctor._normalize_stderr(stderr),
+            "python3: No module named fastmcp",
+        )
+
+    def test_pyenv_path_collapsed(self):
+        stderr = "/home/user/.pyenv/versions/3.13.0/bin/python3.13: No module named x"
+        self.assertEqual(
+            doctor._normalize_stderr(stderr),
+            "python3: No module named x",
+        )
+
+    def test_empty_stderr_returns_empty(self):
+        self.assertEqual(doctor._normalize_stderr(""), "")
+
+    def test_none_stderr_returns_none(self):
+        # Defensive: callers may pass None if a probe produced no stderr.
+        self.assertIsNone(doctor._normalize_stderr(None))
+
+    def test_stderr_without_python_path_unchanged(self):
+        stderr = "psycopg2.OperationalError: connection refused"
+        self.assertEqual(doctor._normalize_stderr(stderr), stderr)
+
+    def test_multiline_stderr_only_python_prefix_collapsed(self):
+        # Path on first line should collapse; subsequent content untouched.
+        stderr = "/opt/homebrew/bin/python3.14: No module named x\nTraceback (most recent call last):\n  File \"server.py\", line 1"
+        out = doctor._normalize_stderr(stderr)
+        self.assertTrue(out.startswith("python3: No module named x"))
+        self.assertIn("Traceback", out)
+        self.assertIn("server.py", out)
+
+
 class TestBearerTokenResolution(unittest.TestCase):
     """bearer_token / bearer_token_env_var should authenticate the HTTP probe."""
 

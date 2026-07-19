@@ -134,9 +134,9 @@ ready to be called from anywhere MCP is called.
 Devpost scores on four equally weighted criteria. Here is where each one is evidenced in this submission.
 
 **Technological Implementation** - How thoroughly and skillfully does the project use Codex?
-- 2,868 lines of original doctor logic + 2,629 lines of tests (287 tests), zero external dependencies (AST-verified in CI)
+- 2,868 lines of original doctor logic + 2,674 lines of tests (294 tests), zero external dependencies (AST-verified in CI)
 - 10 crash-class bug categories covered, including novel detections: W022 Cyrillic homoglyph attack, E003 supply-chain rug-pull with 3 severity tiers, prompt-injection and tool-shadowing analysis
-- Every commit was authored inside Codex desktop with GPT-5.6; state carried across sessions via a shared MCP-backed memory canvas; each commit had to pass a 287-test gate before advancing
+- Every commit was authored inside Codex desktop with GPT-5.6; state carried across sessions via a shared MCP-backed memory canvas; each commit had to pass a 294-test gate before advancing
 - The project dogfoods Codex's own MCP protocol: it diagnoses stdio/HTTP/SSE MCP servers, the same protocol Codex uses for its tool integrations
 
 **Design** - A complete, coherent product experience, not just a technical proof of concept?
@@ -322,7 +322,7 @@ python3 scripts/doctor.py --check-baseline
 ## Submission Checklist
 
 - [x] Public repo: https://github.com/luogangan7-lgtm/codex-mcp-doctor
-- [x] Working code with 287 passing tests
+- [x] Working code with 294 passing tests
 - [x] CI green (GitHub Actions, Python 3.11-3.14)
 - [x] Zero external dependencies (AST-verified in CI via `scripts/verify-zero-deps.py`)
 - [x] Plugin manifest passes Codex validator (`.codex-plugin/plugin.json`)
@@ -338,7 +338,7 @@ python3 scripts/doctor.py --check-baseline
 
 - **Language:** Python 3.11+ (stdlib only: tomllib, subprocess, urllib, socket, hashlib, json, re, argparse)
 - **Framework:** None — single-file CLI script
-- **Testing:** unittest (stdlib), 287 tests
+- **Testing:** unittest (stdlib), 294 tests
 - **CI:** GitHub Actions (Python 3.11, 3.12, 3.13, 3.14)
 - **Dependencies:** literally zero — verified via AST scan
 - **Platform:** macOS, Linux, Windows (any OS with Python 3.11+)
@@ -349,7 +349,7 @@ python3 scripts/doctor.py --check-baseline
 |--------|-------|
 | Lines of code (doctor.py) | 2,868 |
 | Lines of tests | 2,629 |
-| Test count | 287 |
+| Test count | 294 |
 | External dependencies | 0 |
 | Time to full diagnostic | < 1s (config-only), < 5s (with probe) |
 | Security check types | 7 (prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain, plaintext secrets, baseline drift) |

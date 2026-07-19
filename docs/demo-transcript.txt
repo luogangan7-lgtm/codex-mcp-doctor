@@ -230,6 +230,6 @@ Two layers of protection: SessionStart hook (boot) + --watch (runtime).
 
 ================================================================
   END OF DEMO
-  287 tests · 0 dependencies · pure Python 3.11+ stdlib
+  294 tests · 0 dependencies · pure Python 3.11+ stdlib
   https://github.com/luogangan7-lgtm/codex-mcp-doctor
 ================================================================

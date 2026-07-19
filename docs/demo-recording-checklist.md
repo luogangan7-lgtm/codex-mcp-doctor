@@ -34,7 +34,7 @@ cd codex-mcp-doctor
 # 1. Tests pass (must use -m unittest; running the file directly
 #    invokes the doctor CLI, not the test suite)
 python3 -m unittest tests.test_doctor 2>&1 | tail -3
-# Expect: "Ran 287 tests ... OK"
+# Expect: "Ran 294 tests ... OK"
 
 # 2. Plugin manifest valid
 python3 scripts/validate-plugin.py
