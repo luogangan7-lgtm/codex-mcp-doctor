@@ -31,21 +31,24 @@ saves a re-record.
 ```bash
 cd codex-mcp-doctor
 
-# 1. Tests pass
-python3 tests/test_doctor.py | tail -3
+# 1. Tests pass (must use -m unittest; running the file directly
+#    invokes the doctor CLI, not the test suite)
+python3 -m unittest tests.test_doctor 2>&1 | tail -3
 # Expect: "Ran 287 tests ... OK"
 
 # 2. Plugin manifest valid
-python3 scripts/validate-plugin.py   # repo's own validator
-# Expect: "Plugin validation passed"
+python3 scripts/validate-plugin.py
+# Expect: "OK: ... is a valid plugin manifest (codex-mcp-doctor v...)"
 
 # 3. Demo runs end-to-end without prompts
 ./scripts/demo.sh --no-pause > /dev/null 2>&1; echo "exit=$?"
 # Expect: exit=0
 
-# 4. Python is the right version (system python3 is 3.9, no tomllib)
-which python3 && python3 --version
-# Expect: /opt/homebrew/bin/python3 ... 3.11 or higher
+# 4. Python is the right version (needs 3.11+ for tomllib in stdlib)
+python3 --version
+# Expect: Python 3.11 or higher. If your default `python3` is older
+#         (e.g. macOS system python3 is 3.9), use python3.11 / python3.12
+#         explicitly, or install via homebrew/pyenv.
 ```
 
 If any of the four fails, **stop and fix before recording.** A take that

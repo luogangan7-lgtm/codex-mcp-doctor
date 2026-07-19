@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.25] - 2026-07-19
+
+### Fixed
+
+- **Recording checklist sanity-check #1 ran the wrong command.** The pre-recording checklist told the user to run `python3 tests/test_doctor.py | tail -3` expecting "Ran 287 tests ... OK". But running the test file directly invokes the doctor CLI entry point (its `if __name__ == "__main__"` block), so the actual output is "No servers to check" - not the test result line. A user following the checklist would think the test suite was broken. Switched to `python3 -m unittest tests.test_doctor`, which is the invocation CI and every other doc uses.
+- **Recording checklist leaked the dev machine's Python path.** Sanity-check #4 expected `/opt/homebrew/bin/python3` - a Homebrew-on-Apple-Silicon path that is not true on Linux, Intel Macs, or pyenv setups. Replaced with a version-only check (`python3 --version` expects 3.11+) plus guidance for users whose default python3 is the macOS system 3.9.
+- Also tightened sanity-check #2 expected output to match what `validate-plugin.py` actually prints today.
+
 ## [1.6.24] - 2026-07-19
 
 ### Fixed
