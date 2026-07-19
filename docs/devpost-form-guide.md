@@ -214,7 +214,7 @@ Run this checklist before clicking "Submit":
 cd codex-mcp-doctor
 
 # 1. Tests green (294 tests)
-/opt/homebrew/bin/python3 tests/test_doctor.py
+/opt/homebrew/bin/python3 -m unittest tests.test_doctor
 
 # 2. Plugin manifest valid
 /opt/homebrew/bin/python3 scripts/validate-plugin.py   # repo's own validator, same one CI runs

@@ -134,7 +134,7 @@ ready to be called from anywhere MCP is called.
 Devpost scores on four equally weighted criteria. Here is where each one is evidenced in this submission.
 
 **Technological Implementation** - How thoroughly and skillfully does the project use Codex?
-- 2,868 lines of original doctor logic + 2,674 lines of tests (294 tests), zero external dependencies (AST-verified in CI)
+- 2,888 lines of original doctor logic + 2,674 lines of tests (294 tests), zero external dependencies (AST-verified in CI)
 - 10 crash-class bug categories covered, including novel detections: W022 Cyrillic homoglyph attack, E003 supply-chain rug-pull with 3 severity tiers, prompt-injection and tool-shadowing analysis
 - Every commit was authored inside Codex desktop with GPT-5.6; state carried across sessions via a shared MCP-backed memory canvas; each commit had to pass a 294-test gate before advancing
 - The project dogfoods Codex's own MCP protocol: it diagnoses stdio/HTTP/SSE MCP servers, the same protocol Codex uses for its tool integrations
@@ -227,7 +227,7 @@ Both root-caused in under a second. Red error → exact cause → one-line fix s
 
 **Action:** Switch screen recording to the Codex desktop window.
 
-**Narration:** "Nearly three thousand lines of logic. Two hundred ninety tests. Every security analyzer."
+**Narration:** "Nearly three thousand lines of logic. Two hundred ninety-four tests. Every security analyzer."
 
 **Narration:** "Written, debugged, and hardened through Codex with GPT-5.6."
 
@@ -347,8 +347,8 @@ python3 scripts/doctor.py --check-baseline
 
 | Metric | Value |
 |--------|-------|
-| Lines of code (doctor.py) | 2,868 |
-| Lines of tests | 2,629 |
+| Lines of code (doctor.py) | 2,888 |
+| Lines of tests | 2,674 |
 | Test count | 294 |
 | External dependencies | 0 |
 | Time to full diagnostic | < 1s (config-only), < 5s (with probe) |

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.28] - 2026-07-19
+
+### Fixed
+
+- **Judge-facing docs no longer instruct `python3 tests/test_doctor.py`.** Three places (README Testing section, README judge-verification block, docs/devpost-form-guide.md step 1) told judges to run the test file directly. That invocation only works when the file's `__main__` block happens to call `unittest.main()`; on machines where it doesn't (or for anyone copy-pasting into a different layout) the output is the doctor CLI's `No servers to check`, not the test result line - the exact failure mode v1.6.25 fixed in the recording checklist. All three now use `python3 -m unittest tests.test_doctor`, the invocation CI and every other doc uses.
+- **Stale line-count metrics in devpost-submission.md corrected to ground truth.** The metrics table and tech-stack row reported doctor.py as 2,868 lines and tests as 2,629 lines, but the actual counts (after v1.6.26/v1.6.27) are 2,888 and 2,674. A judge running `wc -l` would see a mismatch. Both updated; the 2,674 figure now matches the tech-stack row that was already correct.
+- **Scene 2.5 narration in devpost-submission.md synced to the voiceover.** The submission doc's Scene 2.5 still read `Two hundred ninety tests` while the voiceover script (the source of truth for what gets spoken) was updated to `Two hundred ninety-four` in v1.6.27. A judge reading the submission alongside the video would catch the drift. Now aligned.
 ## [1.6.27] - 2026-07-19
 
 ### Added

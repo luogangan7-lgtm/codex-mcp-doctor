@@ -208,8 +208,8 @@ For each tool returned, validates:
 ## Testing
 
 ```bash
-python3 tests/test_doctor.py
 ```
+python3 -m unittest tests.test_doctor
 
 ~290 tests covering config parsing, config validation, schema validation, health scoring (including unprobed-server scoring), JSON-RPC parsing, SSE parsing, security analysis (prompt injection, tool shadowing, hidden Unicode, Cyrillic homoglyphs, supply-chain, secrets, baseline drift), stdio probe integration (mock server), HTTP probe integration (mock server), and the full diagnose flow.
 
@@ -368,7 +368,7 @@ cd codex-mcp-doctor
 #    (or read docs/demo-transcript.txt to see the output without running it)
 
 # 1. Run the test suite (~290 tests, ~1 second)
-python3 tests/test_doctor.py
+python3 -m unittest tests.test_doctor
 
 # 2. Run against the example broken configs
 python3 scripts/doctor.py --config examples/broken-stdio/config.toml
