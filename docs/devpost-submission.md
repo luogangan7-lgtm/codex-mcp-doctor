@@ -68,7 +68,7 @@ This project is **100% new work created within the Submission Period** (July 13-
 - **First commit:** 2026-07-18 (Build Week Day 1 of coding) - initial v1.4.0
 - **Total commits during window:** 128
 - **Commits before July 13:** 0
-- **Evidence:** the full dated commit history at https://github.com/luogangan7-lgtm/codex-mcp-doctor/commits/main and the release list at https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases show continuous agent-driven development from initial scaffold through v1.6.37, every commit advancing only after a green 294-test gate.
+- **Evidence:** the full dated commit history at https://github.com/luogangan7-lgtm/codex-mcp-doctor/commits/main and the release list at https://github.com/luogangan7-lgtm/codex-mcp-doctor/releases show continuous agent-driven development from initial scaffold through v1.6.39, every commit advancing only after a green 294-test gate.
 
 The dogfooding story is verifiable in the commit log itself: the project uses Codex's own MCP tooling (a shared memory canvas carried state across sessions), and the zero-dependency constraint was enforced via an AST gate that runs on every push.
 ### Design Philosophy
@@ -117,7 +117,7 @@ ready to be called from anywhere MCP is called.
 
 ### What's Next
 
-**Shipped now (v1.6.37):** 7 attack-vector detection classes covering prompt injection (E001), tool shadowing (E002), hidden Unicode (W021), Cyrillic homoglyph (W022), rug-pull baseline drift (E003), supply-chain pinning, and plaintext secrets, plus capability-risk signals for manipulative language, untrusted content, sensitive-data exposure, and destructive operations (W001/W015/W017/W019); connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
+**Shipped now (v1.6.39):** 7 attack-vector detection classes covering prompt injection (E001), tool shadowing (E002), hidden Unicode (W021), Cyrillic homoglyph (W022), rug-pull baseline drift (E003), supply-chain pinning, and plaintext secrets, plus capability-risk signals for manipulative language, untrusted content, sensitive-data exposure, and destructive operations (W001/W015/W017/W019); connectivity + config + schema validation across all three MCP primitives (tools/resources/prompts), SessionStart hook auto-trigger, `--watch` continuous monitoring, `--debug` probe visibility.
 
 **Next 30 days:**
 - **Semantic poisoning detection** — the current regex/pattern layer catches known attack shapes (Cyrillic lookalikes, literal injection phrases). The next layer uses embeddings to catch paraphrased injection and subtly manipulative language that passes lexical matching. This is the difference between catching "ignore previous instructions" and catching a description that is 94% normal and 6% adversarial.

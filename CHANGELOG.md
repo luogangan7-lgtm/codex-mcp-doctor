@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.39] - 2026-07-19
+
+### Added
+
+- **`scripts/check-stale-refs.py` - automated cross-document version-reference audit.** Scans every `.md` (excluding CHANGELOG history) for version strings that appear in a *current-release context* (lines containing `shipped now`, `through v`, `version:`, `latest release`, `current release`, `now at v`, `as of v`) and flags any that disagree with the version baked into `scripts/doctor.py`. Stale-ref vs historical-ref is the key distinction the manual audits had to make by hand: "the test-count drift fix (v1.6.18) was found this way" is a historical fact and is NOT flagged; "Shipped now (v1.6.37)" while the release is v1.6.39 IS flagged. Exit 1 on stale refs (CI-able), exit 0 clean. Reverse-tested by injecting a stale ref and confirming the script catches it. Zero dependencies, pure stdlib. Intended to run before every tag/push so the v1.6.37-class cross-doc drift cannot recur.
+
+### Fixed
+
+- **Three more current-release version references lifted v1.6.37 -> v1.6.38.** The v1.6.38 release lifted devpost-submission.md and demo-recording-checklist.md from v1.6.36 to v1.6.37, but once v1.6.38 itself shipped, those same three references (Project Provenance "through v1.6.37", What's Next "Shipped now (v1.6.37)", cheat-sheet "Version: v1.6.37") became stale again - they describe the current release, which is now v1.6.38. The new `check-stale-refs.py` caught this on its first run, which is exactly what it was built for. All three lifted to v1.6.38. (The script itself then re-ran clean against v1.6.38.) This is the last hand-lifted batch - future releases run the script first, lift what it flags, then tag.
+
 ## [1.6.38] - 2026-07-19
 
 ### Fixed
